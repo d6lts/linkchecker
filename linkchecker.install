@@ -1,0 +1,309 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Installation file for Link Checker module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function linkchecker_install() {
+  drupal_install_schema('linkchecker');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function linkchecker_uninstall() {
+  drupal_uninstall_schema('linkchecker');
+
+  variable_del('linkchecker_fqdn_only');
+  variable_del('linkchecker_ignore_response_codes');
+  variable_del('linkchecker_check_useragent');
+  variable_del('linkchecker_check_links_max');
+  variable_del('linkchecker_check_links_interval');
+  variable_del('linkchecker_action_status_code_301');
+  variable_del('linkchecker_action_status_code_404');
+  variable_del('linkchecker_cleanup_links_interval');
+  variable_del('linkchecker_cleanup_links_last');
+  variable_del('linkchecker_pathfilter_support');
+  variable_del('linkchecker_scan_nodetypes');
+  variable_del('linkchecker_scan_blocks');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function linkchecker_schema() {
+
+  $schema['linkchecker_links'] = array(
+    'description' => 'Stores all links.',
+    'fields' => array(
+      'lid'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique link ID.',
+      ),
+      'token' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => 'The indexable md5 hash of the {linkchecker_links}.url.',
+      ),
+      'url' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'description' => 'The full qualified link.',
+      ),
+      'method' => array(
+        'type' => 'varchar',
+        'length' => 4,
+        'default' => 'HEAD',
+        'not null' => TRUE,
+        'description' => 'The method for checking links (HEAD, GET, POST).',
+      ),
+      'code' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'HTTP status code from link checking.',
+      ),
+      'error' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'The error message received from the remote server while doing link checking.',
+      ),
+      'fail_count' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Fail count of unsuccessful link checks. No flapping detection. (Successful = 0, Unsuccessful = fail_count+1).',
+      ),
+      'last_checked' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Timestamp of the last link check.',
+      ),
+    ),
+    'primary key' => array('lid'),
+    'unique keys' => array('token' => array('token')),
+  );
+
+  $schema['linkchecker_boxes'] = array(
+    'description' => 'Stores all link references for boxes.',
+    'fields' => array(
+      'bid'  => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {boxes}.bid.',
+      ),
+      'lid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {linkchecker_links}.lid.',
+      ),
+    ),
+    'primary key' => array('bid', 'lid'),
+  );
+
+  $schema['linkchecker_nodes'] = array(
+    'description' => 'Stores all link references for nodes.',
+    'fields' => array(
+      'nid'  => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {node}.nid.',
+      ),
+      'lid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {linkchecker_links}.lid.',
+      ),
+    ),
+    'primary key' => array('nid', 'lid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_requirements().
+ */
+function linkchecker_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  switch ($phase) {
+    case 'install' :
+      // Module cannot work without external HTTP requests.
+      if (variable_get('drupal_http_request_fails', FALSE)) {
+        $requirements['http requests'] = array(
+          'title' => $t('HTTP request status'),
+          'value' => $t('Fails'),
+          'severity' => REQUIREMENT_ERROR,
+          'description' => $t('Your system or network configuration does not allow Drupal to access web pages, resulting in reduced functionality. This could be due to your webserver configuration or PHP settings, and should be resolved in order to download information about available updates, fetch aggregator feeds, sign in via OpenID, or use other network-dependent services.'),
+        );
+      }
+      break;
+
+/*    case 'runtime':
+      $requirements['linkchecker_curl'] = array(
+        'title' => $t('cURL'),
+        'value' => $has_curl ? $t('Enabled') : $t('Not found'),
+        'severity' => $has_curl ? REQUIREMENT_OK : REQUIREMENT_WARNING,
+        'description' => $t('You should install cURL for checking links with link checker module. If cURL is installed, simultaneuos link checks are used to speeds up the link checking process dramatically.'),
+      );
+      break; */
+
+  }
+  return $requirements;
+}
+
+/**
+ * Scan content for links if module is enabled.
+ */
+function linkchecker_enable() {
+  // Start batch and re-analyze all nodes.
+  batch_set(_linkchecker_batch_import_nodes());
+
+  // TODO: Wrong batch title on boxes run.
+  if (variable_get('linkchecker_scan_blocks', 1)) {
+    batch_set(_linkchecker_batch_import_boxes());
+  }
+  batch_process();
+}
+
+/**
+ * Upgrade module to new schema.
+ */
+function linkchecker_update_6000() {
+  $ret = array();
+
+  // Module functions are required. Make sure the module is loaded.
+  drupal_load('module', 'linkchecker');
+
+  // Remove obsolete tables no longer required.
+  db_drop_table($ret, 'linkchecker_tasks');
+  db_drop_table($ret, 'linkchecker_results');
+
+  // Create new tables.
+  $schema['linkchecker_links'] = array(
+    'description' => 'Stores all links.',
+    'fields' => array(
+      'lid'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique link ID.',
+      ),
+      'token' => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => 'The indexable md5 hash of the {linkchecker_links}.url.',
+      ),
+      'url' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'description' => 'The full qualified link URL.',
+      ),
+      'method' => array(
+        'type' => 'varchar',
+        'length' => 4,
+        'default' => 'HEAD',
+        'not null' => TRUE,
+        'description' => 'The method for checking links (HEAD, GET, POST).',
+      ),
+      'code' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'HTTP status code from link checking.',
+      ),
+      'error' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'The error message received from the remote server while doing link checking.',
+      ),
+      'fail_count' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Fail count of unsuccessful link checks. No flapping detection. (Successful = 0, Unsuccessful = fail_count+1).',
+      ),
+      'last_checked' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Timestamp of the last link check.',
+      ),
+    ),
+    'primary key' => array('lid'),
+    'unique keys' => array('token' => array('token')),
+  );
+
+  $schema['linkchecker_boxes'] = array(
+    'description' => 'Stores all link references for boxes.',
+    'fields' => array(
+      'bid'  => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {boxes}.bid.',
+      ),
+      'lid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {linkchecker_links}.lid.',
+      ),
+    ),
+    'primary key' => array('bid', 'lid'),
+  );
+
+  $schema['linkchecker_nodes'] = array(
+    'description' => 'Stores all link references for nodes.',
+    'fields' => array(
+      'nid'  => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {node}.nid.',
+      ),
+      'lid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {linkchecker_links}.lid.',
+      ),
+    ),
+    'primary key' => array('nid', 'lid'),
+  );
+
+  // Create schema.
+  db_create_table($ret, 'linkchecker_links', $schema['linkchecker_links']);
+  db_create_table($ret, 'linkchecker_boxes', $schema['linkchecker_boxes']);
+  db_create_table($ret, 'linkchecker_nodes', $schema['linkchecker_nodes']);
+
+  // Upgrade settings. Could be less code, but is easier to follow.
+  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_responses', "200\n304\n401\n403"));
+
+  // Filter all invalid responds codes and outdated error messages out.
+  $ignore_response_codes = array_filter($ignore_response_codes, '_linkchecker_isvalid_response_code');
+
+  // Make sure we have status code 200 and 304 in the ignore list.
+  $ignore_response_codes = array_merge(array('200', '304'), $ignore_response_codes);
+  $ignore_response_codes = array_unique($ignore_response_codes);
+
+  variable_set('linkchecker_ignore_response_codes', implode("\n", $ignore_response_codes));
+  $ret[] = array('success' => TRUE, 'query' => 'Upgraded ignored response codes to '. implode(",", $ignore_response_codes));
+
+  // Remove obsolete settings.
+  variable_del('linkchecker_ignore_responses');
+  variable_del('linkchecker_rebuild');
+  variable_del('linkchecker_maxtime');
+  variable_del('linkchecker_socket_timeout');
+  variable_del('linkchecker_max_links_per_node');
+  variable_del('linkchecker_remove_after');
+  variable_del('linkchecker_give_up');
+
+  return $ret;
+}
