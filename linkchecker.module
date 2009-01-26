@@ -453,8 +453,6 @@ function _linkchecker_cleanup_links() {
 
   db_query($query);
   watchdog('linkchecker', 'Wiped out obsolete links.', WATCHDOG_INFO);
-
-  return $result;
 }
 
 /**
