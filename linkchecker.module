@@ -533,16 +533,19 @@ function _linkchecker_isvalid_response_code($code) {
 }
 
 /**
- * FIXME: If a node type is enabled.
+ * What node types should be scanned for links?
  */
 function _linkchecker_scan_nodetype($node_type = NULL) {
-  $enabled = FALSE;
-  $node_types = variable_get('linkchecker_scan_nodetypes', array());
 
-  if (array_sum($node_types) > 0) {
-    $enabled = $node_types[$node_type] ? TRUE : FALSE;
+  $enabled = FALSE;
+  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+
+  // Scan all node types if no specific node type is selected.
+  if (empty($node_types)) {
+    $enabled = TRUE;
   }
-  else {
+  // Scan specific node types only.
+  elseif (in_array($node_type, $node_types)) {
     $enabled = TRUE;
   }
 
@@ -551,8 +554,6 @@ function _linkchecker_scan_nodetype($node_type = NULL) {
 
 /**
  * Sets the status of a node to 0, meaning unpublished.
- * 
- * @param: link object
  */
 function _linkchecker_unpublish_nodes($lid) {
   $res = db_query("SELECT * FROM {linkchecker_nodes} WHERE lid = %d", $lid);

@@ -14,13 +14,11 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#collapsible' => FALSE,
   );
 
-  // TODO: Functionality not yet implemented.
-  $node_types = node_get_types('names');
   $form['settings']['linkchecker_scan_nodetypes'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Scan node types for links'),
     '#default_value' => variable_get('linkchecker_scan_nodetypes', array()),
-    '#options' => $node_types,
+    '#options' => array_map('check_plain', node_get_types('names')),
     '#description' => t('Add link checking only for the selected node type(s). If none of the node types are selected, all node types will be checked.'),
   );
 
