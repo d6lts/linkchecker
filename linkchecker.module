@@ -21,24 +21,9 @@ function linkchecker_perm() {
 function linkchecker_help($path, $arg) {
   switch ($path) {
     case 'admin/help#linkchecker':
-
-      $responses = array(
-        100 => 'Continue', 101 => 'Switching Protocols',
-        200 => 'OK', 201 => 'Created', 202 => 'Accepted', 203 => 'Non-Authoritative Information', 204 => 'No Content', 205 => 'Reset Content', 206 => 'Partial Content',
-        300 => 'Multiple Choices', 301 => 'Moved Permanently', 302 => 'Found', 303 => 'See Other', 304 => 'Not Modified', 305 => 'Use Proxy', 307 => 'Temporary Redirect',
-        400 => 'Bad Request', 401 => 'Unauthorized', 402 => 'Payment Required', 403 => 'Forbidden', 404 => 'Not Found', 405 => 'Method Not Allowed', 406 => 'Not Acceptable', 407 => 'Proxy Authentication Required', 408 => 'Request Time-out', 409 => 'Conflict', 410 => 'Gone', 411 => 'Length Required', 412 => 'Precondition Failed', 413 => 'Request Entity Too Large', 414 => 'Request-URI Too Large', 415 => 'Unsupported Media Type', 416 => 'Requested range not satisfiable', 417 => 'Expectation Failed',
-        500 => 'Internal Server Error', 501 => 'Not Implemented', 502 => 'Bad Gateway', 503 => 'Service Unavailable', 504 => 'Gateway Time-out', 505 => 'HTTP Version not supported'
-      );
-
       $output = '<p>';
-      $output .= t('This module provides an aid to finding broken links on your site. It periodically checks contents of all public nodes, tries to find any html links and check for their validity. It reports broken links through the admin interface.');
+      $output .= t('This module provides an aid to finding broken links on your site. It periodically checks contents of all public nodes, tries to find any html links and check for their validity. It reports broken links through the admin interface. For more information about status codes see <a href="@rfc">Status Code Definitions</a>.', array('@rfc' => 'http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html'));
       $output .= '</p>';
-      $output .= '<h3>' . t('HTTP status codes and names') . '</h3>';
-      $output .= '<ul>';
-      foreach ($responses as $code => $name) {
-        $output .= '<li>' . $code . ' = ' . $name . '</li>';
-      }
-      $output .= '</ul>';
       return $output;
   }
 }
