@@ -441,7 +441,7 @@ function _linkchecker_delete_box_links($bid) {
  * as they may be reused by other new content.
  */
 function _linkchecker_cleanup_links() {
-  // TODO: Whipe out node types no longder in use.
+  // TODO: Whipe out node types no longer in use.
 
   // TODO: Requires MySQL 5.x for subselects. Untested with pgsql.
   $query = "DELETE FROM {linkchecker_links}
