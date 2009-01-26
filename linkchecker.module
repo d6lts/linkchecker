@@ -337,11 +337,6 @@ function linkchecker_form_alter(&$form, &$form_state, $form_id) {
       $form['#submit'][] = 'linkchecker_box_delete_form_submit';
       break;
 
-    case 'block_admin_display_form':
-      // TODO: Add submit handler into admin/build/block to catch "status" value and remove all other obsolete handlers above.
-      //$form['#submit'][] = 'linkchecker_admin_display_form_submit';
-      break;
-
     default:
       break;
   }
@@ -368,31 +363,6 @@ function linkchecker_configure_form_submit($form, &$form_state) {
 function linkchecker_box_delete_form_submit($form, &$form_state) {
   _linkchecker_delete_box_links($form_state['values']['bid']);
 }
-
-/*
-function linkchecker_admin_display_form_submit($form, &$form_state) {
-
-  foreach ($form_state['values'] as $block) {
-    $block['status'] = $block['region'] != BLOCK_REGION_NONE;
-    //$block['region'] = $block['status'] ? $block['region'] : '';
-
-    //$box = db_fetch_array(db_query("SELECT bl.bid, bl.status, bl.title, bx.info, bx.body FROM {blocks} bl INNER JOIN {boxes} bx ON bx.bid = bl.delta WHERE module = '%s' AND delta = '%s' AND theme = '%s'", $block['module'], $block['delta'], $block['theme']));
-    if ($block['delta']) {
-      $box = block_box_get($block['delta']);
-
-      // The block is disabled in this theme. Cleanup.
-      if ($block['status']) {
-        _linkchecker_add_box_links($box, $block['delta']);
-        watchdog('linkchecker', 'Scanned block %block.', array('%block' => $block['delta']), WATCHDOG_INFO);
-      }
-      else {
-        db_query("DELETE FROM {linkchecker_boxes} WHERE bid = %d", $block['delta']);
-        watchdog('linkchecker', 'Deleted links for block %block.', array('%block' => $block['delta']), WATCHDOG_INFO);
-      }
-    }
-  }
-}
- */
 
 /**
  * Add node links into database.
