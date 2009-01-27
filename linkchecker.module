@@ -56,15 +56,16 @@ function linkchecker_menu() {
 /**
  * Batch: Load all nodes 10 by ten.
  */
-function _linkchecker_batch_import_nodes() {
+function _linkchecker_batch_import_nodes($node_types = array()) {
   // TODO: Add limitation setting and test with 500.000+ nodes and review memory consumption.
   $limit = 10;
 
   // Node import.
+  $rows = db_result(db_query('SELECT COUNT(DISTINCT nid) FROM {node} WHERE status = %d AND type IN (' . db_placeholders($node_types, 'varchar') . ')', array_merge(array(1), $node_types)));
+
   $operations = array();
-  $nids = db_result(db_query('SELECT COUNT(DISTINCT nid) FROM {node} WHERE status = %d', 1));
-  for ($nid = 0; $nid<$nids; $nid = $nid+$limit) {
-    $operations[] = array('_linkchecker_batch_node_import_op', array($nid, $limit));
+  for ($row = 0; $row<$rows; $row = $row+$limit) {
+    $operations[] = array('_linkchecker_batch_node_import_op', array($row, $limit, $node_types));
   }
   $batch = array(
     'operations' => $operations,
@@ -78,13 +79,13 @@ function _linkchecker_batch_import_nodes() {
 /**
  * Batch operation: Load all nodes, 10 by ten.
  */
-function _linkchecker_batch_node_import_op($nid, $limit, &$context) {
-  // Retrieve the next group of nids.
-  $result = db_query_range("SELECT nid FROM {node} WHERE nid > %d AND status = %d ORDER BY nid ASC", $nid, 1, 0, $limit);
+function _linkchecker_batch_node_import_op($row, $limit, $node_types, &$context) {
 
-  while ($row = db_fetch_array($result)) {
+  // Retrieve the next group of records.
+  $result = db_query_range('SELECT nid FROM {node} WHERE status = %d AND type IN (' . db_placeholders($node_types, 'varchar') . ') ORDER BY nid ASC', array_merge(array(1), $node_types), $row, $limit);
+  while ($res = db_fetch_array($result)) {
     // Load the node and scan for links.
-    $node = node_load($row['nid'], NULL, TRUE);
+    $node = node_load($res['nid'], NULL, TRUE);
     _linkchecker_add_node_links($node);
 
     // Store results for post-processing in the finished callback.
@@ -112,9 +113,9 @@ function _linkchecker_batch_import_boxes() {
 
   // Block import.
   $operations = array();
-  $bids = db_result(db_query('SELECT bid FROM {boxes}'));
-  for ($bid = 0; $bid<$bids; $bid = $bid+$limit) {
-    $operations[] = array('_linkchecker_batch_import_boxes_op', array($bid, $limit));
+  $rows = db_result(db_query('SELECT bid FROM {boxes}'));
+  for ($row = 0; $row<$rows; $row = $row+$limit) {
+    $operations[] = array('_linkchecker_batch_import_boxes_op', array($row, $limit));
   }
   $batch = array(
     'operations' => $operations,
@@ -128,14 +129,14 @@ function _linkchecker_batch_import_boxes() {
 /**
  * Batch operation: Load all boxes, 10 by ten.
  */
-function _linkchecker_batch_import_boxes_op($bid, $limit, &$context) {
+function _linkchecker_batch_import_boxes_op($row, $limit, &$context) {
   // Retrieve the next group of bids.
-  $result = db_query_range("SELECT bid FROM {boxes} WHERE bid > %d ORDER BY bid ASC", $bid, 0, $limit);
+  $result = db_query_range("SELECT bid FROM {boxes} ORDER BY bid ASC", $row, $limit);
 
-  while ($row = db_fetch_array($result)) {
+  while ($res = db_fetch_array($result)) {
     // Load the box and scan for links.
-    $box = block_box_get($row['bid']);
-    _linkchecker_add_box_links($box, $row['bid']);
+    $box = block_box_get($res['bid']);
+    _linkchecker_add_box_links($box, $box['bid']);
 
     // Store some result for post-processing in the finished callback.
     $context['results'][] = $box['bid'];
@@ -441,7 +442,7 @@ function _linkchecker_delete_box_links($bid) {
  * as they may be reused by other new content.
  */
 function _linkchecker_cleanup_links() {
-  // TODO: Whipe out node types no longer in use.
+  // TODO: Whipe out node types no longder in use.
 
   // TODO: Requires MySQL 5.x for subselects. Untested with pgsql.
   $query = "DELETE FROM {linkchecker_links}
@@ -453,6 +454,8 @@ function _linkchecker_cleanup_links() {
 
   db_query($query);
   watchdog('linkchecker', 'Wiped out obsolete links.', WATCHDOG_INFO);
+
+  return $result;
 }
 
 /**
@@ -540,12 +543,8 @@ function _linkchecker_scan_nodetype($node_type = NULL) {
   $enabled = FALSE;
   $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
 
-  // Scan all node types if no specific node type is selected.
-  if (empty($node_types)) {
-    $enabled = TRUE;
-  }
   // Scan specific node types only.
-  elseif (in_array($node_type, $node_types)) {
+  if (in_array($node_type, $node_types)) {
     $enabled = TRUE;
   }
 

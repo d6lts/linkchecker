@@ -163,20 +163,6 @@ function linkchecker_requirements($phase) {
 }
 
 /**
- * Scan content for links if module is enabled.
- */
-function linkchecker_enable() {
-  // Start batch and re-analyze all nodes.
-  batch_set(_linkchecker_batch_import_nodes());
-
-  // TODO: Wrong batch title on boxes run.
-  if (variable_get('linkchecker_scan_blocks', 1)) {
-    batch_set(_linkchecker_batch_import_boxes());
-  }
-  batch_process();
-}
-
-/**
  * Upgrade module to new schema.
  */
 function linkchecker_update_6000() {

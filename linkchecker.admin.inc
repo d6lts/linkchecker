@@ -13,15 +13,13 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#title' => t('General settings'),
     '#collapsible' => FALSE,
   );
-
   $form['settings']['linkchecker_scan_nodetypes'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Scan node types for links'),
     '#default_value' => variable_get('linkchecker_scan_nodetypes', array()),
     '#options' => array_map('check_plain', node_get_types('names')),
-    '#description' => t('Add link checking only for the selected node type(s). If none of the node types are selected, all node types will be checked.'),
+    '#description' => t('Enable link checking for the selected node type(s).'),
   );
-
   $form['settings']['linkchecker_scan_blocks'] = array(
     '#default_value' => variable_get('linkchecker_scan_blocks', 1),
     '#type' => 'checkbox',
@@ -127,13 +125,18 @@ function linkchecker_admin_settings_form(&$form_state) {
   $form['clear'] = array(
     '#type' => 'fieldset',
     '#title' => t('Clear link data'),
-    '#description' => t('This action clears all link checker tables and re-analyzes all node types, blocks and cck fields.'),
+    '#description' => t('This action clears all link checker tables and/or and analyzes all node types, blocks and cck fields.'),
     '#collapsible' => FALSE,
   );
-  $form['clear']['linkchecker_clear'] = array(
+  $form['clear']['linkchecker_analyze'] = array(
     '#type' => 'submit',
-    '#value' => t('Clear link data and re-analyze'),
-    '#submit' => array('linkchecker_clear_links_submit'),
+    '#value' => t('Analyze content for links'),
+    '#submit' => array('linkchecker_analyze_links_submit'),
+  );
+  $form['clear']['linkchecker_clear_analyze'] = array(
+    '#type' => 'submit',
+    '#value' => t('Clear link data and analyze content for links'),
+    '#submit' => array('linkchecker_analyze_clear_links_submit'),
   );
 
   return system_settings_form($form);
@@ -150,16 +153,32 @@ function linkchecker_admin_settings_form_validate($form, &$form_state) {
 }
 
 /**
- * Submit callback; Clear link data and re-analyze all nodes.
+ * Submit callback; Analyze all node types, boxes and cck fields.
  */
-function linkchecker_clear_links_submit(&$form_state, $form) {
+function linkchecker_analyze_links_submit(&$form_state, $form) {
+  // Start batch and analyze all nodes.
+  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+  batch_set(_linkchecker_batch_import_nodes($node_types));
+
+  // FIXME: Wrong batch title on boxes run.
+  if (variable_get('linkchecker_scan_blocks', 1)) {
+    batch_set(_linkchecker_batch_import_boxes());
+  }
+}
+
+/**
+ * Submit callback; Clear link data and analyze all node types, boxes and cck fields.
+ */
+function linkchecker_clear_analyze_links_submit(&$form_state, $form) {
   // TODO: D7 requires "DELETE FROM {table}" for sqllite.
   db_query("TRUNCATE TABLE {linkchecker_nodes}");
   db_query("TRUNCATE TABLE {linkchecker_boxes}");
   db_query("TRUNCATE TABLE {linkchecker_links}");
 
-  // Start batch and re-analyze all nodes.
-  batch_set(_linkchecker_batch_import_nodes());
+  // Start batch and analyze all nodes.
+  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+  batch_set(_linkchecker_batch_import_nodes($node_types));
+
   // FIXME: Wrong batch title on boxes run.
   if (variable_get('linkchecker_scan_blocks', 1)) {
     batch_set(_linkchecker_batch_import_boxes());
