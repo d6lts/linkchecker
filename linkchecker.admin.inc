@@ -21,7 +21,7 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#description' => t('Enable link checking for the selected node type(s).'),
   );
   $form['settings']['linkchecker_scan_blocks'] = array(
-    '#default_value' => variable_get('linkchecker_scan_blocks', 1),
+    '#default_value' => variable_get('linkchecker_scan_blocks', 0),
     '#type' => 'checkbox',
     '#title' => t('Scan blocks for links'),
     '#description' => t('Enable this checkbox if links in blocks should be checked.')
@@ -161,7 +161,7 @@ function linkchecker_analyze_links_submit(&$form_state, $form) {
   batch_set(_linkchecker_batch_import_nodes($node_types));
 
   // FIXME: Wrong batch title on boxes run.
-  if (variable_get('linkchecker_scan_blocks', 1)) {
+  if (variable_get('linkchecker_scan_blocks', 0)) {
     batch_set(_linkchecker_batch_import_boxes());
   }
 }
@@ -180,7 +180,7 @@ function linkchecker_clear_analyze_links_submit(&$form_state, $form) {
   batch_set(_linkchecker_batch_import_nodes($node_types));
 
   // FIXME: Wrong batch title on boxes run.
-  if (variable_get('linkchecker_scan_blocks', 1)) {
+  if (variable_get('linkchecker_scan_blocks', 0)) {
     batch_set(_linkchecker_batch_import_boxes());
   }
 }
