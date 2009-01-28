@@ -280,7 +280,7 @@ function linkchecker_update_6000() {
   $ignore_response_codes = array_unique($ignore_response_codes);
 
   variable_set('linkchecker_ignore_response_codes', implode("\n", $ignore_response_codes));
-  $ret[] = array('success' => TRUE, 'query' => 'Upgraded ignored response codes to '. implode(",", $ignore_response_codes));
+  $ret[] = array('success' => TRUE, 'query' => 'Ignored response codes have been upgraded to '. implode(",", $ignore_response_codes));
 
   // Remove obsolete settings.
   variable_del('linkchecker_ignore_responses');
