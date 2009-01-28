@@ -136,7 +136,7 @@ function linkchecker_admin_settings_form(&$form_state) {
   $form['clear']['linkchecker_clear_analyze'] = array(
     '#type' => 'submit',
     '#value' => t('Clear link data and analyze content for links'),
-    '#submit' => array('linkchecker_analyze_clear_links_submit'),
+    '#submit' => array('linkchecker_clear_analyze_links_submit'),
   );
 
   return system_settings_form($form);
