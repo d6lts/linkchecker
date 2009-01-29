@@ -125,7 +125,7 @@ function linkchecker_requirements($phase) {
 /**
  * Upgrade module to new schema.
  */
-function linkchecker_update_6000() {
+function linkchecker_update_5200() {
   $ret = array();
 
   // Module functions are required. Make sure the module is loaded.
