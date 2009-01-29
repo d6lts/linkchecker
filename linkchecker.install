@@ -163,9 +163,9 @@ function linkchecker_requirements($phase) {
 }
 
 /**
- * Upgrade module to new schema.
+ * Upgrade module to new D5 schema.
  */
-function linkchecker_update_6000() {
+function linkchecker_update_5200() {
   $ret = array();
 
   // Module functions are required. Make sure the module is loaded.
@@ -180,7 +180,7 @@ function linkchecker_update_6000() {
     'description' => 'Stores all links.',
     'fields' => array(
       'lid'  => array(
-        'type' => 'serial',
+        'type' => 'int',
         'not null' => TRUE,
         'description' => 'Primary Key: Unique link ID.',
       ),
@@ -290,6 +290,17 @@ function linkchecker_update_6000() {
   variable_del('linkchecker_max_links_per_node');
   variable_del('linkchecker_remove_after');
   variable_del('linkchecker_give_up');
+
+  return $ret;
+}
+
+/**
+ * Upgrade module to new D6 schema.
+ */
+function linkchecker_update_6200() {
+  $ret = array();
+
+  db_change_field($ret, 'linkchecker_links', 'lid', 'lid', array('type' => 'serial', 'not null' => TRUE));
 
   return $ret;
 }
