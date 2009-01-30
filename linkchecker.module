@@ -199,7 +199,7 @@ function linkchecker_admin_settings_form_validate($form_id, &$form_values) {
 function linkchecker_admin_settings_form_submit($form_id, $form_values) {
 
   // Submit handler per button workaround
-  switch ($_POST['op']) {
+  switch ($form_values['op']) {
     case t('Analyze content for links'):
       // Start batch and analyze all nodes.
       $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
