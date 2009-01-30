@@ -218,11 +218,11 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
       db_query("TRUNCATE TABLE {linkchecker_boxes}");
       db_query("TRUNCATE TABLE {linkchecker_links}");
       db_query("DELETE FROM {sequences} WHERE name = '%s'", 'linkchecker_links_lid');
-      
+
       // Start batch and analyze all nodes.
       $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
       _linkchecker_batch_import_nodes($node_types);
-    
+
       if (variable_get('linkchecker_scan_blocks', 0)) {
         _linkchecker_batch_import_boxes();
       }
