@@ -3,15 +3,15 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  linkchecker.module,v 1.7.2.11 2009/01/28 00:11:40 hass
-#  linkchecker.info,v 1.2.2.2 2009/01/25 23:41:02 hass
-#  linkchecker.install,v 1.2.2.3 2009/01/27 23:57:43 hass
+#  linkchecker.module,v 1.7.4.6 2009/01/30 20:21:23 hass
+#  linkchecker.info,v 1.2.4.2 2009/01/29 00:18:04 hass
+#  linkchecker.install,v 1.2.4.3 2009/01/29 07:48:00 hass
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-01-29 01:14+0100\n"
+"POT-Creation-Date: 2009-01-30 21:27+0100\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -29,7 +29,7 @@ msgid "Link checker"
 msgstr ""
 
 #: linkchecker.module:40
-msgid "Link checker configuration"
+msgid "Link checker configuration."
 msgstr ""
 
 #: linkchecker.module:47
@@ -220,47 +220,67 @@ msgstr ""
 msgid "Cleared link data and content analysis has been queued for processing via cron."
 msgstr ""
 
-#: linkchecker.module:313
+#: linkchecker.module:312
 msgid "URL"
 msgstr ""
 
-#: linkchecker.module:314
+#: linkchecker.module:313
 msgid "Response"
 msgstr ""
 
-#: linkchecker.module:315
+#: linkchecker.module:314
 msgid "Error"
 msgstr ""
 
-#: linkchecker.module:316
+#: linkchecker.module:315
 msgid "Operations"
 msgstr ""
 
-#: linkchecker.module:330
+#: linkchecker.module:329
 msgid "Edit node @node"
 msgstr ""
 
-#: linkchecker.module:336
+#: linkchecker.module:335
 msgid "Edit block @block"
 msgstr ""
 
-#: linkchecker.module:349
+#: linkchecker.module:348
 msgid "No broken links have been found."
 msgstr ""
 
-#: linkchecker.module:659
+#: linkchecker.module:420
+msgid "Changed permanently moved link in %node from %src to %dst."
+msgstr ""
+
+#: linkchecker.module:443
+msgid "Changed permanently moved link in box %bid from %src to %dst."
+msgstr ""
+
+#: linkchecker.module:448
+msgid "Link %link has changed and needs to be updated."
+msgstr ""
+
+#: linkchecker.module:454
+msgid "Broken link %link has been found."
+msgstr ""
+
+#: linkchecker.module:472
+msgid "Method HEAD is not allowed for link %link. Method has been changed to GET."
+msgstr ""
+
+#: linkchecker.module:657
 msgid "Wiped out obsolete links."
 msgstr ""
 
-#: linkchecker.module:764
+#: linkchecker.module:762
 msgid "Set @type %title to unpublished."
 msgstr ""
 
-#: linkchecker.module:421;444;449;455;473;659;764;0
+#: linkchecker.module:420;443;448;454;472;657;762;0
 msgid "linkchecker"
 msgstr ""
 
-#: linkchecker.module:519
+#: linkchecker.module:518
 msgid "Link check for <a href=\"@url\">@url</a> failed once (status code: @code)."
 msgid_plural "Link check for <a href=\"@url\">@url</a> failed @count times (status code: @code)."
 msgstr[0] ""
