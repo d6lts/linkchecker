@@ -234,8 +234,7 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
     default:
       // Form API saves the custom submit buttons as values in variables.
       // Drop them before they get saved.
-      unset($form_values['linkchecker_analyze']);
-      unset($form_values['linkchecker_clear_analyze']);
+      unset($form_values['linkchecker_analyze'], $form_values['linkchecker_clear_analyze']);
 
       // Save form data.
       system_settings_form_submit($form_id, $form_values);
@@ -526,7 +525,7 @@ function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
 function linkchecker_form_alter($form_id, &$form) {
   switch ($form_id) {
     // Catch the block add/configure form and add custom submit handler.
-    case 'block_add_block_form':
+    case 'block_box_form':
       // Add custom submit handler to block add form.
       $form['#submit']['linkchecker_add_form_submit'] = array();
       break;
@@ -549,9 +548,8 @@ function linkchecker_form_alter($form_id, &$form) {
  * Custom submit handler for block add page.
  */
 function linkchecker_add_form_submit($form_id, $form_values) {
-  // FIXME: needs testing
-  //$bid = db_next_id('boxes_bid');
-  //_linkchecker_add_box_links($form_values, $bid);
+  $bid = db_result(db_query("SELECT MAX(bid) FROM {boxes}"));
+  _linkchecker_add_box_links($form_values, $bid);
 }
 
 /**
