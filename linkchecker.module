@@ -37,7 +37,7 @@ function linkchecker_menu($may_cache) {
   $items[] = array(
     'path' => 'admin/settings/linkchecker',
     'title' => t('Link checker'),
-    'description' => t('Link checker configuration'),
+    'description' => t('Link checker configuration.'),
     'callback' => 'drupal_get_form',
     'callback arguments' => array('linkchecker_admin_settings_form'),
     'access' => user_access('administer linkchecker'),
@@ -262,7 +262,7 @@ function _linkchecker_batch_import_nodes($node_types = array()) {
 /**
  * Batch operation: Load all nodes, 10 by ten.
  */
-function _linkchecker_batch_node_import_op($row, $limit, $node_types, &$context) {
+function _linkchecker_batch_node_import_op($row, $limit, $node_types) {
 
   // Retrieve the next group of records.
   $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
@@ -285,14 +285,14 @@ function _linkchecker_batch_import_boxes() {
   $operations = array();
   $rows = db_result(db_query('SELECT bid FROM {boxes}'));
   for ($row = 0; $row<$rows; $row = $row+$limit) {
-    job_queue_add('_linkchecker_batch_import_boxes_op', 'Scan from boxes from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit, $node_types), '', TRUE);
+    job_queue_add('_linkchecker_batch_import_boxes_op', 'Scan from boxes from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit), '', TRUE);
   }
 }
 
 /**
  * Batch operation: Load all boxes, 10 by ten.
  */
-function _linkchecker_batch_import_boxes_op($row, $limit, &$context) {
+function _linkchecker_batch_import_boxes_op($row, $limit) {
   // Retrieve the next group of bids.
   $result = db_query_range("SELECT bid FROM {boxes} ORDER BY bid ASC", $row, $limit);
 
@@ -382,7 +382,7 @@ function linkchecker_cron() {
       case 200:
       case 304:
         db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d WHERE lid = %d", $response->code, $response->error, 0, time(), $link->lid);
-        //watchdog('linkchecker', 'Checked %link successfully.', array('%link' => $link->url), WATCHDOG_INFO);
+        //watchdog('linkchecker', t('Checked %link successfully.', array('%link' => $link->url)));
         break;
 
       case 301:
@@ -417,7 +417,7 @@ function linkchecker_cron() {
             // TODO: Logic could theoretically be optimized for more speed -> do
             // the link update only once and not after every changed link (minor).
             _linkchecker_add_node_links($node);
-            watchdog('linkchecker', 'Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+            watchdog('linkchecker', t('Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url)));
           }
 
           // BOXES: Autorepair all boxes having this outdated link.
@@ -440,18 +440,18 @@ function linkchecker_cron() {
             // TODO: Logic could theoretically be optimized for more speed -> do
             // the link update only once and not after every changed link (minor).
             _linkchecker_add_box_links($box, $row->bid);
-            watchdog('linkchecker', 'Changed permanently moved link in box %bid from %src to %dst.', array('%bid' => $row->bid, '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+            watchdog('linkchecker', t('Changed permanently moved link in box %bid from %src to %dst.', array('%bid' => $row->bid, '%src' => $link->url, '%dst' => $response->redirect_url)));
           }
 
         }
         else {
-          watchdog('linkchecker', 'Link %link has changed and needs to be updated.', array('%link' => $link->url), WATCHDOG_NOTICE, url('admin/reports/linkchecker'));
+          watchdog('linkchecker', t('Link %link has changed and needs to be updated.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/reports/linkchecker'));
         }
         break;
 
       case 404:
         db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->error, time(), $link->lid);
-        watchdog('linkchecker', 'Broken link @link has been found.', array('@link' => $link->url), WATCHDOG_NOTICE, url('admin/reports/linkchecker'));
+        watchdog('linkchecker', t('Broken link %link has been found.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/reports/linkchecker'));
 
         // If unpublishing limit is reached, unpublish all nodes having this link.
         $linkchecker_action_status_code_404 = variable_get('linkchecker_action_status_code_404', 0);
@@ -469,18 +469,18 @@ function linkchecker_cron() {
         else {
           db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d, method = '%s' WHERE lid = %d", $response->code, $response->error, time(), 'GET', $link->lid);
         }
-        watchdog('linkchecker', 'Method HEAD is not allowed for link @link. Method has been changed to GET.', array('@link' => $link->url), WATCHDOG_INFO, url('admin/reports/linkchecker'));
+        watchdog('linkchecker', t('Method HEAD is not allowed for link %link. Method has been changed to GET.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/reports/linkchecker'));
         break;
 
       default:
         // Don't treat ignored response codes as errors.
         if (in_array($response->code, $ignore_response_codes)) {
           db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d WHERE lid = %d", $response->code, $response->error, 0, time(), $link->lid);
-          //watchdog('linkchecker', 'Unhandled link error @link has been found.', array('@link' => $link->url), WATCHDOG_ERROR, url('admin/reports/linkchecker'));
+          //watchdog('linkchecker', t('Unhandled link error %link has been found.', array('%link' => $link->url)), WATCHDOG_ERROR, url('admin/reports/linkchecker'));
         }
         else {
           db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->error, time(), $link->lid);
-          //watchdog('linkchecker', 'Unhandled link error @link has been found.', array('@link' => $link->url), WATCHDOG_ERROR, url('admin/reports/linkchecker'));
+          //watchdog('linkchecker', t('Unhandled link error %link has been found.', array('%link' => $link->url)), WATCHDOG_ERROR, url('admin/reports/linkchecker'));
         }
     }
   }
@@ -654,7 +654,7 @@ function _linkchecker_cleanup_links() {
             )";
 
   db_query($query);
-  watchdog('linkchecker', t('Wiped out obsolete links.'), WATCHDOG_INFO);
+  watchdog('linkchecker', t('Wiped out obsolete links.'));
 }
 
 /**
@@ -759,7 +759,7 @@ function _linkchecker_unpublish_nodes($lid) {
     $node = node_load(array('nid' => $row->nid));
     $node->status = 0;
     node_save($node);
-    watchdog('linkchecker', t('Set @type %title to unpublished.'), array('@type' => $node->type, '%title' => $node->title));
+    watchdog('linkchecker', t('Set @type %title to unpublished.', array('@type' => $node->type, '%title' => $node->title)));
 
     // TODO: Add email notification for authors.
   }
