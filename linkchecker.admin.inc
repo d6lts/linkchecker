@@ -198,7 +198,7 @@ function linkchecker_admin_report() {
   );
 
   $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
-  $result = pager_query("SELECT * FROM {linkchecker_links} WHERE code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")" . tablesort_sql($header), 50, 0, NULL, $ignore_response_codes);
+  $result = pager_query("SELECT * FROM {linkchecker_links} WHERE last_checked <> %d AND code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")" . tablesort_sql($header), 50, 0, NULL, array_merge(array(0), $ignore_response_codes));
 
   $rows = array();
   while ($link = db_fetch_object($result)) {
