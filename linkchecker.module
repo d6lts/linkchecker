@@ -200,10 +200,15 @@ function linkchecker_cron() {
           while ($row = db_fetch_object($res)) {
             $node = node_load(array('nid' => $row->nid));
 
-            // Create array of node fields to scan.
+            // Create array of node fields to scan (for e.g. $node->title, $node->links_weblink_url).
             $text_items = array();
             $text_items[] = 'title';
             $text_items[] = 'body';
+
+            // Update weblink nodes from 'links' module package.
+            if (module_exists('links_weblink') && isset($node->links_weblink_url)) {
+              $text_items[] = 'links_weblink_url';
+            }
 
             // Now replace the outdated link with the permanently moved one in all node fields.
             foreach ($text_items as $text_item) {
@@ -396,6 +401,11 @@ function _linkchecker_add_node_links($node) {
   $text_items = array();
   $text_items[] = $node->title;
   $text_items[] = $node->body;
+
+  // Search for links in weblink nodes from 'links' module package.
+  if (module_exists('links_weblink') && isset($node->links_weblink_url)) {
+    $text_items[] = $node->links_weblink_url;
+  }
 
   // Search for CCK-fields of types 'link' and 'text'.
   if (module_exists('content')) {
