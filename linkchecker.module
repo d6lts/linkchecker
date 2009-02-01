@@ -491,15 +491,8 @@ function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
     case 'insert':
     case 'update':
       // The node is going to be published.
-      if (!empty($node->moderate) && _linkchecker_scan_nodetype($node->type)) {
+      if (!$node->moderate && _linkchecker_scan_nodetype($node->type)) {
         _linkchecker_add_node_links($node);
-
-        // TODO: Scan CCK text fields (http://drupal.org/project/cck).
-        if (module_exists('text')) {
-        }
-        // TODO: Scan CCK link fields (http://drupal.org/project/link).
-        if (module_exists('link')) {
-        }
       }
       break;
 
