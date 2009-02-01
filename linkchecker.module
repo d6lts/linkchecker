@@ -249,7 +249,7 @@ function linkchecker_cron() {
             $text_items = array();
             $text_items[] = 'info';
             $text_items[] = 'body';
-            
+
             // Now replace the outdated link with the permanently moved one in all box fields.
             foreach ($text_items as $text_item) {
               if (!empty($box[$text_item])) {
