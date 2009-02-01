@@ -150,12 +150,6 @@ function linkchecker_admin_settings_form_validate($form, &$form_state) {
       form_set_error('linkchecker_ignore_response_codes', t('Invalid response code %code found.', array('%code' => $ignore_response_code)));
     }
   }
-
-  // If selection of node types have changed, re-scan content of nodes.
-  $diff = array_diff($form_state['values']['linkchecker_scan_nodetypes'], variable_get('linkchecker_scan_nodetypes', array()));
-  if (!empty($diff)) {
-    linkchecker_analyze_links_submit($form_state, $form);
-  }
 }
 
 /**
