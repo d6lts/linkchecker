@@ -201,13 +201,8 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
   // Submit handler per button workaround
   switch ($form_values['op']) {
     case t('Analyze content for links'):
-      // Start batch and analyze all nodes.
-      $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
-      _linkchecker_batch_import_nodes($node_types);
-
-      if (variable_get('linkchecker_scan_blocks', 0)) {
-        _linkchecker_batch_import_boxes();
-      }
+      // Start batch and analyze all content.
+      _linkchecker_batch_import();
 
       drupal_set_message(t('Content analysis has been queued for processing via cron.'));
       drupal_goto('admin/settings/linkchecker');
@@ -219,13 +214,8 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
       db_query("TRUNCATE TABLE {linkchecker_links}");
       db_query("DELETE FROM {sequences} WHERE name = '%s'", 'linkchecker_links_lid');
 
-      // Start batch and analyze all nodes.
-      $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
-      _linkchecker_batch_import_nodes($node_types);
-
-      if (variable_get('linkchecker_scan_blocks', 0)) {
-        _linkchecker_batch_import_boxes();
-      }
+      // Start batch and analyze all content.
+      _linkchecker_batch_import();
 
       drupal_set_message(t('Cleared link data and content analysis has been queued for processing via cron.'));
       drupal_goto('admin/settings/linkchecker');
@@ -236,10 +226,30 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
       // Drop them before they get saved.
       unset($form_values['linkchecker_analyze'], $form_values['linkchecker_clear_analyze']);
 
+      // If selection of node types have changed, re-scan content of nodes.
+      $additional_nodetypes_selected = array_diff($form_values['linkchecker_scan_nodetypes'], variable_get('linkchecker_scan_nodetypes', array()));
+      if (!empty($additional_nodetypes_selected)) {
+        _linkchecker_batch_import();
+        drupal_set_message(t('Content analysis has been queued for processing via cron.'));
+      }
+
       // Save form data.
       system_settings_form_submit($form_id, $form_values);
   }
 
+}
+
+/**
+ * Trigger batch import job.
+ */
+function _linkchecker_batch_import() {
+  // Start batch and analyze all nodes.
+  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+  _linkchecker_batch_import_nodes($node_types);
+
+  if (variable_get('linkchecker_scan_blocks', 0)) {
+    _linkchecker_batch_import_boxes();
+  }
 }
 
 /**
