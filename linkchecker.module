@@ -424,19 +424,21 @@ function linkchecker_cron() {
             }
 
             // Search for CCK-fields of types 'link' and 'text'.
-            $fields = content_fields(NULL, $node->type);
-            foreach ($fields as $field) {
-              if (isset($node->{$field['field_name']})) {
-                if (module_exists('link') && $field['type'] == 'link') {
-                  foreach ($node->$field['field_name'] as $delta => $item) {
-                    $node->{$field['field_name']}[$delta]['url'] = str_replace($link->url, check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['url']);
-                    $node->{$field['field_name']}[$delta]['url'] = str_replace(check_url($link->url), check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['url']);
+            if (module_exists('content')) {
+              $fields = content_fields(NULL, $node->type);
+              foreach ($fields as $field) {
+                if (isset($node->{$field['field_name']})) {
+                  if (module_exists('link') && $field['type'] == 'link') {
+                    foreach ($node->$field['field_name'] as $delta => $item) {
+                      $node->{$field['field_name']}[$delta]['url'] = str_replace($link->url, check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['url']);
+                      $node->{$field['field_name']}[$delta]['url'] = str_replace(check_url($link->url), check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['url']);
+                    }
                   }
-                }
-                elseif (module_exists('text') && $field['type'] == 'text') {
-                  foreach ($node->$field['field_name'] as $delta => $item) {
-                    $node->{$field['field_name']}[$delta]['value'] = str_replace($link->url, check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['value']);
-                    $node->{$field['field_name']}[$delta]['value'] = str_replace(check_url($link->url), check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['value']);
+                  elseif (module_exists('text') && $field['type'] == 'text') {
+                    foreach ($node->$field['field_name'] as $delta => $item) {
+                      $node->{$field['field_name']}[$delta]['value'] = str_replace($link->url, check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['value']);
+                      $node->{$field['field_name']}[$delta]['value'] = str_replace(check_url($link->url), check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['value']);
+                    }
                   }
                 }
               }
@@ -607,21 +609,23 @@ function _linkchecker_add_node_links($node) {
   $text_items[] = $node->body;
 
   // Search for CCK-fields of types 'link' and 'text'.
-  $fields = content_fields(NULL, $node->type);
-  foreach ($fields as $field) {
-    if (isset($node->{$field['field_name']})) {
-      if (module_exists('link') && $field['type'] == 'link') {
-        foreach ($node->$field['field_name'] as $delta => $item) {
-          $text_items[] = $item['url'];
+  if (module_exists('content')) {
+    $fields = content_fields(NULL, $node->type);
+    foreach ($fields as $field) {
+      if (isset($node->{$field['field_name']})) {
+        if (module_exists('link') && $field['type'] == 'link') {
+          foreach ($node->$field['field_name'] as $delta => $item) {
+            $text_items[] = $item['url'];
+          }
+        }
+        elseif (module_exists('text') && $field['type'] == 'text') {
+          foreach ($node->$field['field_name'] as $delta => $item) {
+            $text_items[] = $item['value'];
+          }
         }
       }
-      elseif (module_exists('text') && $field['type'] == 'text') {
-        foreach ($node->$field['field_name'] as $delta => $item) {
-          $text_items[] = $item['value'];
-        }
-      }
-    }
-  }            
+    }            
+  }
 
   // Extract all links in a node.
   $links = _linkchecker_extract_links(implode(' ', $text_items));
