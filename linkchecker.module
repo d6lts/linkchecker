@@ -439,8 +439,14 @@ function _linkchecker_add_box_links($edit, $bid) {
   // Remove all link references first for cleanup reasons...
   _linkchecker_delete_box_links($bid);
 
+  // Create array of box fields to scan.
+  $text_items = array();
+  $text_items[] = $edit['info'];
+  $text_items[] = $edit['title'];
+  $text_items[] = $edit['body'];
+
   // Extract all links in a box.
-  $links = _linkchecker_extract_links($edit['info'] .' '. $edit['title'] .' '. $edit['body']);
+  $links = _linkchecker_extract_links(implode(' ', $text_items));
 
   // Only add unique links to database that do not exist.
   foreach (array_unique($links) as $link) {
