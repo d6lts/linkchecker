@@ -578,7 +578,6 @@ function _linkchecker_filter_url($text = '') {
 }
 
 function _linkchecker_isvalid_response_code($code) {
-  // TODO
   // RFC 2616 states that all unknown HTTP codes must be treated the same as the
   // base code in their class.
   $responses = array(
