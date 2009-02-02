@@ -714,8 +714,9 @@ function _linkchecker_delete_box_links($bid) {
 function _linkchecker_cleanup_links() {
   // Remove disabled node types no longer in use.
   $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+  $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
   if (!empty($node_types)) {
-    db_query('DELETE FROM {linkchecker_nodes} WHERE nid IN (SELECT nid FROM {node} n WHERE n.type NOT IN (' . db_placeholders($node_types, 'varchar') . '))', $node_types);
+    db_query('DELETE FROM {linkchecker_nodes} WHERE nid IN (SELECT nid FROM {node} n WHERE n.type NOT IN (' . $placeholders . '))', $node_types);
   }
   else {
     db_query('DELETE FROM {linkchecker_nodes}');
