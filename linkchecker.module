@@ -503,7 +503,12 @@ function _linkchecker_delete_box_links($bid) {
 function _linkchecker_cleanup_links() {
   // Remove disabled node types no longer in use.
   $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
-  db_query('DELETE FROM {linkchecker_nodes} ln INNER JOIN {node} n ON n.nid = ln.nid WHERE n.type NOT IN (' . db_placeholders($node_types, 'varchar') . ')', $node_types);
+  if (!empty($node_types)) {
+    db_query('DELETE FROM {linkchecker_nodes} WHERE nid IN (SELECT nid FROM {node} n WHERE n.type NOT IN (' . db_placeholders($node_types, 'varchar') . '))', $node_types);
+  }
+  else {
+    db_query('DELETE FROM {linkchecker_nodes}');
+  }
 
   // Remove block links if block scanning is disabled.
   if (variable_get('linkchecker_scan_blocks', 0) == 0) {
