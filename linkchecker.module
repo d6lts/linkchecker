@@ -506,9 +506,9 @@ function _linkchecker_cleanup_links() {
   // TODO: Requires MySQL 5.x for subselects. Untested with pgsql.
   $query = "DELETE FROM {linkchecker_links}
             WHERE lid NOT IN (
-              SELECT lid FROM {linkchecker_boxes}
+              SELECT DISTINCT lid FROM {linkchecker_boxes}
               UNION ALL
-              SELECT lid FROM {linkchecker_nodes}
+              SELECT DISTINCT lid FROM {linkchecker_nodes}
             )";
 
   db_query($query);
