@@ -501,17 +501,23 @@ function _linkchecker_delete_box_links($bid) {
  * as they may be reused by other new content.
  */
 function _linkchecker_cleanup_links() {
-  // TODO: Whipe out node types no longer in use.
+  // Remove disabled node types no longer in use.
+  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+  db_query('DELETE FROM {linkchecker_nodes} ln INNER JOIN {node} n ON n.nid = ln.nid WHERE n.type NOT IN (' . db_placeholders($node_types, 'varchar') . ')');
+
+  // Remove block links if block scanning is disabled.
+  if (variable_get('linkchecker_scan_blocks', 0) == 0) {
+    db_query('DELETE FROM {linkchecker_boxes}');
+  }
 
   // TODO: Requires MySQL 5.x for subselects. Untested with pgsql.
-  $query = "DELETE FROM {linkchecker_links}
+  db_query('DELETE FROM {linkchecker_links}
             WHERE lid NOT IN (
               SELECT DISTINCT lid FROM {linkchecker_boxes}
               UNION ALL
               SELECT DISTINCT lid FROM {linkchecker_nodes}
-            )";
+            )');
 
-  db_query($query);
   watchdog('linkchecker', 'Wiped out obsolete links.', WATCHDOG_INFO);
 }
 
