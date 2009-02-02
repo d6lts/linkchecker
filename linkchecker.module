@@ -227,7 +227,7 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
       unset($form_values['linkchecker_analyze'], $form_values['linkchecker_clear_analyze']);
 
       // If selection of node types have changed, re-scan content of nodes.
-      $additional_nodetypes_selected = array_diff($form_values['linkchecker_scan_nodetypes'], variable_get('linkchecker_scan_nodetypes', array()));
+      $additional_nodetypes_selected = array_diff(array_filter($form_values['linkchecker_scan_nodetypes']), array_filter(variable_get('linkchecker_scan_nodetypes', array())));
       if (!empty($additional_nodetypes_selected)) {
         _linkchecker_batch_import();
         drupal_set_message(t('Content analysis has been queued for processing via cron.'));
