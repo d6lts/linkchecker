@@ -43,7 +43,7 @@ function linkchecker_admin_settings_form(&$form_state) {
   $form['check'] = array(
     '#type' => 'fieldset',
     '#title' => t('Check settings'),
-    '#description' => t('You should install <a href="@curl">cURL</a> library. This is highly recommended as it allows simultaneous link checks. This may also <strong>required</strong> on sites with very many links, but is every time good for link checking performance reasons.', array('@curl' => 'http://www.php.net/manual/en/book.curl.php')),
+    '#description' => t('For simultaneous link checks it is highly recommended to install the <a href="@curl">cURL</a> library. This may be <strong>necessary</strong> on sites with very many links, but is every time good for link checking performance reasons.', array('@curl' => 'http://www.php.net/manual/en/book.curl.php')),
     '#collapsible' => FALSE,
   );
   $form['check']['linkchecker_check_useragent'] = array(
@@ -62,7 +62,7 @@ function linkchecker_admin_settings_form(&$form_state) {
   $form['check']['linkchecker_check_links_max'] = array(
     '#type' => 'select',
     '#title' => t('Check number of links per cron run'),
-    '#description' => t('Defines the number of links that will be checked per cron run. The possible setting depends on your PHP timeout value and can be increased if <a href="@curl">cURL</a> is installed and use simultaneous request checking. This value hardly depends on your PHP timeout and remote servers speed. If this setting is too high all cron jobs may fail.', array('@curl' => 'http://www.php.net/manual/en/book.curl.php')),
+    '#description' => t('Defines the number of links that will be checked per cron run. The possible setting hardly depends on your PHP timeout value and remote servers speed and may increased if <a href="@curl">cURL</a> is installed and use simultaneous request checking. All cron jobs may fail, if this setting is too high!', array('@curl' => 'http://www.php.net/manual/en/book.curl.php')),
     '#default_value' => variable_get('linkchecker_check_links_max', 10),
     '#options' => drupal_map_assoc(array(5, 10, 25, 50, 100, 200, 250, 300, 350, 400, 450, 500, 750, 1000)),
   );
@@ -89,7 +89,7 @@ function linkchecker_admin_settings_form(&$form_state) {
   );
   $form['error']['linkchecker_action_status_code_301'] = array(
     '#title' => t('Update permanently moved links'),
-    '#description' => t('If enabled, changed links providing a "Moved Permanently" (status code 301) are automatically updated. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. Changes will be logged in <a href="@dblog">recent log entries</a>.', array('@dblog' => url('admin/reports/dblog'))),
+    '#description' => t('If enabled, changed links providing a <em>Moved Permanently</em> (status code 301) are automatically updated. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. Changes will be logged in <a href="@dblog">recent log entries</a>.', array('@dblog' => url('admin/reports/dblog'))),
     '#type' => 'select',
     '#default_value' => variable_get('linkchecker_action_status_code_301', 0),
     '#options' => array(
@@ -103,7 +103,7 @@ function linkchecker_admin_settings_form(&$form_state) {
   );
   $form['error']['linkchecker_action_status_code_404'] = array(
     '#title' => t('Unpublish node on file not found error'),
-    '#description' => t('If enabled, a node with one or more broken links (status code 404) will be unpublished and moved to moderation queue for review after a number of specified fails. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily error.'),
+    '#description' => t('If enabled, a node with one or more broken links (status code 404) will be unpublished and moved to moderation queue for review after the number of specified fails. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily error.'),
     '#type' => 'select',
     '#default_value' => variable_get('linkchecker_action_status_code_404', 0),
     '#options' => array(
@@ -122,11 +122,13 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#description' => t('One HTTP status code per line, e.g. 403.')
   );
 
+  // Buttons are only required for testing and debugging reasons.
   $form['clear'] = array(
     '#type' => 'fieldset',
     '#title' => t('Clear link data'),
-    '#description' => t('This action clears all link checker tables and/or and analyzes all node types, blocks and cck fields.'),
-    '#collapsible' => FALSE,
+    '#description' => t('This action clears all link checker tables and/or and analyzes all node types, blocks and cck fields. Normally there is no need to press one of this buttons. Use this only for immediate cleanup tasks and to force a full re-check of all links.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
   $form['clear']['linkchecker_analyze'] = array(
     '#type' => 'submit',
