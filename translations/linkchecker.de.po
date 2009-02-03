@@ -11,12 +11,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation of Linkchecker\n"
-"POT-Creation-Date: 2009-01-30 21:26+0100\n"
-"PO-Revision-Date: 2009-01-30 22:18+0100\n"
+"POT-Creation-Date: 2009-02-03 22:18+0100\n"
+"PO-Revision-Date: 2009-02-03 22:19+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1)\n"
 "X-Poedit-Language: German\n"
@@ -27,12 +27,10 @@ msgid "General settings"
 msgstr "Allgemeine Einstellungen"
 
 #: linkchecker.admin.inc:18
-#, fuzzy
 msgid "Scan node types for links"
 msgstr "Beitragstypen nach Links durchsuchen"
 
 #: linkchecker.admin.inc:21
-#, fuzzy
 msgid "Enable link checking for the selected node type(s)."
 msgstr "Aktiviert die Linküberprüfung für die ausgewählten Beitragstypen."
 
@@ -46,7 +44,6 @@ msgstr "Dieses Kontrollkästchen aktivieren, um Links in Blöcken zu überprüfe
 
 # Domain -> URLs
 #: linkchecker.admin.inc:32
-#, fuzzy
 msgid "Check full qualified domain names only"
 msgstr "Nur vollständige Domänennamen überprüfen"
 
@@ -67,11 +64,10 @@ msgid "Check settings"
 msgstr "Überprüfungseinstellungen"
 
 #: linkchecker.admin.inc:46
-msgid "You should install <a href=\"@curl\">cURL</a> library. This is highly recommended as it allows simultaneous link checks. This may also <strong>required</strong> on sites with very many links, but is every time good for link checking performance reasons."
+msgid "For simultaneous link checks it is highly recommended to install the <a href=\"@curl\">cURL</a> library. This may be <strong>necessary</strong> on sites with very many links, but is every time good for link checking performance reasons."
 msgstr ""
 
 #: linkchecker.admin.inc:51
-#, fuzzy
 msgid "User-Agent"
 msgstr "User-Agent"
 
@@ -84,7 +80,7 @@ msgid "Check number of links per cron run"
 msgstr "Anzahl der zu überprüfenden Links pro Cron-Lauf"
 
 #: linkchecker.admin.inc:65
-msgid "Defines the number of links that will be checked per cron run. The possible setting depends on your PHP timeout value and can be increased if <a href=\"@curl\">cURL</a> is installed and use simultaneous request checking. This value hardly depends on your PHP timeout and remote servers speed. If this setting is too high all cron jobs may fail."
+msgid "Defines the number of links that will be checked per cron run. The possible setting hardly depends on your PHP timeout value and remote servers speed and may increased if <a href=\"@curl\">cURL</a> is installed and use simultaneous request checking. All cron jobs may fail, if this setting is too high!"
 msgstr ""
 
 #: linkchecker.admin.inc:71
@@ -93,15 +89,15 @@ msgstr "Überprüfungsinterval für Links"
 
 #: linkchecker.admin.inc:72
 msgid "This interval setting defines how often cron will re-check the status of links."
-msgstr ""
+msgstr "Diese Intervalleinstellung legt fest, wie oft Cron den Status von Links überprüft."
 
 #: linkchecker.admin.inc:78
 msgid "Cleanup interval for unused links"
 msgstr "Bereinigungsinterval für ungenutzt Links"
 
 #: linkchecker.admin.inc:79
-msgid "This interval setting defines how often cron will clean up unsused links."
-msgstr ""
+msgid "This interval setting defines how often cron will clean up unused links."
+msgstr "Diese Intervalleinstellung legt fest, wie oft Cron die ungenutzten Links bereinigt."
 
 #: linkchecker.admin.inc:86
 msgid "Error handling"
@@ -116,7 +112,7 @@ msgid "Update permanently moved links"
 msgstr "Dauerhaft verschobene Links aktualisieren"
 
 #: linkchecker.admin.inc:92
-msgid "If enabled, changed links providing a \"Moved Permanently\" (status code 301) are automatically updated. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. Changes will be logged in <a href=\"@dblog\">recent log entries</a>."
+msgid "If enabled, changed links providing a <em>Moved Permanently</em> (status code 301) are automatically updated. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. Changes will be logged in <a href=\"@dblog\">recent log entries</a>."
 msgstr ""
 
 #: linkchecker.admin.inc:96;110
@@ -148,7 +144,7 @@ msgid "Unpublish node on file not found error"
 msgstr "Beitragsveröffentlichung bei „Datei wurde nicht gefunden“-Fehler zurückziehen"
 
 #: linkchecker.admin.inc:106
-msgid "If enabled, a node with one or more broken links (status code 404) will be unpublished and moved to moderation queue for review after a number of specified fails. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily error."
+msgid "If enabled, a node with one or more broken links (status code 404) will be unpublished and moved to moderation queue for review after the number of specified fails. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily error."
 msgstr ""
 
 #: linkchecker.admin.inc:111
@@ -179,53 +175,59 @@ msgstr "Diese Antwort-Codes nicht als Fehler behandeln"
 msgid "One HTTP status code per line, e.g. 403."
 msgstr "Ein HTTP-Status-Code pro Zeile, z.b. 403."
 
-#: linkchecker.admin.inc:127
+#: linkchecker.admin.inc:128
 msgid "Clear link data"
 msgstr "Linkdaten leeren"
 
-#: linkchecker.admin.inc:128
-msgid "This action clears all link checker tables and/or and analyzes all node types, blocks and cck fields."
-msgstr "Diese Aktion leert alle Linkchecker-Tabellen und/oder Untersucht alle Beitragstypen, Blöcke und CCK-Felder."
+#: linkchecker.admin.inc:129
+msgid "This action clears all link checker tables and/or and analyzes all node types, blocks and cck fields. Normally there is no need to press one of this buttons. Use this only for immediate cleanup tasks and to force a full re-check of all links."
+msgstr ""
 
-#: linkchecker.admin.inc:133
-#, fuzzy
+#: linkchecker.admin.inc:135
 msgid "Analyze content for links"
-msgstr "Inhalt auf Links untersuchen"
+msgstr "Inhalt nach Links durchsuchen"
 
-#: linkchecker.admin.inc:138
-#, fuzzy
+#: linkchecker.admin.inc:140
 msgid "Clear link data and analyze content for links"
-msgstr "Linkdaten leeren und Inhalt auf Links untersuchen"
+msgstr "Linkdaten leeren und Inhalt nach Links durchsuchen"
 
-#: linkchecker.admin.inc:150
+#: linkchecker.admin.inc:144
+msgid "Save configuration"
+msgstr "Konfiguration speichern"
+
+#: linkchecker.admin.inc:145
+msgid "Reset to defaults"
+msgstr "Zurücksetzen"
+
+#: linkchecker.admin.inc:155
 msgid "Invalid response code %code found."
 msgstr "Ungültiger Antwort-Code %code wurde gefunden."
 
-#: linkchecker.admin.inc:194
+#: linkchecker.admin.inc:215
 msgid "URL"
 msgstr "URL"
 
-#: linkchecker.admin.inc:195
+#: linkchecker.admin.inc:216
 msgid "Response"
 msgstr "Antwort"
 
-#: linkchecker.admin.inc:196
+#: linkchecker.admin.inc:217
 msgid "Error"
 msgstr "Fehler"
 
-#: linkchecker.admin.inc:197
+#: linkchecker.admin.inc:218
 msgid "Operations"
 msgstr "Operationen"
 
-#: linkchecker.admin.inc:210
+#: linkchecker.admin.inc:231
 msgid "Edit node @node"
 msgstr "Beitrag @node bearbeiten"
 
-#: linkchecker.admin.inc:216
+#: linkchecker.admin.inc:237
 msgid "Edit block @block"
 msgstr "Block @node bearbeiten"
 
-#: linkchecker.admin.inc:229
+#: linkchecker.admin.inc:250
 msgid "No broken links have been found."
 msgstr "Es wurden keine beschädigten Links gefunden."
 
@@ -239,47 +241,45 @@ msgstr "Beiträge nach Links durchsuchen"
 
 #: linkchecker.module:102
 msgid "Finished importing nodes with an error."
-msgstr ""
+msgstr "Das Importieren von Beiträgen wurde mit einem Fehler beendet."
 
 #: linkchecker.module:123
-msgid "Scanning boxes for links"
-msgstr "Boxen nach Links durchsuchen"
+msgid "Scanning blocks for links"
+msgstr "Blöcke nach Links durchsuchen"
 
 #: linkchecker.module:151
-msgid "Finished importing boxes with an error."
-msgstr ""
+msgid "Finished importing blocks with an error."
+msgstr "Das Importieren von Blöcken wurde mit einem Fehler beendet."
 
-#: linkchecker.module:220;243;248;254;272;456;561;0
+#: linkchecker.module:247;274;279;285;303;526;630;0
 msgid "linkchecker"
 msgstr "linkchecker"
 
-# Add "node"
-#: linkchecker.module:220
-#, fuzzy
+#: linkchecker.module:247
 msgid "Changed permanently moved link in %node from %src to %dst."
 msgstr "Dauerhaft verschobener Link in Beitrag %node wurde von %src auf %dst geändert."
 
-#: linkchecker.module:243
+#: linkchecker.module:274
 msgid "Changed permanently moved link in box %bid from %src to %dst."
 msgstr "Dauerhaft verschobener Link in Box %bid wurde von %src auf %dst geändert."
 
-#: linkchecker.module:248
+#: linkchecker.module:279
 msgid "Link %link has changed and needs to be updated."
 msgstr "Link %link wurde geändert und muss aktualisiert werden."
 
-#: linkchecker.module:254
+#: linkchecker.module:285
 msgid "Broken link %link has been found."
 msgstr "Ein beschädigter Link %link wurde gefunden."
 
-#: linkchecker.module:272
+#: linkchecker.module:303
 msgid "Method HEAD is not allowed for link %link. Method has been changed to GET."
 msgstr "Die Methode HEAD ist für den Link %link nicht zulässig. Die Methode wurde auf GET geändert."
 
-#: linkchecker.module:456
+#: linkchecker.module:526
 msgid "Wiped out obsolete links."
 msgstr "Veraltete Links wurden beseitigt."
 
-#: linkchecker.module:561
+#: linkchecker.module:630
 msgid "Set @type %title to unpublished."
 msgstr "Die Veröffentlichung von @type %title wurde zurückgezogen."
 
@@ -290,17 +290,16 @@ msgstr[0] "Ein Beitrag wurde durchsucht."
 msgstr[1] "@count Beiträge wurden durchsucht."
 
 #: linkchecker.module:148
-msgid "One box has been scanned."
-msgid_plural "@count boxes have been scanned."
-msgstr[0] "Eine Box wurde durchsucht."
-msgstr[1] "@count Boxen wurden durchsucht."
+msgid "One block has been scanned."
+msgid_plural "@count block have been scanned."
+msgstr[0] "Ein Block wurde durchsucht."
+msgstr[1] "@count Blöcke wurden durchsucht."
 
-#: linkchecker.module:317
-#, fuzzy
-msgid "Link check for <a href=\"@url\">@url</a> failed once (status code: @code)."
-msgid_plural "Link check for <a href=\"@url\">@url</a> failed @count times (status code: @code)."
-msgstr[0] "Die Linküberprüfung für <a href=\"@url\">@url</a> ist einmal fehlgeschlagen (Status-Code: @code)."
-msgstr[1] "Die Linküberprüfung für <a href=\"@url\">@url</a> ist @count mal fehlgeschlagen (Status-Code: @code)."
+#: linkchecker.module:341
+msgid "Link check of <a href=\"@url\">@url</a> failed once (status code: @code)."
+msgid_plural "Link check of <a href=\"@url\">@url</a> failed @count times (status code: @code)."
+msgstr[0] "Die Linküberprüfung von <a href=\"@url\">@url</a> ist einmal fehlgeschlagen (Status-Code: @code)."
+msgstr[1] "Die Linküberprüfung von <a href=\"@url\">@url</a> ist @count mal fehlgeschlagen (Status-Code: @code)."
 
 #: linkchecker.module:15
 msgid "access linkchecker"
@@ -316,7 +315,6 @@ msgid "Link checker"
 msgstr "Link checker"
 
 #: linkchecker.module:38
-#, fuzzy
 msgid "Link checker configuration"
 msgstr "Konfiguration von Link checker"
 
@@ -341,7 +339,15 @@ msgid "Your system or network configuration does not allow Drupal to access web 
 msgstr "Die Funktionalität der Website ist eingeschränkt, da Drupal nicht auf externe Internetseiten zugreifen kann. Grund dafür sind die aktuellen System- oder Netzwerkeinstellungen wie etwa die Konfiguration des Webservers oder die PHP-Einstellungen. Der Zugriff wird benötigt, um netzbasierte Dienste nutzen zu können. Beispiele hierfür sind der Abruf verfügbarer Aktualisierungen, der Abruf von Aggregator-Feeds oder die Anmeldung via OpenID."
 
 #: linkchecker.info:0
-#, fuzzy
 msgid "Periodically checks for broken links in node types, blocks and cck fields and reports the results."
 msgstr "Überprüft regelmäßig auf beschädigte Links in Beitragstypen, Blöcken und CCK-Feldern und Berichtet die Ergebnisse."
+
+#~ msgid "Scanning boxes for links"
+#~ msgstr "Boxen nach Links durchsuchen"
+#~ msgid ""
+#~ "This action clears all link checker tables and/or and analyzes all node "
+#~ "types, blocks and cck fields."
+#~ msgstr ""
+#~ "Diese Aktion leert alle Linkchecker-Tabellen und/oder Untersucht alle "
+#~ "Beitragstypen, Blöcke und CCK-Felder."
 
