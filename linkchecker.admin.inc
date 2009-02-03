@@ -139,7 +139,10 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#submit' => array('linkchecker_clear_analyze_links_submit'),
   );
 
-  return system_settings_form($form);
+  $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration') );
+  $form['buttons']['reset'] = array('#type' => 'submit', '#value' => t('Reset to defaults') );
+
+  return $form;
 }
 
 function linkchecker_admin_settings_form_validate($form, &$form_state) {
@@ -152,10 +155,26 @@ function linkchecker_admin_settings_form_validate($form, &$form_state) {
   }
 }
 
+function linkchecker_admin_settings_form_submit($form, &$form_state) {
+  // Exclude unnecessary elements.
+  unset($form_state['values']['linkchecker_analyze'], $form_state['values']['linkchecker_clear_analyze']);
+
+  // Node type selection changed?
+  $additional_nodetypes_selected = array_diff($form_state['values']['linkchecker_scan_nodetypes'], variable_get('linkchecker_scan_nodetypes', array()));
+
+  // Save form settings.
+  system_settings_form_submit($form, $form_state);
+
+  // Re-scan node types if new node types have been selected.
+  if (!empty($additional_nodetypes_selected)) {
+    linkchecker_analyze_links_submit();
+  }
+}
+
 /**
  * Submit callback; Analyze all node types, boxes and cck fields.
  */
-function linkchecker_analyze_links_submit(&$form_state, $form) {
+function linkchecker_analyze_links_submit() {
   // Start batch and analyze all nodes.
   $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
   batch_set(_linkchecker_batch_import_nodes($node_types));
@@ -169,7 +188,7 @@ function linkchecker_analyze_links_submit(&$form_state, $form) {
 /**
  * Submit callback; Clear link data and analyze all node types, boxes and cck fields.
  */
-function linkchecker_clear_analyze_links_submit(&$form_state, $form) {
+function linkchecker_clear_analyze_links_submit() {
   // TODO: D7 requires "DELETE FROM {table}" for sqllite.
   db_query("TRUNCATE TABLE {linkchecker_nodes}");
   db_query("TRUNCATE TABLE {linkchecker_boxes}");
