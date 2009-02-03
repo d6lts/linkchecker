@@ -120,7 +120,7 @@ function _linkchecker_batch_import_boxes() {
   $batch = array(
     'operations' => $operations,
     'finished' => '_linkchecker_batch_box_import_finished',
-    'title' => t('Scanning boxes for links'),
+    'title' => t('Scanning blocks for links'),
   );
 
   return $batch;
@@ -145,10 +145,10 @@ function _linkchecker_batch_import_boxes_op($row, $limit, &$context) {
 
 function _linkchecker_batch_box_import_finished($success, $results, $operations) {
   if ($success) {
-    $message = format_plural(count($results), 'One box has been scanned.', '@count boxes have been scanned.');
+    $message = format_plural(count($results), 'One block has been scanned.', '@count block have been scanned.');
   }
   else {
-    $message = t('Finished importing boxes with an error.');
+    $message = t('Finished importing blocks with an error.');
   }
   drupal_set_message($message);
 }
