@@ -215,7 +215,7 @@ function linkchecker_update_5200() {
   // D5 required job_queue.module. We need to make sure both is active.
   if (!module_exists('job_queue')) {
     module_disable(array('linkchecker'));
-    drupal_set_message(t('The required job_queue module is missing. The linkchecker module has been disabled. Install job_queue module and re-enable linkchecker, please.'), 'error');
+    drupal_set_message('The required job_queue module is missing. The linkchecker module has been disabled. Install job_queue module and re-enable linkchecker, please.', 'error');
   }
 
   return $ret;
