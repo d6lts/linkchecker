@@ -312,7 +312,7 @@ msgid "Link checker"
 msgstr ""
 
 #: linkchecker.module:38
-msgid "Link checker configuration"
+msgid "Link checker configuration."
 msgstr ""
 
 #: linkchecker.module:45

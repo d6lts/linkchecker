@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: German translation of Linkchecker\n"
 "POT-Creation-Date: 2009-02-03 22:18+0100\n"
-"PO-Revision-Date: 2009-02-03 22:19+0100\n"
+"PO-Revision-Date: 2009-02-03 22:25+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -315,8 +315,8 @@ msgid "Link checker"
 msgstr "Link checker"
 
 #: linkchecker.module:38
-msgid "Link checker configuration"
-msgstr "Konfiguration von Link checker"
+msgid "Link checker configuration."
+msgstr "Konfiguration von Link checker."
 
 #: linkchecker.module:45
 msgid "Broken links"
@@ -341,13 +341,4 @@ msgstr "Die Funktionalität der Website ist eingeschränkt, da Drupal nicht auf 
 #: linkchecker.info:0
 msgid "Periodically checks for broken links in node types, blocks and cck fields and reports the results."
 msgstr "Überprüft regelmäßig auf beschädigte Links in Beitragstypen, Blöcken und CCK-Feldern und Berichtet die Ergebnisse."
-
-#~ msgid "Scanning boxes for links"
-#~ msgstr "Boxen nach Links durchsuchen"
-#~ msgid ""
-#~ "This action clears all link checker tables and/or and analyzes all node "
-#~ "types, blocks and cck fields."
-#~ msgstr ""
-#~ "Diese Aktion leert alle Linkchecker-Tabellen und/oder Untersucht alle "
-#~ "Beitragstypen, Blöcke und CCK-Felder."
 
