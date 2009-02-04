@@ -256,7 +256,7 @@ function _linkchecker_batch_import() {
 }
 
 /**
- * Batch: Load all nodes 10 by ten.
+ * Batch: Load all nodes 100 by 100.
  */
 function _linkchecker_batch_import_nodes($node_types = array()) {
   // TODO: Add limitation setting and test with 500.000+ nodes and review memory consumption.
@@ -273,7 +273,7 @@ function _linkchecker_batch_import_nodes($node_types = array()) {
 }
 
 /**
- * Batch operation: Load all nodes, 10 by ten.
+ * Batch operation: Load all nodes, 100 by 100.
  */
 function _linkchecker_batch_node_import_op($row, $limit, $node_types) {
 
