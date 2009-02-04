@@ -181,7 +181,7 @@ function linkchecker_analyze_links_submit() {
   $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
   batch_set(_linkchecker_batch_import_nodes($node_types));
 
-  // FIXME: Wrong batch title on boxes run.
+  // FIXME: Batch title does not update on second batch_set(), http://drupal.org/node/368742
   if (variable_get('linkchecker_scan_blocks', 0)) {
     batch_set(_linkchecker_batch_import_boxes());
   }
@@ -200,7 +200,7 @@ function linkchecker_clear_analyze_links_submit() {
   $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
   batch_set(_linkchecker_batch_import_nodes($node_types));
 
-  // FIXME: Wrong batch title on boxes run.
+  // FIXME: Batch title does not update on second batch_set(), http://drupal.org/node/368742
   if (variable_get('linkchecker_scan_blocks', 0)) {
     batch_set(_linkchecker_batch_import_boxes());
   }
