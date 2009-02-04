@@ -105,7 +105,7 @@ function _linkchecker_batch_node_import_finished($success, $results, $operations
 }
 
 /**
- * Batch: Load all nodes 10 by ten.
+ * Batch: Load all nodes 100 by 100.
  */
 function _linkchecker_batch_import_boxes() {
   // TODO: Add limitation setting and test with 500.000+ boxes and review memory consumption.
@@ -127,7 +127,7 @@ function _linkchecker_batch_import_boxes() {
 }
 
 /**
- * Batch operation: Load all boxes, 10 by ten.
+ * Batch operation: Load all boxes, 100 by 100.
  */
 function _linkchecker_batch_import_boxes_op($row, $limit, &$context) {
   // Retrieve the next group of bids.
