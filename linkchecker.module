@@ -379,155 +379,169 @@ function linkchecker_cron() {
 
   // TODO: Implement cURL support.
   //$has_curl = function_exists('curl_init');
-
-  // Get URLs for checking.
   $check_links_max_per_cron_run = variable_get('linkchecker_check_links_max', 10);
   $check_links_interval = variable_get('linkchecker_check_links_interval', 2419200);
   $useragent = variable_get('linkchecker_check_useragent', 'Drupal (+http://drupal.org/)');
   $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
 
+  // Get URLs for checking.
   $result = db_query_range("SELECT * FROM {linkchecker_links} WHERE last_checked < %d", time() - $check_links_interval, 0, $check_links_max_per_cron_run);
   while ($link = db_fetch_object($result)) {
     // Fetch URL.
     $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent), $link->method, NULL, 0);
+    _linkchecker_status_handling($link, $response);
+  }
+}
 
-    switch ($response->code) {
-      case 200:
-      case 304:
-        db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d WHERE lid = %d", $response->code, $response->error, 0, time(), $link->lid);
-        //watchdog('linkchecker', t('Checked %link successfully.', array('%link' => $link->url)));
-        break;
+/**
+ * Status code handling.
+ * 
+ * @param $link
+ *   An object containing the url, lid and fail_count.
+ * 
+ * @param $response
+ *   An object containing the HTTP request headers, response code, headers,
+ *   data and redirect status.
+ */
+function _linkchecker_status_handling($link, $response) {
 
-      case 301:
-        db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->error, time(), $link->lid);
+  switch ($response->code) {
+    case 200:
+    case 304:
+      db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d WHERE lid = %d", $response->code, $response->error, 0, time(), $link->lid);
+      //watchdog('linkchecker', t('Checked %link successfully.', array('%link' => $link->url)));
+      break;
 
-        // A HTTP status code of 301 tells us an existing link have changed to
-        // a new link. The remote site owner was so kind to provide us the new
-        // link and if we trust this change we are able to replace the old link
-        // with the new one without any hand work.
-        $auto_repair_301 = variable_get('linkchecker_action_status_code_301', 0);
-        if ($auto_repair_301 && $auto_repair_301 <= ($link->fail_count+1)) {
+    case 301:
+      db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->error, time(), $link->lid);
 
-          // NODES: Autorepair all nodes having this outdated link.
-          $res = db_query("SELECT * FROM {linkchecker_nodes} WHERE lid = %d", $link->lid);
-          while ($row = db_fetch_object($res)) {
-            $node = node_load(array('nid' => $row->nid));
+      // A HTTP status code of 301 tells us an existing link have changed to
+      // a new link. The remote site owner was so kind to provide us the new
+      // link and if we trust this change we are able to replace the old link
+      // with the new one without any hand work.
+      $auto_repair_301 = variable_get('linkchecker_action_status_code_301', 0);
+      if ($auto_repair_301 && $auto_repair_301 <= ($link->fail_count+1)) {
 
-            // Create array of node fields to scan (for e.g. $node->title, $node->links_weblink_url).
-            $text_items = array();
-            $text_items[] = 'title';
-            $text_items[] = 'body';
+        // NODES: Autorepair all nodes having this outdated link.
+        $res = db_query("SELECT * FROM {linkchecker_nodes} WHERE lid = %d", $link->lid);
+        while ($row = db_fetch_object($res)) {
+          $node = node_load(array('nid' => $row->nid));
 
-            // Update weblink nodes from 'links' module package.
-            if (module_exists('links_weblink') && isset($node->links_weblink_url)) {
-              $text_items[] = 'links_weblink_url';
+          // Create array of node fields to scan (for e.g. $node->title, $node->links_weblink_url).
+          $text_items = array();
+          $text_items[] = 'title';
+          $text_items[] = 'body';
+
+          // Update weblink nodes from 'links' module package.
+          if (module_exists('links_weblink') && isset($node->links_weblink_url)) {
+            $text_items[] = 'links_weblink_url';
+          }
+
+          // Now replace the outdated link with the permanently moved one in all node fields.
+          foreach ($text_items as $text_item) {
+            if (!empty($node->$text_item)) {
+              $node->$text_item = str_replace($link->url, check_url($response->redirect_url), $node->$text_item);
+              $node->$text_item = str_replace(check_url($link->url), check_url($response->redirect_url), $node->$text_item);
             }
+          }
 
-            // Now replace the outdated link with the permanently moved one in all node fields.
-            foreach ($text_items as $text_item) {
-              if (!empty($node->$text_item)) {
-                $node->$text_item = str_replace($link->url, check_url($response->redirect_url), $node->$text_item);
-                $node->$text_item = str_replace(check_url($link->url), check_url($response->redirect_url), $node->$text_item);
-              }
-            }
-
-            // Search for CCK-fields of types 'link' and 'text'.
-            if (module_exists('content')) {
-              $fields = content_fields(NULL, $node->type);
-              foreach ($fields as $field) {
-                if (isset($node->{$field['field_name']})) {
-                  if (module_exists('link') && $field['type'] == 'link') {
-                    foreach ($node->$field['field_name'] as $delta => $item) {
-                      $node->{$field['field_name']}[$delta]['url'] = str_replace($link->url, check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['url']);
-                      $node->{$field['field_name']}[$delta]['url'] = str_replace(check_url($link->url), check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['url']);
-                    }
+          // Search for CCK-fields of types 'link' and 'text'.
+          if (module_exists('content')) {
+            $fields = content_fields(NULL, $node->type);
+            foreach ($fields as $field) {
+              if (isset($node->{$field['field_name']})) {
+                if (module_exists('link') && $field['type'] == 'link') {
+                  foreach ($node->$field['field_name'] as $delta => $item) {
+                    $node->{$field['field_name']}[$delta]['url'] = str_replace($link->url, check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['url']);
+                    $node->{$field['field_name']}[$delta]['url'] = str_replace(check_url($link->url), check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['url']);
                   }
-                  elseif (module_exists('text') && $field['type'] == 'text') {
-                    foreach ($node->$field['field_name'] as $delta => $item) {
-                      $node->{$field['field_name']}[$delta]['value'] = str_replace($link->url, check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['value']);
-                      $node->{$field['field_name']}[$delta]['value'] = str_replace(check_url($link->url), check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['value']);
-                    }
+                }
+                elseif (module_exists('text') && $field['type'] == 'text') {
+                  foreach ($node->$field['field_name'] as $delta => $item) {
+                    $node->{$field['field_name']}[$delta]['value'] = str_replace($link->url, check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['value']);
+                    $node->{$field['field_name']}[$delta]['value'] = str_replace(check_url($link->url), check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['value']);
                   }
                 }
               }
             }
-
-            // Save changed node and update the node link list.
-            node_save($node);
-            // TODO: Logic could theoretically be optimized for more speed -> do
-            // the link update only once and not after every changed link (minor).
-            _linkchecker_add_node_links($node);
-            watchdog('linkchecker', t('Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url)));
           }
 
-          // BOXES: Autorepair all boxes having this outdated link.
-          $res = db_query("SELECT * FROM {linkchecker_boxes} WHERE lid = %d", $link->lid);
-          while ($row = db_fetch_object($res)) {
-            $box = block_box_get($row->bid);
+          // Save changed node and update the node link list.
+          node_save($node);
+          // TODO: Logic could theoretically be optimized for more speed -> do
+          // the link update only once and not after every changed link (minor).
+          _linkchecker_add_node_links($node);
+          watchdog('linkchecker', t('Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url)));
+        }
 
-            // Create array of box fields to scan.
-            $text_items = array();
-            $text_items[] = 'info';
-            $text_items[] = 'title';
-            $text_items[] = 'body';
+        // BOXES: Autorepair all boxes having this outdated link.
+        $res = db_query("SELECT * FROM {linkchecker_boxes} WHERE lid = %d", $link->lid);
+        while ($row = db_fetch_object($res)) {
+          $box = block_box_get($row->bid);
 
-            // Now replace the outdated link with the permanently moved one in all box fields.
-            foreach ($text_items as $text_item) {
-              if (!empty($box[$text_item])) {
-                $box[$text_item] = str_replace($link->url, check_url($response->redirect_url), $box[$text_item]);
-                $box[$text_item] = str_replace(check_url($link->url), check_url($response->redirect_url), $box[$text_item]);
-              }
+          // Create array of box fields to scan.
+          $text_items = array();
+          $text_items[] = 'info';
+          $text_items[] = 'title';
+          $text_items[] = 'body';
+
+          // Now replace the outdated link with the permanently moved one in all box fields.
+          foreach ($text_items as $text_item) {
+            if (!empty($box[$text_item])) {
+              $box[$text_item] = str_replace($link->url, check_url($response->redirect_url), $box[$text_item]);
+              $box[$text_item] = str_replace(check_url($link->url), check_url($response->redirect_url), $box[$text_item]);
             }
-
-            // Save changed node and update the node link list.
-            block_box_save($box, $row->bid);
-            // TODO: Logic could theoretically be optimized for more speed -> do
-            // the link update only once and not after every changed link (minor).
-            _linkchecker_add_box_links($box, $row->bid);
-            watchdog('linkchecker', t('Changed permanently moved link in box %bid from %src to %dst.', array('%bid' => $row->bid, '%src' => $link->url, '%dst' => $response->redirect_url)));
           }
 
+          // Save changed node and update the node link list.
+          block_box_save($box, $row->bid);
+          // TODO: Logic could theoretically be optimized for more speed -> do
+          // the link update only once and not after every changed link (minor).
+          _linkchecker_add_box_links($box, $row->bid);
+          watchdog('linkchecker', t('Changed permanently moved link in box %bid from %src to %dst.', array('%bid' => $row->bid, '%src' => $link->url, '%dst' => $response->redirect_url)));
         }
-        else {
-          watchdog('linkchecker', t('Link %link has changed and needs to be updated.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/logs/linkchecker'));
-        }
-        break;
 
-      case 404:
+      }
+      else {
+        watchdog('linkchecker', t('Link %link has changed and needs to be updated.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/logs/linkchecker'));
+      }
+      break;
+
+    case 404:
+      db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->error, time(), $link->lid);
+      watchdog('linkchecker', t('Broken link %link has been found.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/logs/linkchecker'));
+
+      // If unpublishing limit is reached, unpublish all nodes having this link.
+      $linkchecker_action_status_code_404 = variable_get('linkchecker_action_status_code_404', 0);
+      if ($linkchecker_action_status_code_404 && $linkchecker_action_status_code_404 <= ($link->fail_count+1)) {
+        _linkchecker_unpublish_nodes($link->lid);
+      }
+      break;
+
+    case 405:
+      // Special error handling if method is not allowed. Switch link checking to GET method and try again.
+      $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent), 'GET', NULL, 0);
+      if ($response->code == 200) {
+        db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d, method = '%s' WHERE lid = %d", $response->code, $response->error, 0, time(), 'GET', $link->lid);
+      }
+      else {
+        db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d, method = '%s' WHERE lid = %d", $response->code, $response->error, time(), 'GET', $link->lid);
+      }
+      watchdog('linkchecker', t('Method HEAD is not allowed for link %link. Method has been changed to GET.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/logs/linkchecker'));
+      break;
+
+    default:
+      // Don't treat ignored response codes as errors.
+      if (in_array($response->code, $ignore_response_codes)) {
+        db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d WHERE lid = %d", $response->code, $response->error, 0, time(), $link->lid);
+        //watchdog('linkchecker', t('Unhandled link error %link has been found.', array('%link' => $link->url)), WATCHDOG_ERROR, url('admin/logs/linkchecker'));
+      }
+      else {
         db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->error, time(), $link->lid);
-        watchdog('linkchecker', t('Broken link %link has been found.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/logs/linkchecker'));
-
-        // If unpublishing limit is reached, unpublish all nodes having this link.
-        $linkchecker_action_status_code_404 = variable_get('linkchecker_action_status_code_404', 0);
-        if ($linkchecker_action_status_code_404 && $linkchecker_action_status_code_404 <= ($link->fail_count+1)) {
-          _linkchecker_unpublish_nodes($link->lid);
-        }
-        break;
-
-      case 405:
-        // Special error handling if method is not allowed. Switch link checking to GET method and try again.
-        $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent), 'GET', NULL, 0);
-        if ($response->code == 200) {
-          db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d, method = '%s' WHERE lid = %d", $response->code, $response->error, 0, time(), 'GET', $link->lid);
-        }
-        else {
-          db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d, method = '%s' WHERE lid = %d", $response->code, $response->error, time(), 'GET', $link->lid);
-        }
-        watchdog('linkchecker', t('Method HEAD is not allowed for link %link. Method has been changed to GET.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/logs/linkchecker'));
-        break;
-
-      default:
-        // Don't treat ignored response codes as errors.
-        if (in_array($response->code, $ignore_response_codes)) {
-          db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d WHERE lid = %d", $response->code, $response->error, 0, time(), $link->lid);
-          //watchdog('linkchecker', t('Unhandled link error %link has been found.', array('%link' => $link->url)), WATCHDOG_ERROR, url('admin/logs/linkchecker'));
-        }
-        else {
-          db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->error, time(), $link->lid);
-          //watchdog('linkchecker', t('Unhandled link error %link has been found.', array('%link' => $link->url)), WATCHDOG_ERROR, url('admin/logs/linkchecker'));
-        }
-    }
+        //watchdog('linkchecker', t('Unhandled link error %link has been found.', array('%link' => $link->url)), WATCHDOG_ERROR, url('admin/logs/linkchecker'));
+      }
   }
+
 }
 
 function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
