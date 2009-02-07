@@ -252,7 +252,7 @@ function linkchecker_admin_report() {
     }
 
     // Show link to comments having this broken link.
-    $comments = db_query('SELECT nid FROM {linkchecker_comments} WHERE lid = %d', $link->lid);
+    $comments = db_query('SELECT cid FROM {linkchecker_comments} WHERE lid = %d', $link->lid);
     while ($comments = db_fetch_object($comments)) {
       $links[] = l(t('Edit comment @comment', array('@comment' => $comments->cid)), 'comment/edit/' . $comments->cid, array('query' => 'destination=admin/reports/linkchecker'));
     }
