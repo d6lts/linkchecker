@@ -24,7 +24,8 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#default_value' => variable_get('linkchecker_scan_comments', 0),
     '#type' => 'checkbox',
     '#title' => t('Scan comments for links'),
-    '#description' => t('Enable this checkbox if links in comments of the above selected node type(s) should be checked.')
+    '#description' => t('Enable this checkbox if links in comments of the above selected node type(s) should be checked.'),
+    '#disabled' => module_exists('comment') ? FALSE : TRUE,
   );
   $form['settings']['linkchecker_scan_blocks'] = array(
     '#default_value' => variable_get('linkchecker_scan_blocks', 0),
