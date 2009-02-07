@@ -53,7 +53,7 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#default_value' => variable_get('linkchecker_pathfilter_support', 0),
     '#type' => 'checkbox',
     '#title' => t('Pathfilter module support'),
-    '#description' => t('Enable this checkbox for <a href="@pathfilter">pathfilter</a> module support. Pathfilter module need to be installed.', array('@pathfilter' => 'http://drupal.org/project/pathfilter')) . $pathfilter_dependencies,
+    '#description' => t('Enable this checkbox for <a href="@pathfilter">pathfilter</a> module support.', array('@pathfilter' => 'http://drupal.org/project/pathfilter')) . $pathfilter_dependencies,
     '#disabled' => module_exists('pathfilter') ? FALSE : TRUE,
   );
 
