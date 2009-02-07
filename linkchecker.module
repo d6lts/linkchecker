@@ -54,13 +54,13 @@ function linkchecker_menu() {
 }
 
 /**
- * Batch: Load all nodes 100 by 100.
+ * Batch: Load all nodes 100 by hundred.
  */
 function _linkchecker_batch_import_nodes($node_types = array()) {
   // TODO: Add limitation setting and test with 500.000+ nodes and review memory consumption.
   $limit = 100;
 
-  // Node import.
+  // Node types import count.
   $rows = db_result(db_query('SELECT COUNT(DISTINCT nid) FROM {node} WHERE status = %d AND type IN (' . db_placeholders($node_types, 'varchar') . ')', array_merge(array(1), $node_types)));
 
   $operations = array();
@@ -77,7 +77,7 @@ function _linkchecker_batch_import_nodes($node_types = array()) {
 }
 
 /**
- * Batch operation: Load all nodes, 100 by 100.
+ * Batch operation: Load all nodes, 100 by hundred.
  */
 function _linkchecker_batch_node_import_op($row, $limit, $node_types, &$context) {
 
@@ -105,7 +105,58 @@ function _linkchecker_batch_node_import_finished($success, $results, $operations
 }
 
 /**
- * Batch: Load all nodes 100 by 100.
+ * Batch: Load all comments 100 by hundred.
+ */
+function _linkchecker_batch_import_comments($node_types = array()) {
+  // TODO: Add limitation setting and test with 500.000+ comments and review memory consumption.
+  $limit = 100;
+
+  // Comments import count.
+  $rows = db_result(db_query('SELECT COUNT(DISTINCT cid) FROM {comments} c INNER JOIN {node} n ON c.nid = n.nid WHERE c.status <> %d AND n.status = %d AND n.type IN (' . db_placeholders($node_types, 'varchar') . ')', array_merge(array(COMMENT_NOT_PUBLISHED, 1), $node_types)));
+
+  $operations = array();
+  for ($row = 0; $row<$rows; $row = $row+$limit) {
+    $operations[] = array('_linkchecker_batch_comments_import_op', array($row, $limit, $node_types));
+  }
+  $batch = array(
+    'operations' => $operations,
+    'finished' => '_linkchecker_batch_comments_import_finished',
+    'title' => t('Scanning comments for links'),
+  );
+
+  return $batch;
+}
+
+/**
+ * Batch operation: Load all comments, 100 by hundred.
+ */
+function _linkchecker_batch_comments_import_op($row, $limit, $node_types, &$context) {
+
+  // Retrieve the next group of records.
+  $result = db_query_range('SELECT cid FROM {comments} c INNER JOIN {node} n ON c.nid = n.nid WHERE c.status <> %d AND n.status = %d AND n.type IN (' . db_placeholders($node_types, 'varchar') . ') ORDER BY cid ASC', array_merge(array(COMMENT_NOT_PUBLISHED, 1), $node_types), $row, $limit);
+  while ($res = db_fetch_array($result)) {
+    // Load the comment and scan for links.
+    $comment = _linkchecker_comment_load($res['cid']);
+    _linkchecker_add_comment_links($comment);
+
+    // Store results for post-processing in the finished callback.
+    // TODO: Test with 500.000+ comments and review memory consumption.
+    $context['results'][] = $comment['cid'];
+  }
+}
+
+function _linkchecker_batch_comments_import_finished($success, $results, $operations) {
+  if ($success) {
+    $message = format_plural(count($results), 'One comment has been scanned.', '@count comments have been scanned.');
+  }
+  else {
+    $message = t('Finished importing comments with an error.');
+  }
+  drupal_set_message($message);
+}
+
+/**
+ * Batch: Load all boxes 100 by hundred.
  */
 function _linkchecker_batch_import_boxes() {
   // TODO: Add limitation setting and test with 500.000+ boxes and review memory consumption.
@@ -113,7 +164,7 @@ function _linkchecker_batch_import_boxes() {
 
   // Block import.
   $operations = array();
-  $rows = db_result(db_query('SELECT bid FROM {boxes}'));
+  $rows = db_result(db_query('SELECT COUNT(DISTINCT bid) FROM {boxes}'));
   for ($row = 0; $row<$rows; $row = $row+$limit) {
     $operations[] = array('_linkchecker_batch_import_boxes_op', array($row, $limit));
   }
@@ -127,7 +178,7 @@ function _linkchecker_batch_import_boxes() {
 }
 
 /**
- * Batch operation: Load all boxes, 100 by 100.
+ * Batch operation: Load all boxes, 100 by hundred.
  */
 function _linkchecker_batch_import_boxes_op($row, $limit, &$context) {
   // Retrieve the next group of bids.
@@ -261,6 +312,34 @@ function _linkchecker_status_handling($link, $response) {
           watchdog('linkchecker', 'Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
         }
 
+        // COMMENTS: Autorepair all comments having this outdated link.
+        if (module_exists('comment')) {
+          $res = db_query("SELECT * FROM {linkchecker_comments} WHERE lid = %d", $link->lid);
+          while ($row = db_fetch_object($res)) {
+            $comment = _linkchecker_comment_load($row->cid);
+
+            // Create array of node fields to scan (for e.g. $node->title, $node->links_weblink_url).
+            $text_items = array();
+            $text_items[] = 'subject';
+            $text_items[] = 'comment';
+
+            // Now replace the outdated link with the permanently moved one in all comment fields.
+            foreach ($text_items as $text_item) {
+              if (!empty($comment[$text_item])) {
+                $comment[$text_item] = str_replace($link->url, check_url($response->redirect_url), $comment[$text_item]);
+                $comment[$text_item] = str_replace(check_url($link->url), check_url($response->redirect_url), $comment[$text_item]);
+              }
+            }
+
+            // Save changed comment and update the comment link list.
+            comment_save($comment);
+            // TODO: Logic could theoretically be optimized for more speed -> do
+            // the link update only once and not after every changed link (minor).
+            _linkchecker_add_comment_links($comment);
+            watchdog('linkchecker', 'Changed permanently moved link in comment %comment from %src to %dst.', array('%comment' => $comment['cid'], '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+          }
+        }
+
         // BOXES: Autorepair all boxes having this outdated link.
         $res = db_query("SELECT * FROM {linkchecker_boxes} WHERE lid = %d", $link->lid);
         while ($row = db_fetch_object($res)) {
@@ -346,7 +425,7 @@ function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
 
     case 'view':
       // Node edit tab is viewed.
-      if (arg(2) == 'edit') {
+      if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'edit') {
         // Show a message on node edit page if a link check failed once or more.
         $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
         $links = db_query("SELECT url, code, fail_count FROM {linkchecker_nodes} ln INNER JOIN {linkchecker_links} ll ON ln.lid = ll.lid WHERE ln.nid = %d AND ll.fail_count > %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array($node->nid, 0), $ignore_response_codes));
@@ -358,21 +437,52 @@ function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
   }
 }
 
+function linkchecker_comment($comment, $op) {
+  // Convert $comment object (admin/content/comment) to array (comment/edit/[cid]).
+  $comment = (array) $comment;
+
+  switch ($op) {
+    case 'publish':
+      $node_type = db_result(db_query("SELECT type FROM {node} WHERE nid = %d", $comment['nid']));
+      if (_linkchecker_scan_nodetype($node_type)) {
+        _linkchecker_add_comment_links($comment);
+      }
+      break;
+
+    case 'unpublish':
+    case 'delete':
+      _linkchecker_delete_comment_links($comment['cid']);
+      break;
+  }
+}
+
 function linkchecker_form_alter(&$form, &$form_state, $form_id) {
   switch ($form_id) {
     // Catch the block add/configure form and add custom submit handler.
     case 'block_add_block_form':
       // Add custom submit handler to block add form.
-      $form['#submit'][] = 'linkchecker_add_form_submit';
+      $form['#submit'][] = 'linkchecker_block_add_form_submit';
       break;
 
     case 'block_admin_configure':
       // Add custom submit handler to block configuration form.
-      $form['#submit'][] = 'linkchecker_configure_form_submit';
+      $form['#submit'][] = 'linkchecker_block_configure_form_submit';
       break;
 
     case 'block_box_delete':
-      $form['#submit'][] = 'linkchecker_box_delete_form_submit';
+      $form['#submit'][] = 'linkchecker_block_box_delete_form_submit';
+      break;
+
+    case 'comment_form':
+      // Comment is edited.
+      if (arg(0) == 'comment' && arg(1) == 'edit' && is_numeric(arg(2))) {
+        // Show a message on comment edit page if a link check failed once or more.
+        $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
+        $links = db_query("SELECT url, code, fail_count FROM {linkchecker_comments} lc INNER JOIN {linkchecker_links} ll ON lc.lid = ll.lid WHERE lc.cid = %d AND ll.fail_count > %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array(arg(2), 0), $ignore_response_codes));
+        while ($link = db_fetch_object($links)) {
+          drupal_set_message(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $link->url, '@code' => $link->code)), 'warning', FALSE);
+        }
+      }
       break;
 
     default:
@@ -383,7 +493,7 @@ function linkchecker_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Custom submit handler for block add page.
  */
-function linkchecker_add_form_submit($form, &$form_state) {
+function linkchecker_block_add_form_submit($form, &$form_state) {
   $bid = db_last_insert_id('boxes', 'bid');
   _linkchecker_add_box_links($form_state['values'], $bid);
 }
@@ -391,19 +501,19 @@ function linkchecker_add_form_submit($form, &$form_state) {
 /**
  * Custom submit handler for block configure page.
  */
-function linkchecker_configure_form_submit($form, &$form_state) {
+function linkchecker_block_configure_form_submit($form, &$form_state) {
   _linkchecker_add_box_links($form_state['values'], $form_state['values']['delta']);
 }
 
 /**
  * Custom submit handler for block delete page.
  */
-function linkchecker_box_delete_form_submit($form, &$form_state) {
+function linkchecker_block_box_delete_form_submit($form, &$form_state) {
   _linkchecker_delete_box_links($form_state['values']['bid']);
 }
 
 /**
- * Add node links into database.
+ * Add node links to database.
  */
 function _linkchecker_add_node_links($node) {
 
@@ -451,27 +561,24 @@ function _linkchecker_add_node_links($node) {
     if (!$lid) {
       db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
       $lid = db_last_insert_id('linkchecker_links', 'lid');
-      db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $lid);
     }
-    else {
-      db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $lid);
-    }
+    db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $lid);
   }
 }
 
 /**
- * Add box links into database.
+ * Add box links to database.
  */
-function _linkchecker_add_box_links($edit, $bid) {
+function _linkchecker_add_box_links($box, $bid) {
 
   // Remove all link references first for cleanup reasons...
   _linkchecker_delete_box_links($bid);
 
   // Create array of box fields to scan.
   $text_items = array();
-  $text_items[] = $edit['info'];
-  $text_items[] = $edit['title'];
-  $text_items[] = $edit['body'];
+  $text_items[] = $box['info'];
+  $text_items[] = $box['title'];
+  $text_items[] = $box['body'];
 
   // Extract all links in a box.
   $links = _linkchecker_extract_links(implode(' ', $text_items));
@@ -485,11 +592,38 @@ function _linkchecker_add_box_links($edit, $bid) {
     if (!$lid) {
       db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
       $lid = db_last_insert_id('linkchecker_links', 'lid');
-      db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $lid);
     }
-    else {
-      db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $lid);
+    db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $lid);
+  }
+}
+
+/**
+ * Add comment links to database.
+ */
+function _linkchecker_add_comment_links($comment) {
+
+  // Remove all link references first for cleanup reasons...
+  _linkchecker_delete_comment_links($comment['cid']);
+
+  // Create array of comment fields to scan.
+  $text_items = array();
+  $text_items[] = $comment['subject'];
+  $text_items[] = $comment['comment'];
+
+  // Extract all links in a comment.
+  $links = _linkchecker_extract_links(implode(' ', $text_items));
+
+  // Only add unique links to database that do not exist.
+  foreach (array_unique($links) as $link) {
+    // Change HTML links into plain text links.
+    $link = decode_entities($link);
+
+    $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
+    if (!$lid) {
+      db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
+      $lid = db_last_insert_id('linkchecker_links', 'lid');
     }
+    db_query("INSERT INTO {linkchecker_comments} (cid, lid) VALUES (%d, %d)", $comment['cid'], $lid);
   }
 }
 
@@ -508,6 +642,13 @@ function _linkchecker_delete_box_links($bid) {
 }
 
 /**
+ * Remove all comment references to links in the linkchecker_comments table.
+ */
+function _linkchecker_delete_comment_links($cid) {
+  return db_query("DELETE FROM {linkchecker_comments} WHERE cid = %d", $cid);
+}
+
+/**
  * Run perodically via cron and delete all links without a references.
  *
  * For speed reasons and check results we keep the links for some time
@@ -518,9 +659,18 @@ function _linkchecker_cleanup_links() {
   $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
   if (!empty($node_types)) {
     db_query('DELETE FROM {linkchecker_nodes} WHERE nid IN (SELECT nid FROM {node} n WHERE n.type NOT IN (' . db_placeholders($node_types, 'varchar') . '))', $node_types);
+    // FIXME: Remove comments 
+    //db_query('DELETE FROM {linkchecker_comments} WHERE cid IN (SELECT nid FROM {node} n WHERE n.type NOT IN (' . db_placeholders($node_types, 'varchar') . '))', $node_types);
   }
   else {
     db_query('DELETE FROM {linkchecker_nodes}');
+    // FIXME: Remove comments 
+  }
+
+  // Remove comment links if comment scanning is disabled.
+  // TODO: Remove comments of unpubslished nodes.
+  if (variable_get('linkchecker_scan_comments', 0) == 0) {
+    db_query('DELETE FROM {linkchecker_comments}');
   }
 
   // Remove block links if block scanning is disabled.
@@ -532,6 +682,8 @@ function _linkchecker_cleanup_links() {
   db_query('DELETE FROM {linkchecker_links}
             WHERE lid NOT IN (
               SELECT DISTINCT lid FROM {linkchecker_boxes}
+              UNION ALL
+              SELECT DISTINCT lid FROM {linkchecker_comments}
               UNION ALL
               SELECT DISTINCT lid FROM {linkchecker_nodes}
             )');
@@ -679,4 +831,11 @@ function _linkchecker_unpublish_nodes($lid) {
 
     // TODO: Add email notification for authors.
   }
+}
+
+/**
+ * Load comment as array.
+ */
+function _linkchecker_comment_load($cid) {
+  return db_fetch_array(db_query('SELECT * FROM {comments} WHERE cid = %d', $cid));
 }

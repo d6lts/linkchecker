@@ -30,6 +30,7 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_cleanup_links_last');
   variable_del('linkchecker_pathfilter_support');
   variable_del('linkchecker_scan_nodetypes');
+  variable_del('linkchecker_scan_comments');
   variable_del('linkchecker_scan_blocks');
 }
 
@@ -301,6 +302,38 @@ function linkchecker_update_6200() {
   $ret = array();
 
   db_change_field($ret, 'linkchecker_links', 'lid', 'lid', array('type' => 'serial', 'not null' => TRUE));
+
+  return $ret;
+}
+
+/**
+ * Install linkchecker_comments table.
+ */
+function linkchecker_update_6201() {
+  $ret = array();
+
+  // Create new tables.
+  $schema['linkchecker_comments'] = array(
+    'description' => 'Stores all link references for comments.',
+    'fields' => array(
+      'cid'  => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {comments}.cid.',
+      ),
+      'lid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {linkchecker_links}.lid.',
+      ),
+    ),
+    'primary key' => array('cid', 'lid'),
+  );
+
+  // Table may be created in 5201 by 5.x-2.x.
+  if (!db_table_exists('linkchecker_comments')) {
+    db_create_table($ret, 'linkchecker_comments', $schema['linkchecker_comments']);
+  }
 
   return $ret;
 }

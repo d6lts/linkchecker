@@ -20,6 +20,12 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#options' => array_map('check_plain', node_get_types('names')),
     '#description' => t('Enable link checking for the selected node type(s).'),
   );
+  $form['settings']['linkchecker_scan_comments'] = array(
+    '#default_value' => variable_get('linkchecker_scan_comments', 0),
+    '#type' => 'checkbox',
+    '#title' => t('Scan comments for links'),
+    '#description' => t('Enable this checkbox if links in comments of the above selected node type(s) should be checked.')
+  );
   $form['settings']['linkchecker_scan_blocks'] = array(
     '#default_value' => variable_get('linkchecker_scan_blocks', 0),
     '#type' => 'checkbox',
@@ -168,6 +174,7 @@ function linkchecker_admin_settings_form_submit($form, &$form_state) {
   system_settings_form_submit($form, $form_state);
 
   // Re-scan node types if new node types have been selected.
+  // FIXME: or blocks needs to be scanned.
   if (!empty($additional_nodetypes_selected)) {
     linkchecker_analyze_links_submit();
   }
@@ -179,7 +186,12 @@ function linkchecker_admin_settings_form_submit($form, &$form_state) {
 function linkchecker_analyze_links_submit() {
   // Start batch and analyze all nodes.
   $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
-  batch_set(_linkchecker_batch_import_nodes($node_types));
+  if (!empty($node_types)) {
+    batch_set(_linkchecker_batch_import_nodes($node_types));
+    if (variable_get('linkchecker_scan_comments', 0)) {
+      batch_set(_linkchecker_batch_import_comments($node_types));
+    }
+  }
 
   // FIXME: Batch title does not update on second batch_set(), http://drupal.org/node/368742
   if (variable_get('linkchecker_scan_blocks', 0)) {
@@ -193,12 +205,18 @@ function linkchecker_analyze_links_submit() {
 function linkchecker_clear_analyze_links_submit() {
   // TODO: D7 requires "DELETE FROM {table}" for sqllite.
   db_query("TRUNCATE TABLE {linkchecker_nodes}");
+  db_query("TRUNCATE TABLE {linkchecker_comments}");
   db_query("TRUNCATE TABLE {linkchecker_boxes}");
   db_query("TRUNCATE TABLE {linkchecker_links}");
 
   // Start batch and analyze all nodes.
   $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
-  batch_set(_linkchecker_batch_import_nodes($node_types));
+  if (!empty($node_types)) {
+    batch_set(_linkchecker_batch_import_nodes($node_types));
+    if (variable_get('linkchecker_scan_comments', 0)) {
+      batch_set(_linkchecker_batch_import_comments($node_types));
+    }
+  }
 
   // FIXME: Batch title does not update on second batch_set(), http://drupal.org/node/368742
   if (variable_get('linkchecker_scan_blocks', 0)) {
@@ -218,6 +236,7 @@ function linkchecker_admin_report() {
     array('data' => t('Operations')),
   );
 
+  // FIXME: If a link has been corrected it is nevertheless shown until cleanup job ran.
   $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
   $result = pager_query("SELECT * FROM {linkchecker_links} WHERE last_checked <> %d AND code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")" . tablesort_sql($header), 50, 0, NULL, array_merge(array(0), $ignore_response_codes));
 
@@ -228,13 +247,19 @@ function linkchecker_admin_report() {
     // Show link to nodes having this broken link.
     $nodes = db_query('SELECT nid FROM {linkchecker_nodes} WHERE lid = %d', $link->lid);
     while ($node = db_fetch_object($nodes)) {
-      $links[] = l(t('Edit node @node', array('@node' => $node->nid)), 'node/' . $node->nid . '/edit');
+      $links[] = l(t('Edit node @node', array('@node' => $node->nid)), 'node/' . $node->nid . '/edit', array('query' => 'destination=admin/reports/linkchecker'));
+    }
+
+    // Show link to comments having this broken link.
+    $comments = db_query('SELECT nid FROM {linkchecker_comments} WHERE lid = %d', $link->lid);
+    while ($comments = db_fetch_object($comments)) {
+      $links[] = l(t('Edit comment @comment', array('@comment' => $comments->cid)), 'comment/edit/' . $comments->cid, array('query' => 'destination=admin/reports/linkchecker'));
     }
 
     // Show link to blocks having this broken link.
     $boxes = db_query('SELECT bid FROM {linkchecker_boxes} WHERE lid = %d', $link->lid);
     while ($box = db_fetch_object($boxes)) {
-      $links[] = l(t('Edit block @block', array('@block' => $box->bid)), 'admin/build/block/configure/block/' . $box->bid);
+      $links[] = l(t('Edit block @block', array('@block' => $box->bid)), 'admin/build/block/configure/block/' . $box->bid, array('query' => 'destination=admin/reports/linkchecker'));
     }
 
     // Create table data for output.
