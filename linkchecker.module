@@ -598,13 +598,13 @@ function _linkchecker_status_handling($link, $response) {
 
       }
       else {
-        watchdog('linkchecker', t('Link %link has changed and needs to be updated.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/logs/linkchecker'));
+        watchdog('linkchecker', t('Link %link has changed and needs to be updated.', array('%link' => $link->url)), WATCHDOG_NOTICE, l(t('Broken links'), 'admin/logs/linkchecker'));
       }
       break;
 
     case 404:
       db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->error, time(), $link->lid);
-      watchdog('linkchecker', t('Broken link %link has been found.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/logs/linkchecker'));
+      watchdog('linkchecker', t('Broken link %link has been found.', array('%link' => $link->url)), WATCHDOG_NOTICE, l(t('Broken links'), 'admin/logs/linkchecker'));
 
       // If unpublishing limit is reached, unpublish all nodes having this link.
       $linkchecker_action_status_code_404 = variable_get('linkchecker_action_status_code_404', 0);
@@ -622,18 +622,18 @@ function _linkchecker_status_handling($link, $response) {
       else {
         db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d, method = '%s' WHERE lid = %d", $response->code, $response->error, time(), 'GET', $link->lid);
       }
-      watchdog('linkchecker', t('Method HEAD is not allowed for link %link. Method has been changed to GET.', array('%link' => $link->url)), WATCHDOG_NOTICE, url('admin/logs/linkchecker'));
+      watchdog('linkchecker', t('Method HEAD is not allowed for link %link. Method has been changed to GET.', array('%link' => $link->url)), WATCHDOG_NOTICE, l(t('Broken links'), 'admin/logs/linkchecker'));
       break;
 
     default:
       // Don't treat ignored response codes as errors.
       if (in_array($response->code, $ignore_response_codes)) {
         db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d WHERE lid = %d", $response->code, $response->error, 0, time(), $link->lid);
-        //watchdog('linkchecker', t('Unhandled link error %link has been found.', array('%link' => $link->url)), WATCHDOG_ERROR, url('admin/logs/linkchecker'));
+        //watchdog('linkchecker', t('Unhandled link error %link has been found.', array('%link' => $link->url)), WATCHDOG_ERROR, l(t('Broken links'), 'admin/logs/linkchecker'));
       }
       else {
         db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->error, time(), $link->lid);
-        //watchdog('linkchecker', t('Unhandled link error %link has been found.', array('%link' => $link->url)), WATCHDOG_ERROR, url('admin/logs/linkchecker'));
+        //watchdog('linkchecker', t('Unhandled link error %link has been found.', array('%link' => $link->url)), WATCHDOG_ERROR, l(t('Broken links'), 'admin/logs/linkchecker'));
       }
   }
 
