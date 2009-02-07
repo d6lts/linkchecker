@@ -241,6 +241,7 @@ function linkchecker_cron() {
  *   data and redirect status.
  */
 function _linkchecker_status_handling($link, $response) {
+  $useragent = variable_get('linkchecker_check_useragent', 'Drupal (+http://drupal.org/)');
   $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
 
   switch ($response->code) {
