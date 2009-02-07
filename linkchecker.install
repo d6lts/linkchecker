@@ -127,6 +127,23 @@ function linkchecker_schema() {
     'primary key' => array('nid', 'lid'),
   );
 
+  $schema['linkchecker_comments'] = array(
+    'description' => 'Stores all link references for comments.',
+    'fields' => array(
+      'cid'  => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {comments}.cid.',
+      ),
+      'lid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique {linkchecker_links}.lid.',
+      ),
+    ),
+    'primary key' => array('cid', 'lid'),
+  );
+
   return $schema;
 }
 
