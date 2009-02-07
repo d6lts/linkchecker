@@ -22,7 +22,12 @@ function linkchecker_install() {
       db_query("CREATE TABLE {linkchecker_nodes} (
         nid INTEGER NOT NULL,
         lid INTEGER NOT NULL,
-        PRIMARY KEY (nid,lid)
+        PRIMARY KEY (nid, lid)
+      ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+      db_query("CREATE TABLE {linkchecker_comments} (
+        cid INTEGER NOT NULL,
+        lid INTEGER NOT NULL,
+        PRIMARY KEY (cid ,lid)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       db_query("CREATE TABLE {linkchecker_links} (
         lid INTEGER NOT NULL auto_increment,
@@ -50,6 +55,11 @@ function linkchecker_install() {
         lid INTEGER NOT NULL,
         PRIMARY KEY (nid, lid)
       );");
+      db_query("CREATE TABLE {linkchecker_comments} (
+        cid INTEGER NOT NULL,
+        lid INTEGER NOT NULL,
+        PRIMARY KEY (cid, lid)
+      );");
       db_query("CREATE TABLE {linkchecker_links} (
         lid INTEGER NOT NULL,
         token VARCHAR(32) NOT NULL,
@@ -73,6 +83,7 @@ function linkchecker_install() {
 function linkchecker_uninstall() {
   db_query("DROP TABLE {linkchecker_boxes}");
   db_query("DROP TABLE {linkchecker_nodes}");
+  db_query("DROP TABLE {linkchecker_comments}");
   db_query("DROP TABLE {linkchecker_links}");
 
   variable_del('linkchecker_fqdn_only');
@@ -86,6 +97,7 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_cleanup_links_last');
   variable_del('linkchecker_pathfilter_support');
   variable_del('linkchecker_scan_nodetypes');
+  variable_del('linkchecker_scan_comments');
   variable_del('linkchecker_scan_blocks');
 }
 
@@ -147,7 +159,7 @@ function linkchecker_update_5200() {
       $ret[] = update_sql("CREATE TABLE {linkchecker_nodes} (
         nid INTEGER NOT NULL,
         lid INTEGER NOT NULL,
-        PRIMARY KEY (nid,lid)
+        PRIMARY KEY (nid, lid)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       $ret[] = update_sql("CREATE TABLE {linkchecker_links} (
         lid INTEGER NOT NULL auto_increment,
@@ -216,6 +228,36 @@ function linkchecker_update_5200() {
   if (!module_exists('job_queue')) {
     module_disable(array('linkchecker'));
     drupal_set_message('The required job_queue module is missing. The linkchecker module has been disabled. Install job_queue module and re-enable linkchecker, please.', 'error');
+  }
+
+  return $ret;
+}
+
+/**
+ * Install linkchecker_comments table.
+ */
+function linkchecker_update_5201() {
+  $ret = array();
+
+  // Create new tables.
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("CREATE TABLE {linkchecker_comments} (
+        cid INTEGER NOT NULL,
+        lid INTEGER NOT NULL,
+        PRIMARY KEY (cid ,lid)
+      ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+      break;
+
+    // PgSQL is untested!
+    case 'pgsql':
+      $ret[] = update_sql("CREATE TABLE {linkchecker_comments} (
+        cid INTEGER NOT NULL,
+        lid INTEGER NOT NULL,
+        PRIMARY KEY (cid, lid)
+      );");
+      break;
   }
 
   return $ret;
