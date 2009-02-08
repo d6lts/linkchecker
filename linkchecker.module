@@ -260,7 +260,7 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
         // If one or more node types have been selected.
         if (!empty($node_types)) {
           _linkchecker_batch_import_nodes($node_types);
-          drupal_set_message(t('Node type analysis has been queued for processing via cron.'));
+          drupal_set_message(t('Node types analysis have been queued for processing via cron.'));
 
           // If comment scanning of node types has been selected.
           if ($linkchecker_scan_comments_changed) {
