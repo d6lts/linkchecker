@@ -36,7 +36,7 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#default_value' => variable_get('linkchecker_scan_blocks', 0),
     '#type' => 'checkbox',
     '#title' => t('Scan blocks for links'),
-    '#description' => t('Enable this checkbox if links in blocks should be checked.')
+    '#description' => t('Enable this checkbox if links in blocks should be checked.'),
   );
   $form['settings']['linkchecker_fqdn_only'] = array(
     '#default_value' => variable_get('linkchecker_fqdn_only', 1),
@@ -178,15 +178,12 @@ function linkchecker_admin_settings_form_submit($form, &$form_state) {
   // Exclude unnecessary elements.
   unset($form_state['values']['linkchecker_analyze'], $form_state['values']['linkchecker_clear_analyze']);
 
-  // Node type selection changed?
-  $additional_nodetypes_selected = array_diff($form_state['values']['linkchecker_scan_nodetypes'], variable_get('linkchecker_scan_nodetypes', array()));
-
   // Save form settings.
   system_settings_form_submit($form, $form_state);
 
-  // Re-scan node types if new node types have been selected.
-  // FIXME: or blocks needs to be scanned.
-  if (!empty($additional_nodetypes_selected)) {
+  // Re-scan items, if node types or comment or block selection have been changed.
+  $additional_nodetypes_selected = array_diff($form_state['values']['linkchecker_scan_nodetypes'], $form['settings']['linkchecker_scan_nodetypes']['#default_value']);
+  if (!empty($additional_nodetypes_selected) || $form_state['values']['linkchecker_scan_comments'] > $form['settings']['linkchecker_scan_comments']['#default_value'] || $form_state['values']['linkchecker_scan_blocks'] > $form['settings']['linkchecker_scan_blocks']['#default_value']) {
     linkchecker_analyze_links_submit();
   }
 }
