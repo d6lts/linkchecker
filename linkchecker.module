@@ -245,20 +245,37 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
       // Exclude unnecessary elements.
       unset($form_values['linkchecker_analyze'], $form_values['linkchecker_clear_analyze']);
 
-      // Node type selection changed?
+      // Have node types or comment or block selection changed?
       $additional_nodetypes_selected = array_diff($form_values['linkchecker_scan_nodetypes'], variable_get('linkchecker_scan_nodetypes', array()));
+      $linkchecker_scan_comments_changed = ($form_values['linkchecker_scan_comments'] > variable_get('linkchecker_scan_comments', 0)) ? TRUE : FALSE;
+      $linkchecker_scan_blocks = ($form_values['linkchecker_scan_blocks'] > variable_get('linkchecker_scan_blocks', 0)) ? TRUE : FALSE;
 
       // Save form settings.
       system_settings_form_submit($form_id, $form_values);
 
-      // Re-scan node types if new node types have been selected.
-      // FIXME: or blocks needs to be scanned.
-      if (!empty($additional_nodetypes_selected)) {
-        _linkchecker_batch_import();
-        drupal_set_message(t('Content analysis has been queued for processing via cron.'));
+      // Re-scan items, if node types or comment or block selection have been changed.
+      if (!empty($additional_nodetypes_selected) || $linkchecker_scan_comments_changed) {
+        $node_types = array_keys(array_filter($form_values['linkchecker_scan_nodetypes']));
+
+        // If one or more node types have been selected.
+        if (!empty($node_types)) {
+          _linkchecker_batch_import_nodes($node_types);
+          drupal_set_message(t('Node types analysis has been queued for processing via cron.'));
+
+          // If comment scanning of node types has been selected.
+          if ($linkchecker_scan_comments_changed) {
+            _linkchecker_batch_import_comments($node_types);
+            drupal_set_message(t('Comment analysis has been queued for processing via cron.'));
+          }
+        }
+      }
+
+      // If block scanning has been selected.
+      if ($linkchecker_scan_blocks) {
+        _linkchecker_batch_import_boxes();
+        drupal_set_message(t('Block analysis has been queued for processing via cron.'));
       }
   }
-
 }
 
 /**
