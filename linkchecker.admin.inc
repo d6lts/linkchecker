@@ -183,8 +183,23 @@ function linkchecker_admin_settings_form_submit($form, &$form_state) {
 
   // Re-scan items, if node types or comment or block selection have been changed.
   $additional_nodetypes_selected = array_diff($form_state['values']['linkchecker_scan_nodetypes'], $form['settings']['linkchecker_scan_nodetypes']['#default_value']);
-  if (!empty($additional_nodetypes_selected) || $form_state['values']['linkchecker_scan_comments'] > $form['settings']['linkchecker_scan_comments']['#default_value'] || $form_state['values']['linkchecker_scan_blocks'] > $form['settings']['linkchecker_scan_blocks']['#default_value']) {
-    linkchecker_analyze_links_submit();
+  if (!empty($additional_nodetypes_selected) || $form_state['values']['linkchecker_scan_comments'] > $form['settings']['linkchecker_scan_comments']['#default_value']) {
+    $node_types = array_keys(array_filter($form_state['values']['linkchecker_scan_nodetypes']));
+
+    // If one or more node types have been selected.
+    if (!empty($node_types)) {
+      batch_set(_linkchecker_batch_import_nodes($node_types));
+
+      // If comment scanning of node types has been selected.
+      if ($form_state['values']['linkchecker_scan_comments'] > $form['settings']['linkchecker_scan_comments']['#default_value']) {
+        batch_set(_linkchecker_batch_import_comments($node_types));
+      }
+    }
+  }
+
+  // If block scanning has been selected.
+  if ($form_state['values']['linkchecker_scan_blocks'] > $form['settings']['linkchecker_scan_blocks']['#default_value']) {
+    batch_set(_linkchecker_batch_import_boxes());
   }
 }
 
