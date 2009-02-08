@@ -262,3 +262,15 @@ function linkchecker_update_5201() {
 
   return $ret;
 }
+
+/**
+ * Remove unnecessary elements from custom submit buttons.
+ */
+function linkchecker_update_5202() {
+  $ret = array();
+
+  variable_del('linkchecker_analyze');
+  variable_del('linkchecker_clear_analyze');
+
+  return $ret;
+}
