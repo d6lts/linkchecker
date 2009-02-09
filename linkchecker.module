@@ -244,6 +244,13 @@ function _linkchecker_status_handling($link, $response) {
   $useragent = variable_get('linkchecker_check_useragent', 'Drupal (+http://drupal.org/)');
   $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
 
+  // FIXME: drupal_http_request() may not provide an UTF8 encoded error message
+  // what results in a database UPDATE failure. See http://drupal.org/node/371495
+  // for more information. ISO-8859-1 as source encoding may be wrong, but WFM.
+  if (!drupal_validate_utf8($response->error)) {
+    $response->error = drupal_convert_to_utf8($response->error, 'ISO-8859-1');
+  }
+
   switch ($response->code) {
     case 200:
     case 304:
