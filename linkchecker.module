@@ -182,7 +182,8 @@ function linkchecker_admin_settings_form() {
     '#default_value' => variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"),
     '#type' => 'textarea',
     '#title' => t("Don't treat these response codes as errors"),
-    '#description' => t('One HTTP status code per line, e.g. 403.')
+    '#description' => t('One HTTP status code per line, e.g. 403.'),
+    '#wysiwyg' => FALSE,
   );
 
   // Buttons are only required for testing and debugging reasons.
