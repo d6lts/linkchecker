@@ -18,3 +18,12 @@ http://example.com/admin/reports/linkchecker
 If not, make sure the cron is configured and running properly on your Drupal
 installation. The Link checker module also logs somewhat useful info about it's
 activity under Administer -> Logs -> Recent log entries.
+
+
+Known issues:
+
+1. drupal_http_request() does handle (invalid) non-absolute redirects, http://drupal.org/node/164365
+   Until this issue is fixed in core the permanently moved links are not
+   automatically updated by the "Update permanently moved links" featue
+   to the newly provided URL.
+   -> Solution: Manually fix these links or apply the patch.
