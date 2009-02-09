@@ -15,29 +15,29 @@ function linkchecker_install() {
     case 'mysql':
     case 'mysqli':
       db_query("CREATE TABLE {linkchecker_boxes} (
-        bid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        bid INT unsigned NOT NULL,
+        lid INT unsigned NOT NULL,
         PRIMARY KEY (bid, lid)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       db_query("CREATE TABLE {linkchecker_nodes} (
-        nid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        nid INT unsigned NOT NULL,
+        lid INT unsigned NOT NULL,
         PRIMARY KEY (nid, lid)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       db_query("CREATE TABLE {linkchecker_comments} (
-        cid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        cid INT unsigned NOT NULL,
+        lid INT unsigned NOT NULL,
         PRIMARY KEY (cid ,lid)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       db_query("CREATE TABLE {linkchecker_links} (
-        lid INTEGER NOT NULL auto_increment,
+        lid INT unsigned NOT NULL auto_increment,
         token VARCHAR(32) NOT NULL,
         url TEXT NOT NULL,
         method varchar(4) NOT NULL default 'HEAD',
-        code INTEGER NOT NULL default '0',
+        code INT NOT NULL default '-1',
         error TEXT,
-        fail_count INTEGER NOT NULL default '0',
-        last_checked INTEGER NOT NULL default '0',
+        fail_count INT NOT NULL default '0',
+        last_checked INT NOT NULL default '0',
         PRIMARY KEY (lid),
         UNIQUE KEY token (token)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
@@ -46,26 +46,26 @@ function linkchecker_install() {
     // PgSQL is untested!
     case 'pgsql':
       db_query("CREATE TABLE {linkchecker_boxes} (
-        bid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        bid int_unsigned NOT NULL,
+        lid int_unsigned NOT NULL,
         PRIMARY KEY (bid, lid)
       );");
       db_query("CREATE TABLE {linkchecker_nodes} (
-        nid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        nid int_unsigned NOT NULL,
+        lid int_unsigned NOT NULL,
         PRIMARY KEY (nid, lid)
       );");
       db_query("CREATE TABLE {linkchecker_comments} (
-        cid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        cid int_unsigned NOT NULL,
+        lid int_unsigned NOT NULL,
         PRIMARY KEY (cid, lid)
       );");
       db_query("CREATE TABLE {linkchecker_links} (
-        lid INTEGER NOT NULL,
+        lid int_unsigned NOT NULL,  
         token VARCHAR(32) NOT NULL,
         url TEXT NOT NULL,
         method VARCHAR(4) NOT NULL default 'HEAD',
-        code INTEGER NOT NULL default '0',
+        code INTEGER NOT NULL default '-1',
         error TEXT,
         fail_count INTEGER NOT NULL default '0',
         last_checked INTEGER NOT NULL default '0',
@@ -152,47 +152,54 @@ function linkchecker_update_5200() {
     case 'mysql':
     case 'mysqli':
       $ret[] = update_sql("CREATE TABLE {linkchecker_boxes} (
-        bid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        bid INT NOT NULL,
+        lid INT NOT NULL,
         PRIMARY KEY (bid, lid)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       $ret[] = update_sql("CREATE TABLE {linkchecker_nodes} (
-        nid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        nid INT NOT NULL,
+        lid INT NOT NULL,
         PRIMARY KEY (nid, lid)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       $ret[] = update_sql("CREATE TABLE {linkchecker_links} (
-        lid INTEGER NOT NULL auto_increment,
+        lid INT NOT NULL auto_increment,
         token VARCHAR(32) NOT NULL,
         url TEXT NOT NULL,
         method varchar(4) NOT NULL default 'HEAD',
-        code INTEGER NOT NULL default '0',
+        code INT NOT NULL default '0',
         error TEXT,
-        fail_count INTEGER NOT NULL default '0',
-        last_checked INTEGER NOT NULL default '0',
+        fail_count INT NOT NULL default '0',
+        last_checked INT NOT NULL default '0',
         PRIMARY KEY (lid),
         UNIQUE KEY token (token)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       break;
 
-    // PgSQL is untested!
+    // Install PgSQL tables with update_5204 level! PgSQL was broken in
+    // all older versions so we can expect nobody have used it. This allows not
+    // to reinvent the complete upgrade process with all steps. Fully untested!
     case 'pgsql':
       $ret[] = update_sql("CREATE TABLE {linkchecker_boxes} (
-        bid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        bid int_unsigned NOT NULL,
+        lid int_unsigned NOT NULL,
         PRIMARY KEY (bid, lid)
       );");
       $ret[] = update_sql("CREATE TABLE {linkchecker_nodes} (
-        nid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        nid int_unsigned NOT NULL,
+        lid int_unsigned NOT NULL,
         PRIMARY KEY (nid, lid)
       );");
+      $ret[] = update_sql("CREATE TABLE {linkchecker_comments} (
+        cid int_unsigned NOT NULL,
+        lid int_unsigned NOT NULL,
+        PRIMARY KEY (cid, lid)
+      );");
       $ret[] = update_sql("CREATE TABLE {linkchecker_links} (
-        lid INTEGER NOT NULL,
+        lid int_unsigned NOT NULL,  
         token VARCHAR(32) NOT NULL,
         url TEXT NOT NULL,
         method VARCHAR(4) NOT NULL default 'HEAD',
-        code INTEGER NOT NULL default '0',
+        code INTEGER NOT NULL default '-1',
         error TEXT,
         fail_count INTEGER NOT NULL default '0',
         last_checked INTEGER NOT NULL default '0',
@@ -244,20 +251,13 @@ function linkchecker_update_5201() {
     case 'mysql':
     case 'mysqli':
       $ret[] = update_sql("CREATE TABLE {linkchecker_comments} (
-        cid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
+        cid INT NOT NULL,
+        lid INT NOT NULL,
         PRIMARY KEY (cid ,lid)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       break;
 
-    // PgSQL is untested!
-    case 'pgsql':
-      $ret[] = update_sql("CREATE TABLE {linkchecker_comments} (
-        cid INTEGER NOT NULL,
-        lid INTEGER NOT NULL,
-        PRIMARY KEY (cid, lid)
-      );");
-      break;
+    // PgSQL has been installed in 5200!
   }
 
   return $ret;
@@ -271,6 +271,61 @@ function linkchecker_update_5202() {
 
   variable_del('linkchecker_analyze');
   variable_del('linkchecker_clear_analyze');
+
+  return $ret;
+}
+
+/**
+ * Change default value for linkchecker_links.code to -1.
+ *
+ * fsockopen may return 0 as an indication that the error occurred before
+ * the connect() call. This is most likely due to a problem initializing the
+ * socket.
+ */
+function linkchecker_update_5203() {
+  $ret = array();
+
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {linkchecker_links} MODIFY COLUMN `code` INT NOT NULL DEFAULT -1");
+      break;
+
+    // PgSQL has been installed in 5200!
+  }
+
+  return $ret;
+}
+
+/**
+ * Make fields unsigned.
+ */
+function linkchecker_update_5204() {
+  $ret = array();
+
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {linkchecker_links} CHANGE lid `lid` INT unsigned NOT NULL auto_increment");
+
+      $ret[] = update_sql("ALTER TABLE {linkchecker_boxes} DROP PRIMARY KEY");
+      $ret[] = update_sql("ALTER TABLE {linkchecker_boxes} CHANGE bid `bid` INT unsigned NOT NULL");
+      $ret[] = update_sql("ALTER TABLE {linkchecker_boxes} CHANGE lid `lid` INT unsigned NOT NULL");
+      $ret[] = update_sql("ALTER TABLE {linkchecker_boxes} ADD PRIMARY KEY (bid, lid)");
+
+      $ret[] = update_sql("ALTER TABLE {linkchecker_comments} DROP PRIMARY KEY");
+      $ret[] = update_sql("ALTER TABLE {linkchecker_comments} CHANGE cid `cid` INT unsigned NOT NULL");
+      $ret[] = update_sql("ALTER TABLE {linkchecker_comments} CHANGE lid `lid` INT unsigned NOT NULL");
+      $ret[] = update_sql("ALTER TABLE {linkchecker_comments} ADD PRIMARY KEY (cid, lid)");
+
+      $ret[] = update_sql("ALTER TABLE {linkchecker_nodes} DROP PRIMARY KEY");
+      $ret[] = update_sql("ALTER TABLE {linkchecker_nodes} CHANGE nid `nid` INT unsigned NOT NULL");
+      $ret[] = update_sql("ALTER TABLE {linkchecker_nodes} CHANGE lid `lid` INT unsigned NOT NULL");
+      $ret[] = update_sql("ALTER TABLE {linkchecker_nodes} ADD PRIMARY KEY (nid, lid)");
+      break;
+
+    // PgSQL has been installed in 5200!
+  }
 
   return $ret;
 }
