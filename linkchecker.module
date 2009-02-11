@@ -1087,6 +1087,11 @@ function _linkchecker_isvalid_response_code($code) {
 
 /**
  * What node types should be scanned for links?
+ * 
+ * @param $node_type
+ *   Verifies if the node type is enabled for link checks and should be scanned.
+ * @return
+ *   TRUE if node type should be scanned, otherwise FALSE.
  */
 function _linkchecker_scan_nodetype($node_type = NULL) {
 
@@ -1102,7 +1107,10 @@ function _linkchecker_scan_nodetype($node_type = NULL) {
 }
 
 /**
- * Sets the status of a node to 0, meaning unpublished.
+ * Unpublishes all nodes having the specified link id.
+ * 
+ * @param $lid
+ *   A link ID that have reached a defined failcount.
  */
 function _linkchecker_unpublish_nodes($lid) {
   $res = db_query("SELECT * FROM {linkchecker_nodes} WHERE lid = %d", $lid);
