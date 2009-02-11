@@ -768,7 +768,6 @@ function _linkchecker_filter_url($text = '') {
  *   An numeric response code.
  * @return
  *   TRUE if the status code is valid.
- * 
  */
 function _linkchecker_isvalid_response_code($code) {
 
