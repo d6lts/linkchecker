@@ -1029,9 +1029,16 @@ function _linkchecker_filter_url($text = '') {
   return $text;
 }
 
+/**
+ * Defines the list of allowed response codes for form input validation.
+ * 
+ * @param $code
+ *   An numeric response code.
+ * @return
+ *   TRUE if the status code is valid.
+ */
 function _linkchecker_isvalid_response_code($code) {
-  // RFC 2616 states that all unknown HTTP codes must be treated the same as the
-  // base code in their class.
+
   $responses = array(
     100 => 'Continue',
     101 => 'Switching Protocols',
