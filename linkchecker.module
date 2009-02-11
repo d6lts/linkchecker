@@ -308,7 +308,6 @@ function _linkchecker_batch_import_nodes($node_types = array()) {
   $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
   $rows = db_result(db_query('SELECT COUNT(DISTINCT nid) FROM {node} WHERE status = %d AND type IN (' . $placeholders . ')', array_merge(array(1), $node_types)));
 
-  $operations = array();
   for ($row = 0; $row<$rows; $row = $row+$limit) {
     job_queue_add('_linkchecker_batch_node_import_op', 'Scan nodes from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit, $node_types), '', TRUE);
   }
@@ -340,7 +339,6 @@ function _linkchecker_batch_import_comments($node_types = array()) {
   $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
   $rows = db_result(db_query('SELECT COUNT(DISTINCT cid) FROM {comments} c INNER JOIN {node} n ON c.nid = n.nid WHERE c.status <> %d AND n.status = %d AND n.type IN (' . $placeholders . ')', array_merge(array(COMMENT_NOT_PUBLISHED, 1), $node_types)));
   
-  $operations = array();
   for ($row = 0; $row<$rows; $row = $row+$limit) {
     job_queue_add('_linkchecker_batch_comments_import_op', 'Scan comments from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit, $node_types), '', TRUE);
   }
@@ -383,7 +381,6 @@ function _linkchecker_batch_import_boxes() {
   $limit = 100;
 
   // Block import.
-  $operations = array();
   $rows = db_result(db_query('SELECT COUNT(DISTINCT bid) FROM {boxes}'));
   for ($row = 0; $row<$rows; $row = $row+$limit) {
     job_queue_add('_linkchecker_batch_import_boxes_op', 'Scan boxes from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit), '', TRUE);
