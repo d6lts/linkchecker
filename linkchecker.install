@@ -167,15 +167,22 @@ function linkchecker_requirements($phase) {
       }
       break;
 
-/*    case 'runtime':
-      $requirements['linkchecker_curl'] = array(
+    case 'runtime':
+      if (!module_exists('job_queue')) {
+        $requirements['linkchecker_job_queue'] = array(
+          'title' => $t('Job queue'),
+          'value' => $t('Not found'),
+          'severity' => REQUIREMENT_WARNING,
+          'description' => $t('Install job_queue module if you have a node, comment or block with more than 100 links. Without the job_queue module only the first 100 links will be checked!'),
+        );
+      }
+/*      $requirements['linkchecker_curl'] = array(
         'title' => $t('cURL'),
         'value' => $has_curl ? $t('Enabled') : $t('Not found'),
         'severity' => $has_curl ? REQUIREMENT_OK : REQUIREMENT_WARNING,
         'description' => $t('You should install cURL for checking links with link checker module. If cURL is installed, simultaneuos link checks are used to speeds up the link checking process dramatically.'),
-      );
-      break; */
-
+      ); */
+      break;
   }
   return $requirements;
 }

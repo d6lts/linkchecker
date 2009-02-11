@@ -222,7 +222,7 @@ function linkchecker_cron() {
   $useragent = variable_get('linkchecker_check_useragent', 'Drupal (+http://drupal.org/)');
 
   // Get URLs for checking.
-  $result = db_query_range("SELECT * FROM {linkchecker_links} WHERE last_checked < %d ORDER BY last_checked ASC", time() - $check_links_interval, 0, $check_links_max_per_cron_run);
+  $result = db_query_range("SELECT * FROM {linkchecker_links} WHERE last_checked < %d ORDER BY last_checked, lid ASC", time() - $check_links_interval, 0, $check_links_max_per_cron_run);
   while ($link = db_fetch_object($result)) {
     // Fetch URL.
     $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent), $link->method, NULL, 0);
@@ -524,9 +524,7 @@ function linkchecker_block_box_delete_form_submit($form, &$form_state) {
  * Add node links to database.
  */
 function _linkchecker_add_node_links($node) {
-
-  // Remove all link references first for cleanup reasons...
-  _linkchecker_delete_node_links($node->nid);
+  $scan_max_links_per_run = 100;
 
   // Create array of node fields to scan.
   $text_items = array();
@@ -555,32 +553,88 @@ function _linkchecker_add_node_links($node) {
         }
       }
     }
-  }            
+  }
 
   // Extract all links in a node.
   $links = _linkchecker_extract_links(implode(' ', $text_items));
 
-  // Only add unique links to database that do not exist.
-  foreach (array_unique($links) as $link) {
-    // Change HTML links into plain text links.
-    $link = decode_entities($link);
+  // Remove all links from the links array already in the database
+  // and only add missing links to database.
+  $new_links = _linkchecker_node_links_missing($node->nid, $links);
 
+  // Add a job for scanning the next 100 links via job_queue module.
+  $missing_links_count = count($new_links)-$scan_max_links_per_run;
+  if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
+    job_queue_add('_linkchecker_scan_node_links', 'Scan node '. $node->nid .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($node->nid), '', FALSE);
+  }
+
+  // Only add links to database that do not exists.
+  $i = 0;
+  foreach ($new_links as $link) {
     $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
     if (!$lid) {
       db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
       $lid = db_last_insert_id('linkchecker_links', 'lid');
     }
     db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $lid);
+
+    // Break processing if max links limit per run has been reached.
+    $i++;
+    if ($i >= $scan_max_links_per_run) { break; }
   }
+
+  // Remove dead link references for cleanup reasons as very last step.
+  _linkchecker_cleanup_node_references($node->nid, $links);
+}
+
+/**
+ * Add comment links to database.
+ */
+function _linkchecker_add_comment_links($comment) {
+  $scan_max_links_per_run = 100;
+
+  // Create array of comment fields to scan.
+  $text_items = array();
+  $text_items[] = $comment['subject'];
+  $text_items[] = $comment['comment'];
+
+  // Extract all links in a comment.
+  $links = _linkchecker_extract_links(implode(' ', $text_items));
+
+  // Remove all links from the links array already in the database
+  // and only add missing links to database.
+  $new_links = _linkchecker_node_links_missing($comment['cid'], $links);
+
+  // Add a job for scanning the next 100 links via job_queue module.
+  $missing_links_count = count($new_links)-$scan_max_links_per_run;
+  if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
+    job_queue_add('_linkchecker_scan_comment_links', 'Scan comment '. $comment['cid'] .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($comment['cid']), '', FALSE);
+  }
+
+  // Only add unique links to database that do not exist.
+  $i = 0;
+  foreach ($new_links as $link) {
+    $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
+    if (!$lid) {
+      db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
+      $lid = db_last_insert_id('linkchecker_links', 'lid');
+    }
+    db_query("INSERT INTO {linkchecker_comments} (cid, lid) VALUES (%d, %d)", $comment['cid'], $lid);
+
+    // Break processing if max links limit per run has been reached.
+    $i++;
+    if ($i >= $scan_max_links_per_run) { break; }
+  }
+  
+  // Remove dead link references for cleanup reasons as very last step.
+  _linkchecker_cleanup_comment_references($comment['cid'], $links);
 }
 
 /**
  * Add box links to database.
  */
 function _linkchecker_add_box_links($box, $bid) {
-
-  // Remove all link references first for cleanup reasons...
-  _linkchecker_delete_box_links($bid);
+  $scan_max_links_per_run = 100;
 
   // Create array of box fields to scan.
   $text_items = array();
@@ -591,48 +645,33 @@ function _linkchecker_add_box_links($box, $bid) {
   // Extract all links in a box.
   $links = _linkchecker_extract_links(implode(' ', $text_items));
 
-  // Only add unique links to database that do not exist.
-  foreach (array_unique($links) as $link) {
-    // Change HTML links into plain text links.
-    $link = decode_entities($link);
+  // Remove all links from the links array already in the database
+  // and only add missing links to database.
+  $new_links = _linkchecker_box_links_missing($bid, $links);
 
+  // Add a job for scanning the next 100 links via job_queue module.
+  $missing_links_count = count($new_links)-$scan_max_links_per_run;
+  if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
+    job_queue_add('_linkchecker_scan_box_links', 'Scan block '. $bid .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($bid), '', FALSE);
+  }
+
+  // Only add unique links to database that do not exist.
+  $i = 0;
+  foreach ($new_links as $link) {
     $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
     if (!$lid) {
       db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
       $lid = db_last_insert_id('linkchecker_links', 'lid');
     }
     db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $lid);
+
+    // Break processing if max links limit per run has been reached.
+    $i++;
+    if ($i >= $scan_max_links_per_run) { break; }
   }
-}
-
-/**
- * Add comment links to database.
- */
-function _linkchecker_add_comment_links($comment) {
-
-  // Remove all link references first for cleanup reasons...
-  _linkchecker_delete_comment_links($comment['cid']);
-
-  // Create array of comment fields to scan.
-  $text_items = array();
-  $text_items[] = $comment['subject'];
-  $text_items[] = $comment['comment'];
-
-  // Extract all links in a comment.
-  $links = _linkchecker_extract_links(implode(' ', $text_items));
-
-  // Only add unique links to database that do not exist.
-  foreach (array_unique($links) as $link) {
-    // Change HTML links into plain text links.
-    $link = decode_entities($link);
-
-    $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
-    if (!$lid) {
-      db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
-      $lid = db_last_insert_id('linkchecker_links', 'lid');
-    }
-    db_query("INSERT INTO {linkchecker_comments} (cid, lid) VALUES (%d, %d)", $comment['cid'], $lid);
-  }
+  
+  // Remove dead link references for cleanup reasons as very last step.
+  _linkchecker_cleanup_box_references($bid, $links);
 }
 
 /**
@@ -643,6 +682,13 @@ function _linkchecker_delete_node_links($nid) {
 }
 
 /**
+ * Remove all comment references to links in the linkchecker_comments table.
+ */
+function _linkchecker_delete_comment_links($cid) {
+  return db_query("DELETE FROM {linkchecker_comments} WHERE cid = %d", $cid);
+}
+
+/**
  * Remove all box references to links in the linkchecker_boxes table.
  */
 function _linkchecker_delete_box_links($bid) {
@@ -650,10 +696,93 @@ function _linkchecker_delete_box_links($bid) {
 }
 
 /**
- * Remove all comment references to links in the linkchecker_comments table.
+ * Cleanup no longer used node references to links in the linkchecker_nodes table.
  */
-function _linkchecker_delete_comment_links($cid) {
-  return db_query("DELETE FROM {linkchecker_comments} WHERE cid = %d", $cid);
+function _linkchecker_cleanup_node_references($nid = 0, $links = array()) {
+  return db_query("DELETE FROM {linkchecker_nodes} WHERE nid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . db_placeholders($links, 'varchar') . "))", array_merge(array($nid), array_map(md5, $links)));
+}
+
+/**
+ * Cleanup no longer used comment references to links in the linkchecker_comments table.
+ */
+function _linkchecker_cleanup_comment_references($cid = 0, $links = array()) {
+  return db_query("DELETE FROM {linkchecker_comments} WHERE nid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . db_placeholders($links, 'varchar') . "))", array_merge(array($cid), array_map(md5, $links)));
+}
+
+/**
+ * Cleanup no longer used box references to links in the linkchecker_boxes table.
+ */
+function _linkchecker_cleanup_box_references($bid = 0, $links = array()) {
+  return db_query("DELETE FROM {linkchecker_boxes} WHERE bid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . db_placeholders($links, 'varchar') . "))", array_merge(array($bid), array_map(md5, $links)));
+}
+
+/**
+ * Returns an array of node references missing in the linkchecker_nodes table.
+ */
+function _linkchecker_node_links_missing($nid, $links) {
+  $res = db_query("SELECT url FROM {linkchecker_links} ll INNER JOIN {linkchecker_nodes} ln ON ll.lid = ln.lid WHERE ln.nid = %d AND token IN (" . db_placeholders($links, 'varchar') . ")", array_merge(array($nid), array_map(md5, $links)));
+  $links_in_database = array();
+  while ($row = db_fetch_object($res)) {
+    $links_in_database[] = $row->url;
+  }
+  return array_diff($links, $links_in_database);
+}
+
+/**
+ * Returns an array of comment references missing in the linkchecker_comments table.
+ */
+function _linkchecker_comment_links_missing($cid, $links) {
+  $res = db_query("SELECT url FROM {linkchecker_links} ll INNER JOIN {linkchecker_comments} ln ON ll.lid = ln.lid WHERE ln.nid = %d AND token IN (" . db_placeholders($links, 'varchar') . ")", array_merge(array($cid), array_map(md5, $links)));
+  $links_in_database = array();
+  while ($row = db_fetch_object($res)) {
+    $links_in_database[] = $row->url;
+  }
+  return array_diff($links, $links_in_database);
+}
+
+/**
+ * Returns an array of box references missing in the linkchecker_boxes table.
+ */
+function _linkchecker_box_links_missing($bid, $links) {
+  $res = db_query("SELECT url FROM {linkchecker_links} ll INNER JOIN {linkchecker_boxes} ln ON ll.lid = ln.lid WHERE ln.nid = %d AND token IN (" . db_placeholders($links, 'varchar') . ")", array_merge(array($bid), array_map(md5, $links)));
+  $links_in_database = array();
+  while ($row = db_fetch_object($res)) {
+    $links_in_database[] = $row->url;
+  }
+  return array_diff($links, $links_in_database);
+}
+
+/**
+ * Scan specified node for links. Helper function for job_queue scans.
+ *
+ * @param $nid
+ *   The node id to scan.
+ */
+function _linkchecker_scan_node_links($nid) {
+  $node = node_load(array('nid' => $nid));
+  _linkchecker_add_node_links($node);
+}
+
+/**
+ * Scan specified comment for links. Helper function for job_queue scans.
+ *
+ * @param $cid
+ *   The comment id to scan.
+ */
+function _linkchecker_scan_comment_links($cid) {
+  $comment = _linkchecker_comment_load($cid);
+  _linkchecker_add_comment_links($comment);
+}
+
+/**
+ * Scan specified box for links. Helper function for job_queue scans.
+ *
+ * @param $bid
+ *   The box id to scan.
+ */
+function _linkchecker_scan_box_links($bid) {
+  $box = block_box_get($bid);
+  _linkchecker_add_box_links($box);
 }
 
 /**
@@ -725,17 +854,19 @@ function _linkchecker_extract_links($text = '') {
   for ($i=0; isset($ret[$i]); $i++) {
     // Full qualified URLs.
     if (valid_url($ret[$i], TRUE)) {
-      $links[] = $ret[$i];
+      // Add to Array and change HTML links into plain text links.
+      $links[] = decode_entities($ret[$i]);
     }
     // Local URLs.
     elseif (valid_url($ret[$i], FALSE)) {
       if (variable_get('linkchecker_fqdn_only', 1) == 0) {
-        $links[] = 'http://'. $_SERVER['HTTP_HOST'] . $ret[$i];
+        // Add to Array and change HTML links into plain text links.
+        $links[] = decode_entities('http://'. $_SERVER['HTTP_HOST'] . $ret[$i]);
       }
     }
   }
 
-  return $links;
+  return array_unique($links);
 }
 
 /**
