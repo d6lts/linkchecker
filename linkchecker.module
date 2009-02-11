@@ -1086,7 +1086,7 @@ function _linkchecker_isvalid_response_code($code) {
 }
 
 /**
- * What node types should be scanned for links?
+ * Should the provided node type scanned for links?
  * 
  * @param $node_type
  *   Verifies if the node type is enabled for link checks and should be scanned.
