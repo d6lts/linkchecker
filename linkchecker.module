@@ -247,8 +247,13 @@ function _linkchecker_status_handling($link, $response) {
   // FIXME: drupal_http_request() may not provide an UTF8 encoded error message
   // what results in a database UPDATE failure. See http://drupal.org/node/371495
   // for more information. ISO-8859-1 as source encoding may be wrong, but WFM.
-  if (!drupal_validate_utf8($response->error)) {
+  if (!empty($response->error) && !drupal_validate_utf8($response->error)) {
     $response->error = drupal_convert_to_utf8($response->error, 'ISO-8859-1');
+  }
+
+  // Prevent E_ALL warnings for non-existing $response->error.
+  if (!isset($response->error)) {
+    $response->error = '';
   }
 
   switch ($response->code) {
@@ -558,33 +563,36 @@ function _linkchecker_add_node_links($node) {
   // Extract all links in a node.
   $links = _linkchecker_extract_links(implode(' ', $text_items));
 
-  // Remove all links from the links array already in the database
-  // and only add missing links to database.
-  $new_links = _linkchecker_node_links_missing($node->nid, $links);
+  // Node have links.
+  if (!empty($links)) {
+    // Remove all links from the links array already in the database
+    // and only add missing links to database.
+    $new_links = _linkchecker_node_links_missing($node->nid, $links);
 
-  // Add a job for scanning the next 100 links via job_queue module.
-  $missing_links_count = count($new_links)-$scan_max_links_per_run;
-  if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
-    job_queue_add('_linkchecker_scan_node_links', 'Scan node '. $node->nid .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($node->nid), '', FALSE);
-  }
-
-  // Only add links to database that do not exists.
-  $i = 0;
-  foreach ($new_links as $link) {
-    $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
-    if (!$lid) {
-      db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
-      $lid = db_last_insert_id('linkchecker_links', 'lid');
+    // Add a job for scanning the next 100 links via job_queue module.
+    $missing_links_count = count($new_links)-$scan_max_links_per_run;
+    if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
+      job_queue_add('_linkchecker_scan_node_links', 'Scan node '. $node->nid .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($node->nid), '', FALSE);
     }
-    db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $lid);
 
-    // Break processing if max links limit per run has been reached.
-    $i++;
-    if ($i >= $scan_max_links_per_run) { break; }
+    // Only add links to database that do not exists.
+    $i = 0;
+    foreach ($new_links as $link) {
+      $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
+      if (!$lid) {
+        db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
+        $lid = db_last_insert_id('linkchecker_links', 'lid');
+      }
+      db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $lid);
+
+      // Break processing if max links limit per run has been reached.
+      $i++;
+      if ($i >= $scan_max_links_per_run) { break; }
+    }
+
+    // Remove dead link references for cleanup reasons as very last step.
+    _linkchecker_cleanup_node_references($node->nid, $links);
   }
-
-  // Remove dead link references for cleanup reasons as very last step.
-  _linkchecker_cleanup_node_references($node->nid, $links);
 }
 
 /**
@@ -601,33 +609,36 @@ function _linkchecker_add_comment_links($comment) {
   // Extract all links in a comment.
   $links = _linkchecker_extract_links(implode(' ', $text_items));
 
-  // Remove all links from the links array already in the database
-  // and only add missing links to database.
-  $new_links = _linkchecker_node_links_missing($comment['cid'], $links);
+  // Comment have links.
+  if (!empty($links)) {
+    // Remove all links from the links array already in the database
+    // and only add missing links to database.
+    $new_links = _linkchecker_node_links_missing($comment['cid'], $links);
 
-  // Add a job for scanning the next 100 links via job_queue module.
-  $missing_links_count = count($new_links)-$scan_max_links_per_run;
-  if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
-    job_queue_add('_linkchecker_scan_comment_links', 'Scan comment '. $comment['cid'] .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($comment['cid']), '', FALSE);
-  }
-
-  // Only add unique links to database that do not exist.
-  $i = 0;
-  foreach ($new_links as $link) {
-    $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
-    if (!$lid) {
-      db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
-      $lid = db_last_insert_id('linkchecker_links', 'lid');
+    // Add a job for scanning the next 100 links via job_queue module.
+    $missing_links_count = count($new_links)-$scan_max_links_per_run;
+    if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
+      job_queue_add('_linkchecker_scan_comment_links', 'Scan comment '. $comment['cid'] .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($comment['cid']), '', FALSE);
     }
-    db_query("INSERT INTO {linkchecker_comments} (cid, lid) VALUES (%d, %d)", $comment['cid'], $lid);
 
-    // Break processing if max links limit per run has been reached.
-    $i++;
-    if ($i >= $scan_max_links_per_run) { break; }
+    // Only add unique links to database that do not exist.
+    $i = 0;
+    foreach ($new_links as $link) {
+      $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
+      if (!$lid) {
+        db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
+        $lid = db_last_insert_id('linkchecker_links', 'lid');
+      }
+      db_query("INSERT INTO {linkchecker_comments} (cid, lid) VALUES (%d, %d)", $comment['cid'], $lid);
+
+      // Break processing if max links limit per run has been reached.
+      $i++;
+      if ($i >= $scan_max_links_per_run) { break; }
+    }
+
+    // Remove dead link references for cleanup reasons as very last step.
+    _linkchecker_cleanup_comment_references($comment['cid'], $links);
   }
-  
-  // Remove dead link references for cleanup reasons as very last step.
-  _linkchecker_cleanup_comment_references($comment['cid'], $links);
 }
 
 /**
@@ -645,33 +656,36 @@ function _linkchecker_add_box_links($box, $bid) {
   // Extract all links in a box.
   $links = _linkchecker_extract_links(implode(' ', $text_items));
 
-  // Remove all links from the links array already in the database
-  // and only add missing links to database.
-  $new_links = _linkchecker_box_links_missing($bid, $links);
+  // Box have links.
+  if (!empty($links)) {
+    // Remove all links from the links array already in the database
+    // and only add missing links to database.
+    $new_links = _linkchecker_box_links_missing($bid, $links);
 
-  // Add a job for scanning the next 100 links via job_queue module.
-  $missing_links_count = count($new_links)-$scan_max_links_per_run;
-  if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
-    job_queue_add('_linkchecker_scan_box_links', 'Scan block '. $bid .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($bid), '', FALSE);
-  }
-
-  // Only add unique links to database that do not exist.
-  $i = 0;
-  foreach ($new_links as $link) {
-    $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
-    if (!$lid) {
-      db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
-      $lid = db_last_insert_id('linkchecker_links', 'lid');
+    // Add a job for scanning the next 100 links via job_queue module.
+    $missing_links_count = count($new_links)-$scan_max_links_per_run;
+    if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
+      job_queue_add('_linkchecker_scan_box_links', 'Scan block '. $bid .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($bid), '', FALSE);
     }
-    db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $lid);
 
-    // Break processing if max links limit per run has been reached.
-    $i++;
-    if ($i >= $scan_max_links_per_run) { break; }
+    // Only add unique links to database that do not exist.
+    $i = 0;
+    foreach ($new_links as $link) {
+      $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
+      if (!$lid) {
+        db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
+        $lid = db_last_insert_id('linkchecker_links', 'lid');
+      }
+      db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $lid);
+
+      // Break processing if max links limit per run has been reached.
+      $i++;
+      if ($i >= $scan_max_links_per_run) { break; }
+    }
+
+    // Remove dead link references for cleanup reasons as very last step.
+    _linkchecker_cleanup_box_references($bid, $links);
   }
-  
-  // Remove dead link references for cleanup reasons as very last step.
-  _linkchecker_cleanup_box_references($bid, $links);
 }
 
 /**
