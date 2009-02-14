@@ -290,10 +290,7 @@ function _linkchecker_status_handling($link, $response) {
 
           // Now replace the outdated link with the permanently moved one in all node fields.
           foreach ($text_items as $text_item) {
-            if (!empty($node->$text_item)) {
-              $node->$text_item = str_replace($link->url, check_url($response->redirect_url), $node->$text_item);
-              $node->$text_item = str_replace(check_url($link->url), check_url($response->redirect_url), $node->$text_item);
-            }
+            _linkchecker_link_replace($node->$text_item, $link->url, $response->redirect_url);
           }
 
           // Search for CCK-fields of types 'link' and 'text'.
@@ -303,14 +300,12 @@ function _linkchecker_status_handling($link, $response) {
               if (isset($node->{$field['field_name']})) {
                 if (module_exists('link') && $field['type'] == 'link') {
                   foreach ($node->$field['field_name'] as $delta => $item) {
-                    $node->{$field['field_name']}[$delta]['url'] = str_replace($link->url, check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['url']);
-                    $node->{$field['field_name']}[$delta]['url'] = str_replace(check_url($link->url), check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['url']);
+                    _linkchecker_link_replace($node->{$field['field_name']}[$delta]['url'], $link->url, $response->redirect_url);
                   }
                 }
                 elseif (module_exists('text') && $field['type'] == 'text') {
                   foreach ($node->$field['field_name'] as $delta => $item) {
-                    $node->{$field['field_name']}[$delta]['value'] = str_replace($link->url, check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['value']);
-                    $node->{$field['field_name']}[$delta]['value'] = str_replace(check_url($link->url), check_url($response->redirect_url), $node->{$field['field_name']}[$delta]['value']);
+                    _linkchecker_link_replace($node->{$field['field_name']}[$delta]['value'], $link->url, $response->redirect_url);
                   }
                 }
               }
@@ -338,10 +333,7 @@ function _linkchecker_status_handling($link, $response) {
 
             // Now replace the outdated link with the permanently moved one in all comment fields.
             foreach ($text_items as $text_item) {
-              if (!empty($comment[$text_item])) {
-                $comment[$text_item] = str_replace($link->url, check_url($response->redirect_url), $comment[$text_item]);
-                $comment[$text_item] = str_replace(check_url($link->url), check_url($response->redirect_url), $comment[$text_item]);
-              }
+              _linkchecker_link_replace($comment[$text_item], $link->url, $response->redirect_url);
             }
 
             // Save changed comment and update the comment link list.
@@ -366,10 +358,7 @@ function _linkchecker_status_handling($link, $response) {
 
           // Now replace the outdated link with the permanently moved one in all box fields.
           foreach ($text_items as $text_item) {
-            if (!empty($box[$text_item])) {
-              $box[$text_item] = str_replace($link->url, check_url($response->redirect_url), $box[$text_item]);
-              $box[$text_item] = str_replace(check_url($link->url), check_url($response->redirect_url), $box[$text_item]);
-            }
+            _linkchecker_link_replace($box[$text_item], $link->url, $response->redirect_url);
           }
 
           // Save changed node and update the node link list.
@@ -904,6 +893,26 @@ function _linkchecker_filter_url($text = '') {
   $text = substr($text, 1, -1);
 
   return $text;
+}
+
+/**
+ * Replaces old link with new link in text.
+ * 
+ * @param $text
+ *   The text a link is inside. Passed in as a reference.
+ * @param $old_link
+ *   The old link to search for.
+ * @param $new_link
+ *   The old link should be overwritten with this new link.
+ * @return
+ *   Text with replaced TRUE if the status code is valid.
+ */
+function _linkchecker_link_replace(&$text = '', $old_link = '', $new_link = '') {
+  // Don't do any string replacement if one of the values is empty.
+  if (!empty($text) && !empty($old_link) && !empty($new_link)) {
+    $text = str_replace(check_url($old_link), check_url($new_link), $text);
+    $text = str_replace($old_link, check_url($new_link), $text);
+  }
 }
 
 /**
