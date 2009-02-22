@@ -24,6 +24,6 @@ Known issues:
 
 1. drupal_http_request() does handle (invalid) non-absolute redirects, http://drupal.org/node/164365
    Until this issue is fixed in core the permanently moved links are not
-   automatically updated by the "Update permanently moved links" featue
+   automatically updated by the "Update permanently moved links" feature
    to the newly provided URL.
    -> Solution: Manually fix these links or apply the patch.
