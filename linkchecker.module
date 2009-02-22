@@ -704,11 +704,11 @@ function linkchecker_comment($comment, $op) {
     case 'update':
     case 'publish':
       $node_type = db_result(db_query("SELECT type FROM {node} WHERE nid = %d", $comment['nid']));
-      // Use $comment['status'] to hack around comment_save() not hooking on publish.
+      // Use $comment['status'] to hack around comment_save() not hooking on publish (D5 only).
       if ($comment['status'] == COMMENT_PUBLISHED && _linkchecker_scan_nodetype($node_type)) {
         _linkchecker_add_comment_links($comment);
       }
-      // Use $comment['status'] to hack around comment_save() not hooking on unpublish.
+      // Use $comment['status'] to hack around comment_save() not hooking on unpublish (D5 only).
       elseif ($comment['status'] == COMMENT_NOT_PUBLISHED) {
         _linkchecker_delete_comment_links($comment['cid']);
       }
@@ -735,6 +735,7 @@ function linkchecker_form_alter($form_id, &$form) {
       break;
 
     case 'block_box_delete':
+      // Add custom submit handler to block delete form.
       $form['#submit']['linkchecker_block_box_delete_form_submit'] = array();
       break;
 
