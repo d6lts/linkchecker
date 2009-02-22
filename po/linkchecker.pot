@@ -3,14 +3,14 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  linkchecker.module,v 1.7.4.26 2009/02/03 21:12:13 hass
+#  linkchecker.module,v 1.7.4.54 2009/02/22 12:31:51 hass
 #  linkchecker.info,v 1.2.4.2 2009/01/29 00:18:04 hass
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-02-03 22:23+0100\n"
+"POT-Creation-Date: 2009-02-22 14:30+0100\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -31,7 +31,7 @@ msgstr ""
 msgid "Link checker configuration."
 msgstr ""
 
-#: linkchecker.module:47
+#: linkchecker.module:47;628;634;652
 msgid "Broken links"
 msgstr ""
 
@@ -51,235 +51,275 @@ msgstr ""
 msgid "Enable link checking for the selected node type(s)."
 msgstr ""
 
-#: linkchecker.module:72
-msgid "Scan blocks for links"
+#: linkchecker.module:71;95
+msgid "Depends on: !dependencies"
 msgstr ""
 
-#: linkchecker.module:73
-msgid "Enable this checkbox if links in blocks should be checked."
+#: linkchecker.module:71;95
+msgid "@module (<span class=\"admin-enabled\">enabled</span>)"
+msgstr ""
+
+#: linkchecker.module:71;95
+msgid "@module (<span class=\"admin-disabled\">disabled</span>)"
+msgstr ""
+
+#: linkchecker.module:77
+msgid "Scan comments for links"
 msgstr ""
 
 #: linkchecker.module:78
-msgid "Check full qualified domain names only"
-msgstr ""
-
-#: linkchecker.module:79
-msgid "Enable this checkbox if only full qualified URLs should be checked. If unchecked, all internal and external URLs will be checked."
+msgid "Enable this checkbox if links in comments of the above selected node type(s) should be checked."
 msgstr ""
 
 #: linkchecker.module:84
-msgid "Pathfilter module support"
+msgid "Scan blocks for links"
 msgstr ""
 
 #: linkchecker.module:85
-msgid "Enable this checkbox for <a href=\"@pathfilter\">pathfilter</a> module support. Pathfilter module need to be installed."
+msgid "Enable this checkbox if links in blocks should be checked."
+msgstr ""
+
+#: linkchecker.module:90
+msgid "Check full qualified domain names only"
 msgstr ""
 
 #: linkchecker.module:91
+msgid "Enable this checkbox if only full qualified URLs should be checked. If unchecked, all internal and external URLs will be checked."
+msgstr ""
+
+#: linkchecker.module:101
+msgid "Pathfilter module support"
+msgstr ""
+
+#: linkchecker.module:102
+msgid "Enable this checkbox for <a href=\"@pathfilter\">pathfilter</a> module support."
+msgstr ""
+
+#: linkchecker.module:108
 msgid "Check settings"
 msgstr ""
 
-#: linkchecker.module:92
+#: linkchecker.module:109
 msgid "For simultaneous link checks it is highly recommended to install the <a href=\"@curl\">cURL</a> library. This may be <strong>necessary</strong> on sites with very many links, but is every time good for link checking performance reasons."
 msgstr ""
 
-#: linkchecker.module:97
+#: linkchecker.module:114
 msgid "User-Agent"
 msgstr ""
 
-#: linkchecker.module:98
+#: linkchecker.module:115
 msgid "Defines the user agent that will be used for checking links on remote sites. If someone blocks the standard Drupal user agent you can try with a more common browser."
 msgstr ""
 
-#: linkchecker.module:110
+#: linkchecker.module:127
 msgid "Check number of links per cron run"
 msgstr ""
 
-#: linkchecker.module:111
+#: linkchecker.module:128
 msgid "Defines the number of links that will be checked per cron run. The possible setting hardly depends on your PHP timeout value and remote servers speed and may increased if <a href=\"@curl\">cURL</a> is installed and use simultaneous request checking. All cron jobs may fail, if this setting is too high!"
 msgstr ""
 
-#: linkchecker.module:117
+#: linkchecker.module:134
 msgid "Check interval for links"
 msgstr ""
 
-#: linkchecker.module:118
+#: linkchecker.module:135
 msgid "This interval setting defines how often cron will re-check the status of links."
 msgstr ""
 
-#: linkchecker.module:124
+#: linkchecker.module:141
 msgid "Cleanup interval for unused links"
 msgstr ""
 
-#: linkchecker.module:125
+#: linkchecker.module:142
 msgid "This interval setting defines how often cron will clean up unused links."
 msgstr ""
 
-#: linkchecker.module:132
+#: linkchecker.module:149
 msgid "Error handling"
 msgstr ""
 
-#: linkchecker.module:133
+#: linkchecker.module:150
 msgid "Defines error handling and custom actions to be executed if specific HTTP requests are failing."
 msgstr ""
 
-#: linkchecker.module:137
+#: linkchecker.module:154
 msgid "Update permanently moved links"
 msgstr ""
 
-#: linkchecker.module:138
+#: linkchecker.module:155
 msgid "If enabled, changed links providing a <em>Moved Permanently</em> (status code 301) are automatically updated. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. Changes will be logged in <a href=\"@dblog\">recent log entries</a>."
 msgstr ""
 
-#: linkchecker.module:142;156
+#: linkchecker.module:159;173
 msgid "Disabled"
 msgstr ""
 
-#: linkchecker.module:143
+#: linkchecker.module:160
 msgid "After one failed check"
 msgstr ""
 
-#: linkchecker.module:144
+#: linkchecker.module:161
 msgid "After two failed checks"
 msgstr ""
 
-#: linkchecker.module:145
+#: linkchecker.module:162
 msgid "After three failed checks"
 msgstr ""
 
-#: linkchecker.module:146
+#: linkchecker.module:163
 msgid "After five failed checks"
 msgstr ""
 
-#: linkchecker.module:147
+#: linkchecker.module:164
 msgid "After ten failed checks"
 msgstr ""
 
-#: linkchecker.module:151
+#: linkchecker.module:168
 msgid "Unpublish node on file not found error"
 msgstr ""
 
-#: linkchecker.module:152
+#: linkchecker.module:169
 msgid "If enabled, a node with one or more broken links (status code 404) will be unpublished and moved to moderation queue for review after the number of specified fails. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily error."
 msgstr ""
 
-#: linkchecker.module:157
+#: linkchecker.module:174
 msgid "After one file not found error"
 msgstr ""
 
-#: linkchecker.module:158
+#: linkchecker.module:175
 msgid "After two file not found errors"
 msgstr ""
 
-#: linkchecker.module:159
+#: linkchecker.module:176
 msgid "After three file not found errors"
 msgstr ""
 
-#: linkchecker.module:160
+#: linkchecker.module:177
 msgid "After five file not found errors"
 msgstr ""
 
-#: linkchecker.module:161
+#: linkchecker.module:178
 msgid "After ten file not found errors"
 msgstr ""
 
-#: linkchecker.module:167
+#: linkchecker.module:184
 msgid "Don't treat these response codes as errors"
 msgstr ""
 
-#: linkchecker.module:168
+#: linkchecker.module:185
 msgid "One HTTP status code per line, e.g. 403."
 msgstr ""
 
-#: linkchecker.module:174
+#: linkchecker.module:192
 msgid "Clear link data"
 msgstr ""
 
-#: linkchecker.module:175
+#: linkchecker.module:193
 msgid "This action clears all link checker tables and/or and analyzes all node types, blocks and cck fields. Normally there is no need to press one of this buttons. Use this only for immediate cleanup tasks and to force a full re-check of all links."
 msgstr ""
 
-#: linkchecker.module:181;205
+#: linkchecker.module:199;223
 msgid "Analyze content for links"
 msgstr ""
 
-#: linkchecker.module:185;213
+#: linkchecker.module:203;231
 msgid "Clear link data and analyze content for links"
 msgstr ""
 
-#: linkchecker.module:196
+#: linkchecker.module:214
 msgid "Invalid response code %code found."
 msgstr ""
 
-#: linkchecker.module:209;239
+#: linkchecker.module:227
 msgid "Content analysis has been queued for processing via cron."
 msgstr ""
 
-#: linkchecker.module:222
+#: linkchecker.module:241
 msgid "Cleared link data and content analysis has been queued for processing via cron."
 msgstr ""
 
-#: linkchecker.module:325
+#: linkchecker.module:264
+msgid "Node types analysis have been queued for processing via cron."
+msgstr ""
+
+#: linkchecker.module:269
+msgid "Comment analysis has been queued for processing via cron."
+msgstr ""
+
+#: linkchecker.module:277
+msgid "Block analysis has been queued for processing via cron."
+msgstr ""
+
+#: linkchecker.module:410
 msgid "URL"
 msgstr ""
 
-#: linkchecker.module:326
+#: linkchecker.module:411
 msgid "Response"
 msgstr ""
 
-#: linkchecker.module:327
+#: linkchecker.module:412
 msgid "Error"
 msgstr ""
 
-#: linkchecker.module:328
+#: linkchecker.module:413
 msgid "Operations"
 msgstr ""
 
-#: linkchecker.module:342
+#: linkchecker.module:428
 msgid "Edit node @node"
 msgstr ""
 
-#: linkchecker.module:348
+#: linkchecker.module:434
+msgid "Edit comment @comment"
+msgstr ""
+
+#: linkchecker.module:440
 msgid "Edit block @block"
 msgstr ""
 
-#: linkchecker.module:361
+#: linkchecker.module:453
 msgid "No broken links have been found."
 msgstr ""
 
-#: linkchecker.module:460
+#: linkchecker.module:574
 msgid "Changed permanently moved link in %node from %src to %dst."
 msgstr ""
 
-#: linkchecker.module:487
+#: linkchecker.module:598
+msgid "Changed permanently moved link in comment %comment from %src to %dst."
+msgstr ""
+
+#: linkchecker.module:623
 msgid "Changed permanently moved link in box %bid from %src to %dst."
 msgstr ""
 
-#: linkchecker.module:492
+#: linkchecker.module:628
 msgid "Link %link has changed and needs to be updated."
 msgstr ""
 
-#: linkchecker.module:498
+#: linkchecker.module:634
 msgid "Broken link %link has been found."
 msgstr ""
 
-#: linkchecker.module:516
+#: linkchecker.module:652
 msgid "Method HEAD is not allowed for link %link. Method has been changed to GET."
 msgstr ""
 
-#: linkchecker.module:741
+#: linkchecker.module:1103
 msgid "Wiped out obsolete links."
 msgstr ""
 
-#: linkchecker.module:845
+#: linkchecker.module:1279
 msgid "Set @type %title to unpublished."
 msgstr ""
 
-#: linkchecker.module:460;487;492;498;516;741;845;0
+#: linkchecker.module:574;598;623;628;634;652;1103;1279;0
 msgid "linkchecker"
 msgstr ""
 
-#: linkchecker.module:555
+#: linkchecker.module:691;750
 msgid "Link check of <a href=\"@url\">@url</a> failed once (status code: @code)."
 msgid_plural "Link check of <a href=\"@url\">@url</a> failed @count times (status code: @code)."
 msgstr[0] ""
