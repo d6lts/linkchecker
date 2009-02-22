@@ -30,7 +30,7 @@ function linkchecker_install() {
         PRIMARY KEY (cid ,lid)
       ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
       db_query("CREATE TABLE {linkchecker_links} (
-        lid INT unsigned NOT NULL auto_increment,
+        lid INT unsigned NOT NULL,
         token VARCHAR(32) NOT NULL,
         url TEXT NOT NULL,
         method varchar(4) NOT NULL default 'HEAD',
@@ -325,6 +325,24 @@ function linkchecker_update_5204() {
       break;
 
     // PgSQL has been installed in 5200!
+  }
+
+  return $ret;
+}
+
+/**
+ * Remove wrong auto_increment from linkchecker_links.lid.
+ */
+function linkchecker_update_5205() {
+  $ret = array();
+
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {linkchecker_links} MODIFY COLUMN `lid` INTEGER UNSIGNED NOT NULL");
+      break;
+
+    // PgSQL has been installed correctly in 5200!
   }
 
   return $ret;
