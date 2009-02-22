@@ -835,7 +835,7 @@ function _linkchecker_add_node_links($node) {
       $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
-        db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
+        db_query("INSERT INTO {linkchecker_links} (lid, token, url) VALUES (%d, '%s', '%s')", $lid, md5($link), $link);
       }
       db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $lid);
 
@@ -881,7 +881,7 @@ function _linkchecker_add_comment_links($comment) {
       $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
-        db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
+        db_query("INSERT INTO {linkchecker_links} (lid, token, url) VALUES (%d, '%s', '%s')", $lid, md5($link), $link);
       }
       db_query("INSERT INTO {linkchecker_comments} (cid, lid) VALUES (%d, %d)", $comment['cid'], $lid);
 
@@ -928,7 +928,7 @@ function _linkchecker_add_box_links($box, $bid) {
       $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
-        db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
+        db_query("INSERT INTO {linkchecker_links} (lid, token, url) VALUES (%d, '%s', '%s')", $lid, md5($link), $link);
       }
       db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $lid);
 
