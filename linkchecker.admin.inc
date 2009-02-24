@@ -257,6 +257,15 @@ function linkchecker_clear_analyze_links_submit() {
  */
 function linkchecker_admin_report() {
 
+  $links_unchecked = db_result(db_query('SELECT count(lid) FROM {linkchecker_links} WHERE last_checked = %d', 0));
+  if ($links_unchecked > 0) {
+    $links_all = db_result(db_query('SELECT count(lid) FROM {linkchecker_links}'));
+    drupal_set_message(format_plural($links_unchecked,
+      'There is 1 unchecked link of about @links_all links in the database. Please be patient until all links have been checked via cron.',
+      'There are @count unchecked links of about @links_all links in the database. Please be patient until all links have been checked via cron.',
+      array('@links_all' => $links_all)), 'warning');
+  }
+
   $header = array(
     array('data' => t('URL'), 'field' => 'url', 'sort' => 'desc'),
     array('data' => t('Response'), 'field' => 'code', 'sort' => 'desc'),
