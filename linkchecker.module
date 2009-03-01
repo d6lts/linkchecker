@@ -694,7 +694,7 @@ function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       _linkchecker_delete_node_links($node);
       break;
 
-    case 'view':
+    case 'prepare':
       // Node edit tab is viewed.
       if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'edit') {
         // Show a message if a link check failed once or more.
