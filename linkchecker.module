@@ -709,7 +709,7 @@ function _linkchecker_cleanup_node_references($nid = 0, $links = array()) {
  * Cleanup no longer used comment references to links in the linkchecker_comments table.
  */
 function _linkchecker_cleanup_comment_references($cid = 0, $links = array()) {
-  return db_query("DELETE FROM {linkchecker_comments} WHERE nid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . db_placeholders($links, 'varchar') . "))", array_merge(array($cid), array_map(md5, $links)));
+  return db_query("DELETE FROM {linkchecker_comments} WHERE cid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . db_placeholders($links, 'varchar') . "))", array_merge(array($cid), array_map(md5, $links)));
 }
 
 /**
