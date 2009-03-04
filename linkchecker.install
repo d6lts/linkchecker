@@ -165,6 +165,17 @@ function linkchecker_requirements($phase) {
           'description' => $t('Your system or network configuration does not allow Drupal to access web pages, resulting in reduced functionality. This could be due to your webserver configuration or PHP settings, and should be resolved in order to download information about available updates, fetch aggregator feeds, sign in via OpenID, or use other network-dependent services.'),
         );
       }
+
+      // MySQL version with subselect support is required.
+      $version = db_version();
+      if (version_compare($version, LINKCHECKER_MINIMUM_MYSQL) < 0) {
+        $requirements['linkchecker_minimum_mysql'] = array(
+          'title' => $t('MySQL database'),
+          'value' => $version,
+          'severity' => REQUIREMENT_ERROR,
+          'description' => $t('Your MySQL Server is too old. Link Checker requires at least MySQL %version.', array('%version' => LINKCHECKER_MINIMUM_MYSQL)),
+        );
+      }
       break;
 
     case 'runtime':
