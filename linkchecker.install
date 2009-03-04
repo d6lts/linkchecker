@@ -109,8 +109,8 @@ function linkchecker_requirements($phase) {
   $t = get_t();
 
   switch ($phase) {
-/*    case 'install' :
-      // Module cannot work without external HTTP requests.
+    case 'install' :
+/*      // Module cannot work without external HTTP requests.
       if (variable_get('drupal_http_request_fails', FALSE)) {
         $requirements['http requests'] = array(
           'title' => $t('HTTP request status'),
@@ -118,10 +118,21 @@ function linkchecker_requirements($phase) {
           'severity' => REQUIREMENT_ERROR,
           'description' => $t('Your system or network configuration does not allow Drupal to access web pages, resulting in reduced functionality. This could be due to your webserver configuration or PHP settings, and should be resolved in order to download information about available updates, fetch aggregator feeds, sign in via OpenID, or use other network-dependent services.'),
         );
+      } */
+
+      // MySQL version with subselect support is required.
+      $version = db_version();
+      if (version_compare($version, LINKCHECKER_MINIMUM_MYSQL) < 0) {
+        $requirements['linkchecker_minimum_mysql'] = array(
+          'title' => $t('MySQL database'),
+          'value' => $version,
+          'severity' => REQUIREMENT_ERROR,
+          'description' => $t('Your MySQL Server is too old. Link Checker requires at least MySQL %version.', array('%version' => LINKCHECKER_MINIMUM_MYSQL)),
+        );
       }
       break;
 
-    case 'runtime':
+/*    case 'runtime':
       $requirements['linkchecker_curl'] = array(
         'title' => $t('cURL'),
         'value' => $has_curl ? $t('Enabled') : $t('Not found'),
@@ -129,7 +140,6 @@ function linkchecker_requirements($phase) {
         'description' => $t('You should install cURL for checking links with link checker module. If cURL is installed, simultaneuos link checks are used to speeds up the link checking process dramatically.'),
       );
       break; */
-
   }
   return $requirements;
 }
