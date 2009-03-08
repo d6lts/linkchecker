@@ -168,7 +168,7 @@ function linkchecker_requirements($phase) {
 
       // MySQL version with subselect support is required.
       $version = db_version();
-      if (version_compare($version, LINKCHECKER_MINIMUM_MYSQL) < 0) {
+      if (in_array($GLOBALS['db_type'], array('mysql', 'mysqli')) && version_compare($version, LINKCHECKER_MINIMUM_MYSQL) < 0) {
         $requirements['linkchecker_minimum_mysql'] = array(
           'title' => $t('MySQL database'),
           'value' => $version,
