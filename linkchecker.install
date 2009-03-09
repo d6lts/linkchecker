@@ -6,7 +6,7 @@
  * Installation file for Link Checker module.
  */
 
-define('LINKCHECKER_MINIMUM_MYSQL', '5.1');
+define('LINKCHECKER_MINIMUM_MYSQL', '5.0');
 
 /**
  * Implementation of hook_install().
