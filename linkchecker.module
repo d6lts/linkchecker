@@ -8,8 +8,6 @@
  * Developed by Alexander Hass, http://www.yaml-for-drupal.com/.
  */
 
-define('LINKCHECKER_MINIMUM_MYSQL', '5.0');
-
 /**
  * Implementation of hook_perm().
  */
