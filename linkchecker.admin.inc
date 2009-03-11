@@ -274,7 +274,8 @@ function linkchecker_admin_report() {
   );
 
   $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
-  $links_report_sql = "SELECT ll.* FROM {linkchecker_links} ll
+  $links_report_sql = "SELECT ll.*
+    FROM {linkchecker_links} ll
     INNER JOIN (
       SELECT DISTINCT lid FROM (
         SELECT DISTINCT lid FROM {linkchecker_boxes}
