@@ -273,9 +273,19 @@ function linkchecker_admin_report() {
     array('data' => t('Operations')),
   );
 
-  // FIXME: If a link has been corrected it is nevertheless shown until cleanup job ran.
   $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
-  $result = pager_query("SELECT * FROM {linkchecker_links} WHERE last_checked <> %d AND code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")" . tablesort_sql($header), 50, 0, NULL, array_merge(array(0), $ignore_response_codes));
+  $links_report_sql = "SELECT ll.* FROM {linkchecker_links} ll
+    INNER JOIN (
+      SELECT DISTINCT lid FROM (
+        SELECT DISTINCT lid FROM {linkchecker_boxes}
+        UNION ALL
+        SELECT DISTINCT lid FROM {linkchecker_comments}
+        UNION ALL
+        SELECT DISTINCT lid FROM {linkchecker_nodes}
+      ) q1
+    ) q2 ON q2.lid = ll.lid
+    WHERE ll.last_checked <> %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")";
+  $result = pager_query($links_report_sql . tablesort_sql($header), 50, 0, NULL, array_merge(array(0), $ignore_response_codes));
 
   $rows = array();
   while ($link = db_fetch_object($result)) {
