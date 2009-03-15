@@ -106,7 +106,7 @@ function linkchecker_admin_settings_form(&$form_state) {
   );
   $form['error']['linkchecker_action_status_code_301'] = array(
     '#title' => t('Update permanently moved links'),
-    '#description' => t('If enabled, outdated links providing a <em>Moved Permanently</em> (status code 301) are automatically updated with it\'s changed URL. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. Changes will be logged in <a href="@dblog">recent log entries</a>.', array('@dblog' => url('admin/reports/dblog'))),
+    '#description' => t('If enabled, outdated links providing a <em>Moved Permanently</em> (status code 301) are automatically updated to the most recent URL. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. Changes will be logged in <a href="@dblog">recent log entries</a>.', array('@dblog' => url('admin/reports/dblog'))),
     '#type' => 'select',
     '#default_value' => variable_get('linkchecker_action_status_code_301', 0),
     '#options' => array(
