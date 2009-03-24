@@ -359,3 +359,15 @@ function linkchecker_update_5205() {
 
   return $ret;
 }
+
+/**
+ * Remove any references to nodes that are not published and also remove their comments references.
+ */
+function linkchecker_update_5206() {
+  $ret = array();
+
+  $ret[] = update_sql("DELETE FROM {linkchecker_nodes} WHERE nid IN (SELECT nid FROM {node} WHERE status = 0)");
+  $ret[] = update_sql("DELETE FROM {linkchecker_comments} WHERE cid IN (SELECT c.cid FROM {node} n INNER JOIN {comments} c ON c.nid = n.nid WHERE n.status = 0)");
+
+  return $ret;
+}
