@@ -217,7 +217,16 @@ function linkchecker_cron() {
 
   // TODO: Implement cURL support.
   //$has_curl = function_exists('curl_init');
-  $check_links_max_per_cron_run = variable_get('linkchecker_check_links_max', 10);
+
+  // TODO: Remove some confusion about the max links that can be checked per
+  // cron run and guess that 2 link can be checked per second what is
+  // nevertheless uncommon. But we can use the max_execution_time to calculate
+  // a value that is higher, but not totally out of scope to keep the query
+  // resultset small. For cURL we need to add this setting back or a thread
+  // limit per remote server for not overloading them.
+  $check_links_max_per_cron_run = ini_get('max_execution_time');
+  //$check_links_max_per_cron_run = variable_get('linkchecker_check_links_max', 10);
+
   $check_links_interval = variable_get('linkchecker_check_links_interval', 2419200);
   $useragent = variable_get('linkchecker_check_useragent', 'Drupal (+http://drupal.org/)');
 
