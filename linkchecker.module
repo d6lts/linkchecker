@@ -132,13 +132,14 @@ function linkchecker_admin_settings_form() {
       'Mozilla/5.0 (Windows; U; Windows NT 6.0; de; rv:1.9.0.5) Gecko/2008120122 Firefox/3.0.5' => 'Windows Vista / Mozilla Firefox 3.0.5',
     ),
   );
-  $form['check']['linkchecker_check_links_max'] = array(
+/* For now it's better to guess this value from max_execution_time.
+   $form['check']['linkchecker_check_links_max'] = array(
     '#type' => 'select',
     '#title' => t('Check number of links per cron run'),
     '#description' => t('Defines the number of links that will be checked per cron run. The possible setting hardly depends on your PHP timeout value and remote servers speed and may increased if <a href="@curl">cURL</a> is installed and use simultaneous request checking. All cron jobs may fail, if this setting is too high!', array('@curl' => 'http://www.php.net/manual/en/book.curl.php')),
     '#default_value' => variable_get('linkchecker_check_links_max', 10),
     '#options' => drupal_map_assoc(array(5, 10, 25, 50, 100, 200, 250, 300, 350, 400, 450, 500, 750, 1000)),
-  );
+  ); */
   $form['check']['linkchecker_check_links_interval'] = array(
     '#type' => 'select',
     '#title' => t('Check interval for links'),
@@ -496,7 +497,16 @@ function linkchecker_cron() {
 
   // TODO: Implement cURL support.
   //$has_curl = function_exists('curl_init');
-  $check_links_max_per_cron_run = variable_get('linkchecker_check_links_max', 10);
+
+  // TODO: Remove some confusion about the max links that can be checked per
+  // cron run and guess that 2 link can be checked per second what is
+  // nevertheless uncommon. But we can use the max_execution_time to calculate
+  // a value that is higher, but not totally out of scope to keep the query
+  // resultset small. For cURL we need to add this setting back or a thread
+  // limit per remote server for not overloading them.
+  $check_links_max_per_cron_run = ini_get('max_execution_time');
+  //$check_links_max_per_cron_run = variable_get('linkchecker_check_links_max', 10);
+
   $check_links_interval = variable_get('linkchecker_check_links_interval', 2419200);
   $useragent = variable_get('linkchecker_check_useragent', 'Drupal (+http://drupal.org/)');
 
