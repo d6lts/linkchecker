@@ -1171,6 +1171,10 @@ function _linkchecker_extract_links($text = '') {
       // Add to Array and change HTML links into plain text links.
       $links[] = decode_entities($ret[$i]);
     }
+    // Skip mailto:, javascript:, etc.
+    elseif (preg_match('/^\w[\w.+]*:/', $ret[$i])) {
+      continue;
+    }
     // Local URLs.
     elseif (valid_url($ret[$i], FALSE)) {
       if (variable_get('linkchecker_fqdn_only', 1) == 0) {
