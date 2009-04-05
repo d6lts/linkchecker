@@ -923,8 +923,11 @@ function _linkchecker_filter_url($text = '') {
 function _linkchecker_link_replace(&$text, $old_link = '', $new_link = '') {
   // Don't do any string replacement if one of the values is empty.
   if (!empty($text) && !empty($old_link) && !empty($new_link)) {
+    // Full qualified domain links.
     $text = str_replace(check_url($old_link), check_url($new_link), $text);
     $text = str_replace($old_link, check_url($new_link), $text);
+
+    // TODO: Internal links (very risky).
   }
 }
 
