@@ -234,7 +234,7 @@ function linkchecker_cron() {
   $result = db_query_range("SELECT * FROM {linkchecker_links} WHERE last_checked < %d ORDER BY last_checked, lid ASC", time() - $check_links_interval, 0, $check_links_max_per_cron_run);
   while ($link = db_fetch_object($result)) {
     // Fetch URL.
-    $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent), $link->method, NULL, 0);
+    $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent), $link->method, NULL, 1);
     _linkchecker_status_handling($link, $response);
 
     if ((timer_read('page') / 1000) > (ini_get('max_execution_time') / 2)) {
