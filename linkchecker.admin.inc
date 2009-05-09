@@ -232,7 +232,6 @@ function linkchecker_analyze_links_submit() {
  * Submit callback; Clear link data and analyze all node types, boxes and cck fields.
  */
 function linkchecker_clear_analyze_links_submit() {
-  // TODO: D7 requires "DELETE FROM {table}" for sqllite.
   db_query("TRUNCATE TABLE {linkchecker_nodes}");
   db_query("TRUNCATE TABLE {linkchecker_comments}");
   db_query("TRUNCATE TABLE {linkchecker_boxes}");
