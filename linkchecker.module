@@ -1150,7 +1150,7 @@ function _linkchecker_extract_links($text = '') {
   // Try to find URLs and make them compatible with _linkchecker_extract_links regex.
   $text = _linkchecker_filter_url($text);
 
-  // Finds any links in the content.
+  // Finds all links in the content.
   $matches = array();
   preg_match_all("@
     <
@@ -1165,6 +1165,7 @@ function _linkchecker_extract_links($text = '') {
 
   $links = array();
   $ret = $matches[5];
+
   for ($i=0; isset($ret[$i]); $i++) {
     // Full qualified URLs.
     if (valid_url($ret[$i], TRUE)) {
