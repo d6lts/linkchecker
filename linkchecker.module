@@ -852,7 +852,7 @@ function _linkchecker_extract_links($text = '') {
   // Try to find URLs and make them compatible with _linkchecker_extract_links regex.
   $text = _linkchecker_filter_url($text);
 
-  // Finds any links in the content.
+  // Finds all links in the content.
   $matches = array();
   preg_match_all("@
     <
