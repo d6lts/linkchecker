@@ -293,7 +293,9 @@ function linkchecker_admin_report() {
     $links = array();
 
     // Show links to link settings.
-    $links[] = l(t('Edit link settings'), 'linkchecker/' . $link->lid . '/edit', array('query' => 'destination=admin/reports/linkchecker'));
+    if (user_access('edit link settings')) {
+      $links[] = l(t('Edit link settings'), 'linkchecker/' . $link->lid . '/edit', array('query' => 'destination=admin/reports/linkchecker'));
+    }
 
     // Show link to nodes having this broken link.
     $nodes = db_query('SELECT nid FROM {linkchecker_nodes} WHERE lid = %d', $link->lid);
