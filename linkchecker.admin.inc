@@ -292,6 +292,9 @@ function linkchecker_admin_report() {
   while ($link = db_fetch_object($result)) {
     $links = array();
 
+    // Show links to link settings.
+    $links[] = l(t('Edit link settings'), 'linkchecker/' . $link->lid . '/edit', array('query' => 'destination=admin/reports/linkchecker'));
+
     // Show link to nodes having this broken link.
     $nodes = db_query('SELECT nid FROM {linkchecker_nodes} WHERE lid = %d', $link->lid);
     while ($node = db_fetch_object($nodes)) {
