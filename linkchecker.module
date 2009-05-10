@@ -308,128 +308,6 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
 }
 
 /**
- * Trigger batch import job.
- */
-function _linkchecker_batch_import() {
-  // Start batch and analyze all nodes.
-  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
-  if (!empty($node_types)) {
-    _linkchecker_batch_import_nodes($node_types);
-    if (variable_get('linkchecker_scan_comments', 0)) {
-      _linkchecker_batch_import_comments($node_types);
-    }
-  }
-
-  if (variable_get('linkchecker_scan_blocks', 0)) {
-    _linkchecker_batch_import_boxes();
-  }
-}
-
-/**
- * Batch: Load all nodes 100 by hundred.
- */
-function _linkchecker_batch_import_nodes($node_types = array()) {
-  // TODO: Add limitation setting and test with 500.000+ nodes and review memory consumption.
-  $limit = 100;
-
-  // Node import count.
-  $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
-  $rows = db_result(db_query('SELECT COUNT(DISTINCT nid) FROM {node} WHERE status = %d AND type IN (' . $placeholders . ')', array_merge(array(1), $node_types)));
-
-  for ($row = 0; $row<$rows; $row = $row+$limit) {
-    job_queue_add('_linkchecker_batch_node_import_op', 'Scan nodes from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit, $node_types), '', TRUE);
-  }
-}
-
-/**
- * Batch operation: Load all nodes, 100 by hundred.
- */
-function _linkchecker_batch_node_import_op($row, $limit, $node_types) {
-
-  // Retrieve the next group of records.
-  $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
-  $result = db_query_range('SELECT nid FROM {node} WHERE status = %d AND type IN (' . $placeholders . ') ORDER BY nid ASC', array_merge(array(1), $node_types), $row, $limit);
-  while ($res = db_fetch_array($result)) {
-    // Load the node and scan for links.
-    $node = node_load($res['nid'], NULL, TRUE);
-    _linkchecker_add_node_links($node);
-  }
-}
-
-/**
- * Batch: Load all comments 100 by hundred.
- */
-function _linkchecker_batch_import_comments($node_types = array()) {
-  // TODO: Add limitation setting and test with 500.000+ nodes and review memory consumption.
-  $limit = 100;
-
-  // Comment import count.
-  $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
-  $rows = db_result(db_query('SELECT COUNT(DISTINCT cid) FROM {comments} c INNER JOIN {node} n ON c.nid = n.nid WHERE c.status <> %d AND n.status = %d AND n.type IN (' . $placeholders . ')', array_merge(array(COMMENT_NOT_PUBLISHED, 1), $node_types)));
-  
-  for ($row = 0; $row<$rows; $row = $row+$limit) {
-    job_queue_add('_linkchecker_batch_comments_import_op', 'Scan comments from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit, $node_types), '', TRUE);
-  }
-}
-
-/**
- * Batch operation: Load all comments, 100 by hundred.
- */
-function _linkchecker_batch_comments_import_op($row, $limit, $node_types) {
-
-  // Retrieve the next group of records.
-  $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
-  $result = db_query_range('SELECT cid FROM {comments} c INNER JOIN {node} n ON c.nid = n.nid WHERE c.status <> %d AND n.status = %d AND n.type IN (' . $placeholders . ') ORDER BY cid ASC', array_merge(array(COMMENT_NOT_PUBLISHED, 1), $node_types), $row, $limit);
-  while ($res = db_fetch_array($result)) {
-    // Load the comment and scan for links.
-    $comment = _linkchecker_comment_load($res['cid']);
-    _linkchecker_add_comment_links($comment);
-  }
-}
-
-/**
- * Batch operation: Load all boxes, 100 by 100.
- */
-function _linkchecker_batch_import_comments_op($row, $limit) {
-  // Retrieve the next group of bids.
-  $result = db_query_range("SELECT bid FROM {boxes} ORDER BY bid ASC", $row, $limit);
-
-  while ($res = db_fetch_array($result)) {
-    // Load the comment and scan for links.
-    $comment = _linkchecker_comment_load($res['cid']);
-    _linkchecker_add_comment_links($comment);
-  }
-}
-
-/**
- * Batch: Load all boxes 100 by hundred.
- */
-function _linkchecker_batch_import_boxes() {
-  // TODO: Add limitation setting and test with 500.000+ boxes and review memory consumption.
-  $limit = 100;
-
-  // Block import.
-  $rows = db_result(db_query('SELECT COUNT(DISTINCT bid) FROM {boxes}'));
-  for ($row = 0; $row<$rows; $row = $row+$limit) {
-    job_queue_add('_linkchecker_batch_import_boxes_op', 'Scan boxes from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit), '', TRUE);
-  }
-}
-
-/**
- * Batch operation: Load all boxes, 100 by 100.
- */
-function _linkchecker_batch_import_boxes_op($row, $limit) {
-  // Retrieve the next group of bids.
-  $result = db_query_range("SELECT bid FROM {boxes} ORDER BY bid ASC", $row, $limit);
-
-  while ($res = db_fetch_array($result)) {
-    // Load the box and scan for links.
-    $box = block_box_get($res['bid']);
-    _linkchecker_add_box_links($box, $box['bid']);
-  }
-}
-
-/**
  * Menu callback for reporting.
  */
 function linkchecker_admin_report() {
@@ -554,6 +432,128 @@ function linkchecker_link_edit_form_submit($form_id, $form_values) {
     // Update setting only.
     db_query("UPDATE {linkchecker_links} SET method = '%s', status = %d WHERE lid = %d", $form_values['method'], $form_values['status'], $form_values['lid']);
     drupal_set_message(t('The link settings for %url have been saved.', array('%url' => $form_values['url'])));
+  }
+}
+
+/**
+ * Trigger batch import job.
+ */
+function _linkchecker_batch_import() {
+  // Start batch and analyze all nodes.
+  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+  if (!empty($node_types)) {
+    _linkchecker_batch_import_nodes($node_types);
+    if (variable_get('linkchecker_scan_comments', 0)) {
+      _linkchecker_batch_import_comments($node_types);
+    }
+  }
+
+  if (variable_get('linkchecker_scan_blocks', 0)) {
+    _linkchecker_batch_import_boxes();
+  }
+}
+
+/**
+ * Batch: Load all nodes 100 by hundred.
+ */
+function _linkchecker_batch_import_nodes($node_types = array()) {
+  // TODO: Add limitation setting and test with 500.000+ nodes and review memory consumption.
+  $limit = 100;
+
+  // Node import count.
+  $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
+  $rows = db_result(db_query('SELECT COUNT(DISTINCT nid) FROM {node} WHERE status = %d AND type IN (' . $placeholders . ')', array_merge(array(1), $node_types)));
+
+  for ($row = 0; $row<$rows; $row = $row+$limit) {
+    job_queue_add('_linkchecker_batch_node_import_op', 'Scan nodes from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit, $node_types), '', TRUE);
+  }
+}
+
+/**
+ * Batch operation: Load all nodes, 100 by hundred.
+ */
+function _linkchecker_batch_node_import_op($row, $limit, $node_types) {
+
+  // Retrieve the next group of records.
+  $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
+  $result = db_query_range('SELECT nid FROM {node} WHERE status = %d AND type IN (' . $placeholders . ') ORDER BY nid ASC', array_merge(array(1), $node_types), $row, $limit);
+  while ($res = db_fetch_array($result)) {
+    // Load the node and scan for links.
+    $node = node_load($res['nid'], NULL, TRUE);
+    _linkchecker_add_node_links($node);
+  }
+}
+
+/**
+ * Batch: Load all comments 100 by hundred.
+ */
+function _linkchecker_batch_import_comments($node_types = array()) {
+  // TODO: Add limitation setting and test with 500.000+ nodes and review memory consumption.
+  $limit = 100;
+
+  // Comment import count.
+  $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
+  $rows = db_result(db_query('SELECT COUNT(DISTINCT cid) FROM {comments} c INNER JOIN {node} n ON c.nid = n.nid WHERE c.status <> %d AND n.status = %d AND n.type IN (' . $placeholders . ')', array_merge(array(COMMENT_NOT_PUBLISHED, 1), $node_types)));
+  
+  for ($row = 0; $row<$rows; $row = $row+$limit) {
+    job_queue_add('_linkchecker_batch_comments_import_op', 'Scan comments from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit, $node_types), '', TRUE);
+  }
+}
+
+/**
+ * Batch operation: Load all comments, 100 by hundred.
+ */
+function _linkchecker_batch_comments_import_op($row, $limit, $node_types) {
+
+  // Retrieve the next group of records.
+  $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
+  $result = db_query_range('SELECT cid FROM {comments} c INNER JOIN {node} n ON c.nid = n.nid WHERE c.status <> %d AND n.status = %d AND n.type IN (' . $placeholders . ') ORDER BY cid ASC', array_merge(array(COMMENT_NOT_PUBLISHED, 1), $node_types), $row, $limit);
+  while ($res = db_fetch_array($result)) {
+    // Load the comment and scan for links.
+    $comment = _linkchecker_comment_load($res['cid']);
+    _linkchecker_add_comment_links($comment);
+  }
+}
+
+/**
+ * Batch operation: Load all boxes, 100 by 100.
+ */
+function _linkchecker_batch_import_comments_op($row, $limit) {
+  // Retrieve the next group of bids.
+  $result = db_query_range("SELECT bid FROM {boxes} ORDER BY bid ASC", $row, $limit);
+
+  while ($res = db_fetch_array($result)) {
+    // Load the comment and scan for links.
+    $comment = _linkchecker_comment_load($res['cid']);
+    _linkchecker_add_comment_links($comment);
+  }
+}
+
+/**
+ * Batch: Load all boxes 100 by hundred.
+ */
+function _linkchecker_batch_import_boxes() {
+  // TODO: Add limitation setting and test with 500.000+ boxes and review memory consumption.
+  $limit = 100;
+
+  // Block import.
+  $rows = db_result(db_query('SELECT COUNT(DISTINCT bid) FROM {boxes}'));
+  for ($row = 0; $row<$rows; $row = $row+$limit) {
+    job_queue_add('_linkchecker_batch_import_boxes_op', 'Scan boxes from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit), '', TRUE);
+  }
+}
+
+/**
+ * Batch operation: Load all boxes, 100 by 100.
+ */
+function _linkchecker_batch_import_boxes_op($row, $limit) {
+  // Retrieve the next group of bids.
+  $result = db_query_range("SELECT bid FROM {boxes} ORDER BY bid ASC", $row, $limit);
+
+  while ($res = db_fetch_array($result)) {
+    // Load the box and scan for links.
+    $box = block_box_get($res['bid']);
+    _linkchecker_add_box_links($box, $box['bid']);
   }
 }
 
