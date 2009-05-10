@@ -363,7 +363,7 @@ function linkchecker_link_edit_form(&$form_state, $link) {
 
   $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration') );
   $form['buttons']['reset'] = array('#type' => 'submit', '#value' => t('Reset to defaults') );
-  
+
   return $form;
 }
 
