@@ -49,6 +49,14 @@ function linkchecker_menu() {
     'access arguments' => array('access linkchecker'),
     'file' => 'linkchecker.admin.inc',
   );
+  $items['linkchecker/%linkchecker_link/edit'] = array(
+    'title' => 'Edit link settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('linkchecker_link_edit_form', 1),
+    'access arguments' => array('access linkchecker'),
+    'file' => 'linkchecker.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
 
   return $items;
 }
@@ -231,7 +239,7 @@ function linkchecker_cron() {
   $useragent = variable_get('linkchecker_check_useragent', 'Drupal (+http://drupal.org/)');
 
   // Get URLs for checking.
-  $result = db_query_range("SELECT * FROM {linkchecker_links} WHERE last_checked < %d ORDER BY last_checked, lid ASC", time() - $check_links_interval, 0, $check_links_max_per_cron_run);
+  $result = db_query_range("SELECT * FROM {linkchecker_links} WHERE last_checked < %d AND status = %d ORDER BY last_checked, lid ASC", time() - $check_links_interval, 1, 0, $check_links_max_per_cron_run);
   while ($link = db_fetch_object($result)) {
     // Fetch URL.
     $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent), $link->method, NULL, 1);
@@ -443,7 +451,7 @@ function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'edit') {
         // Show a message on node edit page if a link check failed once or more.
         $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
-        $links = db_query("SELECT url, code, fail_count FROM {linkchecker_nodes} ln INNER JOIN {linkchecker_links} ll ON ln.lid = ll.lid WHERE ln.nid = %d AND ll.fail_count > %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array($node->nid, 0), $ignore_response_codes));
+        $links = db_query("SELECT url, code, fail_count FROM {linkchecker_nodes} ln INNER JOIN {linkchecker_links} ll ON ln.lid = ll.lid WHERE ln.nid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array($node->nid, 0, 1), $ignore_response_codes));
         while ($link = db_fetch_object($links)) {
           drupal_set_message(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $link->url, '@code' => $link->code)), 'warning', FALSE);
         }
@@ -493,7 +501,7 @@ function linkchecker_form_alter(&$form, &$form_state, $form_id) {
       if (arg(0) == 'comment' && arg(1) == 'edit' && is_numeric(arg(2))) {
         // Show a message on comment edit page if a link check failed once or more.
         $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
-        $links = db_query("SELECT url, code, fail_count FROM {linkchecker_comments} lc INNER JOIN {linkchecker_links} ll ON lc.lid = ll.lid WHERE lc.cid = %d AND ll.fail_count > %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array(arg(2), 0), $ignore_response_codes));
+        $links = db_query("SELECT url, code, fail_count FROM {linkchecker_comments} lc INNER JOIN {linkchecker_links} ll ON lc.lid = ll.lid WHERE lc.cid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array(arg(2), 0, 1), $ignore_response_codes));
         while ($link = db_fetch_object($links)) {
           drupal_set_message(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $link->url, '@code' => $link->code)), 'warning', FALSE);
         }
@@ -1036,4 +1044,11 @@ function _linkchecker_unpublish_nodes($lid) {
  */
 function _linkchecker_comment_load($cid) {
   return db_fetch_array(db_query('SELECT * FROM {comments} WHERE cid = %d', $cid));
+}
+
+/**
+ * Load link as array.
+ */
+function linkchecker_link_load($lid) {
+  return db_fetch_array(db_query("SELECT * FROM {linkchecker_links} WHERE lid = %d", $lid));
 }
