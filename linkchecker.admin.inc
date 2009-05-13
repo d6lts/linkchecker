@@ -288,15 +288,12 @@ function linkchecker_admin_report() {
     WHERE ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")";
   $result = pager_query($links_report_sql . tablesort_sql($header), 50, 0, NULL, array_merge(array(0, 1), $ignore_response_codes));
 
-  // Evaluate permission once for performance reasons.
-  $access_edit_link_settings = user_access('edit link settings');
-
   $rows = array();
   while ($link = db_fetch_object($result)) {
     $links = array();
 
     // Show links to link settings.
-    if ($access_edit_link_settings) {
+    if (user_access('edit link settings')) {
       $links[] = l(t('Edit link settings'), 'linkchecker/' . $link->lid . '/edit', array('query' => 'destination=admin/reports/linkchecker'));
     }
 
