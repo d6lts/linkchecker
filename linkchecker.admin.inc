@@ -57,6 +57,42 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#disabled' => module_exists('pathfilter') ? FALSE : TRUE,
   );
 
+  $form['tag'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Link extraction'),
+    '#collapsible' => FALSE,
+  );
+  $form['tag']['linkchecker_extract_from_a'] = array(
+    '#default_value' => variable_get('linkchecker_extract_from_a', 1),
+    '#type' => 'checkbox',
+    '#title' => t('Extract links in <code>&lt;a&gt;</code> and <code>&lt;area&gt;</code> tags'),
+    '#description' => t('Enable this checkbox if normal hyperlinks should be extracted.'),
+  );
+  $form['tag']['linkchecker_extract_from_img'] = array(
+    '#default_value' => variable_get('linkchecker_extract_from_img', 0),
+    '#type' => 'checkbox',
+    '#title' => t('Extract links in <code>&lt;img&gt;</code> tags'),
+    '#description' => t('Enable this checkbox if links in image tags should be extracted.'),
+  );
+  $form['tag']['linkchecker_extract_from_iframe'] = array(
+    '#default_value' => variable_get('linkchecker_extract_from_iframe', 0),
+    '#type' => 'checkbox',
+    '#title' => t('Extract links in <code>&lt;iframe&gt;</code> tags'),
+    '#description' => t('Enable this checkbox if links in iframe tags should be extracted.'),
+  );
+  $form['tag']['linkchecker_extract_from_object'] = array(
+    '#default_value' => variable_get('linkchecker_extract_from_object', 0),
+    '#type' => 'checkbox',
+    '#title' => t('Extract links in <code>&lt;object&gt;</code> and <code>&lt;param&gt;</code> tags'),
+    '#description' => t('Enable this checkbox if multimedia links in object and their param tags should be extracted.'),
+  );
+  $form['tag']['linkchecker_extract_from_embed'] = array(
+    '#default_value' => variable_get('linkchecker_extract_from_embed', 0),
+    '#type' => 'checkbox',
+    '#title' => t('Extract links in <code>&lt;embed&gt;</code> tags'),
+    '#description' => t('Enable this checkbox if links in embed tags like embedded flash applets should be extracted.'),
+  );
+
   $form['check'] = array(
     '#type' => 'fieldset',
     '#title' => t('Check settings'),
