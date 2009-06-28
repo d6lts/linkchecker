@@ -351,6 +351,11 @@ function linkchecker_admin_report() {
       $links[] = l(t('Edit block @block', array('@block' => $box->bid)), 'admin/build/block/configure/block/' . $box->bid, array('query' => 'destination=admin/reports/linkchecker'));
     }
 
+    // Show link to redirect this broken internal link.
+    if (module_exists('path_redirect') && _linkchecker_is_internal_url($link)) {
+      $links[] = l(t('Create redirection'), 'admin/build/path-redirect/add', array('query' => array('src' => $link->internal)));
+    }
+
     // Create table data for output.
     $rows[] = array(
       l(_filter_url_trim($link->url, 40), $link->url),
@@ -418,5 +423,14 @@ function linkchecker_link_edit_form_submit($form, &$form_state) {
     // Update setting only.
     db_query("UPDATE {linkchecker_links} SET method = '%s', status = %d WHERE lid = %d", $form_state['values']['method'], $form_state['values']['status'], $form_state['values']['lid']);
     drupal_set_message(t('The link settings for %url have been saved.', array('%url' => $form_state['values']['url'])));
+  }
+}
+
+function _linkchecker_is_internal_url(&$link) {
+  global $base_url;
+
+  if (strpos($link->url, $base_url) === 0) {
+    $link->internal = trim(substr($link->url, strlen($base_url)), " \t\r\n\0\\/");
+    return TRUE;
   }
 }
