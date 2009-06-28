@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: German translation of Linkchecker\n"
 "POT-Creation-Date: 2009-03-26 00:01+0100\n"
-"PO-Revision-Date: 2009-03-26 00:23+0100\n"
+"PO-Revision-Date: 2009-06-28 16:35+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -249,7 +249,7 @@ msgstr "Kommentar @comment bearbeiten"
 
 #: linkchecker.admin.inc:311
 msgid "Edit block @block"
-msgstr "Block @node bearbeiten"
+msgstr "Block @block bearbeiten"
 
 #: linkchecker.admin.inc:324
 msgid "No broken links have been found."
