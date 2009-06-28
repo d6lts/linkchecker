@@ -165,7 +165,7 @@ function linkchecker_admin_settings_form() {
   $form['check'] = array(
     '#type' => 'fieldset',
     '#title' => t('Check settings'),
-    '#description' => t('For simultaneous link checks it is highly recommended to install the <a href="@curl">cURL</a> library. This may be <strong>necessary</strong> on larger sites with very many links, but may still improve (speed up), link checking performance on smaller sites.', array('@curl' => 'http://www.php.net/manual/en/book.curl.php')),
+    //'#description' => t('For simultaneous link checks it is highly recommended to install the <a href="@curl">cURL</a> library. This may be <strong>necessary</strong> on larger sites with very many links, but may still improve (speed up), link checking performance on smaller sites.', array('@curl' => 'http://www.php.net/manual/en/book.curl.php')),
     '#collapsible' => FALSE,
   );
   $form['check']['linkchecker_check_useragent'] = array(
