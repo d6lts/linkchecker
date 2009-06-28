@@ -90,19 +90,24 @@ function linkchecker_uninstall() {
   db_query("DROP TABLE {linkchecker_comments}");
   db_query("DROP TABLE {linkchecker_links}");
 
-  variable_del('linkchecker_fqdn_only');
-  variable_del('linkchecker_ignore_response_codes');
-  variable_del('linkchecker_check_useragent');
-  variable_del('linkchecker_check_links_max');
-  variable_del('linkchecker_check_links_interval');
   variable_del('linkchecker_action_status_code_301');
   variable_del('linkchecker_action_status_code_404');
+  variable_del('linkchecker_check_links_interval');
+  variable_del('linkchecker_check_links_max');
+  variable_del('linkchecker_check_useragent');
   variable_del('linkchecker_cleanup_links_interval');
   variable_del('linkchecker_cleanup_links_last');
+  variable_del('linkchecker_extract_from_a');
+  variable_del('linkchecker_extract_from_embed');
+  variable_del('linkchecker_extract_from_img');
+  variable_del('linkchecker_extract_from_iframe');
+  variable_del('linkchecker_extract_object');
+  variable_del('linkchecker_fqdn_only');
+  variable_del('linkchecker_ignore_response_codes');
   variable_del('linkchecker_pathfilter_support');
-  variable_del('linkchecker_scan_nodetypes');
-  variable_del('linkchecker_scan_comments');
   variable_del('linkchecker_scan_blocks');
+  variable_del('linkchecker_scan_comments');
+  variable_del('linkchecker_scan_nodetypes');
 }
 
 /**
