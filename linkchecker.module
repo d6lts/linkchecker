@@ -39,7 +39,7 @@ function linkchecker_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('linkchecker_admin_settings_form'),
     'access arguments' => array('administer linkchecker'),
-    'file' => 'linkchecker.admin.inc',
+    'file' => 'includes/linkchecker.admin.inc',
   );
   $items['admin/reports/linkchecker'] = array(
     'title' => 'Broken links',
@@ -47,14 +47,14 @@ function linkchecker_menu() {
     'page callback' => 'linkchecker_admin_report',
     'type' => MENU_NORMAL_ITEM,
     'access arguments' => array('access linkchecker'),
-    'file' => 'linkchecker.admin.inc',
+    'file' => 'includes/linkchecker.admin.inc',
   );
   $items['linkchecker/%linkchecker_link/edit'] = array(
     'title' => 'Edit link settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('linkchecker_link_edit_form', 1),
     'access arguments' => array('edit link settings'),
-    'file' => 'linkchecker.admin.inc',
+    'file' => 'includes/linkchecker.admin.inc',
     'type' => MENU_CALLBACK,
   );
 
