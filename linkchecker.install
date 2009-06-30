@@ -29,10 +29,13 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_cleanup_links_interval');
   variable_del('linkchecker_cleanup_links_last');
   variable_del('linkchecker_extract_from_a');
+  variable_del('linkchecker_extract_from_audio');
   variable_del('linkchecker_extract_from_embed');
-  variable_del('linkchecker_extract_from_img');
   variable_del('linkchecker_extract_from_iframe');
-  variable_del('linkchecker_extract_object');
+  variable_del('linkchecker_extract_from_img');
+  variable_del('linkchecker_extract_from_object');
+  variable_del('linkchecker_extract_from_source');
+  variable_del('linkchecker_extract_from_video');
   variable_del('linkchecker_fqdn_only');
   variable_del('linkchecker_ignore_response_codes');
   variable_del('linkchecker_pathfilter_support');
