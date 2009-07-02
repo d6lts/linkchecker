@@ -95,7 +95,6 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_check_links_interval');
   variable_del('linkchecker_check_links_max');
   variable_del('linkchecker_check_useragent');
-  variable_del('linkchecker_cleanup_links_interval');
   variable_del('linkchecker_cleanup_links_last');
   variable_del('linkchecker_extract_from_a');
   variable_del('linkchecker_extract_from_embed');
@@ -386,6 +385,17 @@ function linkchecker_update_5207() {
   $ret = array();
 
   $ret[] = update_sql("ALTER TABLE {linkchecker_links} ADD COLUMN `status` INTEGER NOT NULL DEFAULT 1");
+
+  return $ret;
+}
+
+/**
+ * Remove obsolte variable.
+ */
+function linkchecker_update_5208() {
+  $ret = array();
+
+  variable_del('linkchecker_cleanup_links_interval');
 
   return $ret;
 }
