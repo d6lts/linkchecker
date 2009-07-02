@@ -1288,7 +1288,7 @@ function _linkchecker_extract_links($text = '') {
     //  * Try to extract links in unkown "flashvars" values (for e.g. file=http://, data=http://).
     $pattern_data = '/<object\s[^>]*data=["\']([^"\']*)["\'][^>]*>/i';
     $pattern_codebase = '/<object\s[^>]*codebase=["\']([^"\']*)["\'][^>]*>/i';
-    $pattern_param = '/<param\s[^>]*((name|src)=["\'](filename|href|movie|src|url)["\']\s[^>]*)+value=["\']([^"\']*)["\'][^>]*>/i';
+    $pattern_param = '/<param\s[^>]*((name|src)=["\'](archive|filename|href|movie|src|url)["\']\s[^>]*)+value=["\']([^"\']*)["\'][^>]*>/i';
 
     preg_match_all($pattern_data, $text, $matches_object_data);
     preg_match_all($pattern_codebase, $text, $matches_object_codebase);
