@@ -26,7 +26,6 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_check_links_interval');
   variable_del('linkchecker_check_links_max');
   variable_del('linkchecker_check_useragent');
-  variable_del('linkchecker_cleanup_links_interval');
   variable_del('linkchecker_cleanup_links_last');
   variable_del('linkchecker_extract_from_a');
   variable_del('linkchecker_extract_from_audio');
@@ -471,6 +470,17 @@ function linkchecker_update_6206() {
   if (!db_column_exists('linkchecker_links', 'status')) {
     db_add_field($ret, 'linkchecker_links', 'status', array('type' => 'int', 'not null' => TRUE, 'default' => 1));
   }
+
+  return $ret;
+}
+
+/**
+ * Remove obsolte variable.
+ */
+function linkchecker_update_6207() {
+  $ret = array();
+
+  variable_del('linkchecker_cleanup_links_interval');
 
   return $ret;
 }

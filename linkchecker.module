@@ -214,8 +214,8 @@ function _linkchecker_batch_box_import_finished($success, $results, $operations)
  */
 function linkchecker_cron() {
 
-  // Remove outdated links no longer in use.
-  if (time() - variable_get('linkchecker_cleanup_links_last', 0) >= variable_get('linkchecker_cleanup_links_interval', 604800)) {
+  // Remove outdated links no longer in use once per day.
+  if (time() - variable_get('linkchecker_cleanup_links_last', 0) >= 86400) {
     _linkchecker_cleanup_links();
     variable_set('linkchecker_cleanup_links_last', time());
   }

@@ -145,13 +145,6 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#default_value' => variable_get('linkchecker_check_links_interval', 2419200),
     '#options' => drupal_map_assoc(array(86400, 172800, 259200, 604800, 1209600, 2419200, 4838400), 'format_interval'),
   );
-  $form['check']['linkchecker_cleanup_links_interval'] = array(
-    '#type' => 'select',
-    '#title' => t('Cleanup interval for unused links'),
-    '#description' => t('This interval setting defines how often cron will clean up unused links.'),
-    '#default_value' => variable_get('linkchecker_cleanup_links_interval', 604800),
-    '#options' => drupal_map_assoc(array(86400, 172800, 259200, 604800, 1209600, 2419200, 4838400), 'format_interval'),
-  );
 
   $form['error'] = array(
     '#type' => 'fieldset',
