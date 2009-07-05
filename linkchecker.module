@@ -907,9 +907,6 @@ function linkchecker_form_alter($form_id, &$form) {
         }
       }
       break;
-
-    default:
-      break;
   }
 }
 
