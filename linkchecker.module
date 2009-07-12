@@ -968,9 +968,13 @@ function _linkchecker_extract_links($text = '') {
     }
     // Local URLs.
     elseif (valid_url($ret[$i], FALSE)) {
-      if (variable_get('linkchecker_fqdn_only', 1) == 0) {
-        // Add to Array and change HTML links into plain text links.
+      // Absolute local URLs need to start with [/?#].
+      if (preg_match('!^[/?#]!', $ret[$i]) && variable_get('linkchecker_fqdn_only', 1) == 0) {
+        // Add to Array and change HTML encoded links into plain text links.
         $links[] = decode_entities('http://'. $_SERVER['HTTP_HOST'] . $ret[$i]);
+      }
+      else {
+        // TODO: Relative URLs like "../foo/bar" are currently not supported.
       }
     }
   }
