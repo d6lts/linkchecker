@@ -199,7 +199,7 @@ function linkchecker_requirements($phase) {
           'title' => $t('Job queue'),
           'value' => $t('Not found'),
           'severity' => REQUIREMENT_WARNING,
-          'description' => $t('Install job_queue module if you have a node, comment or block with more than 100 links. Without the job_queue module only the first 100 links will be checked!'),
+          'description' => $t('Install <a href="@url">job_queue</a> module if you have a node, comment or block with more than 100 links. Without the job_queue module only the first 100 links may be checked!', array('@url' => 'http://drupal.org/project/job_queue')),
         );
       }
 /*      $requirements['linkchecker_curl'] = array(
