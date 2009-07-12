@@ -122,7 +122,7 @@ function linkchecker_requirements($phase) {
   switch ($phase) {
     case 'install' :
 /*      // Module cannot work without external HTTP requests.
-      if (variable_get('drupal_http_request_fails', FALSE)) {
+      if (variable_get('drupal_http_request_fails', TRUE) && !system_check_http_request()) {
         $requirements['http requests'] = array(
           'title' => $t('HTTP request status'),
           'value' => $t('Fails'),
