@@ -152,6 +152,12 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#description' => t('Defines error handling and custom actions to be executed if specific HTTP requests are failing.'),
     '#collapsible' => FALSE,
   );
+  $form['error']['linkchecker_create_new_revision_on_update'] = array(
+    '#default_value' => variable_get('linkchecker_create_new_revision_on_update', 1),
+    '#type' => 'checkbox',
+    '#title' => t('Create new revision'),
+    '#description' => t("Enable this checkbox if a new node revision should be created on automatic permanently moved link updates. It's recommended to enable this checkbox."),
+  );
   $form['error']['linkchecker_action_status_code_301'] = array(
     '#title' => t('Update permanently moved links'),
     '#description' => t('If enabled, outdated links in content providing a <em>Moved Permanently</em> (status code 301) are automatically updated to the most recent URL. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. Changes will be logged in <a href="@dblog">recent log entries</a>.', array('@dblog' => url('admin/reports/dblog'))),

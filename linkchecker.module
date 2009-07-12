@@ -331,6 +331,7 @@ function _linkchecker_status_handling($link, $response) {
           }
 
           // Save changed node and update the node link list.
+          $node->revision = variable_get('linkchecker_create_new_revision_on_update', 1);
           node_save($node);
           watchdog('linkchecker', 'Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
         }
