@@ -724,9 +724,6 @@ function _linkchecker_status_handling($link, $response) {
 
           // Save changed node and update the node link list.
           node_save($node);
-          // TODO: Logic could theoretically be optimized for more speed -> do
-          // the link update only once and not after every changed link (minor).
-          _linkchecker_add_node_links($node);
           watchdog('linkchecker', t('Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url)));
         }
 
@@ -748,9 +745,6 @@ function _linkchecker_status_handling($link, $response) {
 
             // Save changed comment and update the comment link list.
             comment_save($comment);
-            // TODO: Logic could theoretically be optimized for more speed -> do
-            // the link update only once and not after every changed link (minor).
-            _linkchecker_add_comment_links($comment);
             watchdog('linkchecker', t('Changed permanently moved link in comment %comment from %src to %dst.', array('%comment' => $comment['cid'], '%src' => $link->url, '%dst' => $response->redirect_url)));
           }
         }
@@ -773,8 +767,7 @@ function _linkchecker_status_handling($link, $response) {
 
           // Save changed node and update the node link list.
           block_box_save($box, $row->bid);
-          // TODO: Logic could theoretically be optimized for more speed -> do
-          // the link update only once and not after every changed link (minor).
+          // There is no hook that fires on block_box_save(), therefore do it programmatically.
           _linkchecker_add_box_links($box, $row->bid);
           watchdog('linkchecker', t('Changed permanently moved link in box %bid from %src to %dst.', array('%bid' => $row->bid, '%src' => $link->url, '%dst' => $response->redirect_url)));
         }
