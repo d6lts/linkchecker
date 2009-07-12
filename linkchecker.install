@@ -122,7 +122,7 @@ function linkchecker_requirements($phase) {
   switch ($phase) {
     case 'install' :
 /*      // Module cannot work without external HTTP requests.
-      if (variable_get('drupal_http_request_fails', TRUE) && !system_check_http_request()) {
+      if (variable_get('drupal_http_request_fails', TRUE) && !linkchecker_check_http_request()) {
         $requirements['http requests'] = array(
           'title' => $t('HTTP request status'),
           'value' => $t('Fails'),
@@ -153,6 +153,21 @@ function linkchecker_requirements($phase) {
       break; */
   }
   return $requirements;
+}
+
+/**
+ * Backport of D6 system_check_http_request() function.
+ *
+ * http://api.drupal.org/api/function/system_check_http_request. 
+ */
+function linkchecker_check_http_request() {
+  // Try to get the content of the front page via drupal_http_request().
+  $result = drupal_http_request(url('', array('absolute' => TRUE)));
+  // We only care that we get a http response - this means that Drupal
+  // can make a http request.
+  $works = isset($result->code) && ($result->code >= 100) && ($result->code < 600);
+  variable_set('drupal_http_request_fails', !$works);
+  return $works;
 }
 
 /**
