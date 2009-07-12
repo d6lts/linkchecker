@@ -1015,7 +1015,7 @@ function _linkchecker_filter_url($text = '') {
  * @param $new_link
  *   The old link should be overwritten with this new link.
  * @return
- *   Text with replaced TRUE if the status code is valid.
+ *   Text with replaced URLs.
  */
 function _linkchecker_link_replace(&$text, $old_link = '', $new_link = '') {
   // Don't do any string replacement if one of the values is empty.
