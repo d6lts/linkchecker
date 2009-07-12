@@ -66,49 +66,49 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#default_value' => variable_get('linkchecker_extract_from_a', 1),
     '#type' => 'checkbox',
     '#title' => t('Extract links in <code>&lt;a&gt;</code> and <code>&lt;area&gt;</code> tags'),
-    '#description' => t('Enable this checkbox if normal hyperlinks should be extracted.'),
+    '#description' => t('Enable this checkbox if normal hyperlinks should be extracted. The anchor element defines a hyperlink, the named target destination for a hyperlink, or both. The area elememt defines a hot-spot region on an image, and associates it with a hypertext link.'),
   );
   $form['tag']['linkchecker_extract_from_audio'] = array(
     '#default_value' => variable_get('linkchecker_extract_from_audio', 0),
     '#type' => 'checkbox',
     '#title' => t('Extract links in <code>&lt;audio&gt;</code> tags'),
-    '#description' => t('Enable this checkbox if links in audio tags should be extracted.'),
+    '#description' => t('Enable this checkbox if links in audio tags should be extracted. The audio element is used to embed sound content.'),
   );
   $form['tag']['linkchecker_extract_from_embed'] = array(
     '#default_value' => variable_get('linkchecker_extract_from_embed', 0),
     '#type' => 'checkbox',
     '#title' => t('Extract links in <code>&lt;embed&gt;</code> tags'),
-    '#description' => t('Enable this checkbox if links in embed tags like embedded flash applets should be extracted.'),
+    '#description' => t('Enable this checkbox if links in embed tags should be extracted. This is an obsolete and non-standard element that was used for embedding plugins in past and should no longer used in modern websites.'),
   );
   $form['tag']['linkchecker_extract_from_iframe'] = array(
     '#default_value' => variable_get('linkchecker_extract_from_iframe', 0),
     '#type' => 'checkbox',
     '#title' => t('Extract links in <code>&lt;iframe&gt;</code> tags'),
-    '#description' => t('Enable this checkbox if links in iframe tags should be extracted.'),
+    '#description' => t('Enable this checkbox if links in iframe tags should be extracted. The iframe element is used to embed another HTML page into a page.'),
   );
   $form['tag']['linkchecker_extract_from_img'] = array(
     '#default_value' => variable_get('linkchecker_extract_from_img', 0),
     '#type' => 'checkbox',
     '#title' => t('Extract links in <code>&lt;img&gt;</code> tags'),
-    '#description' => t('Enable this checkbox if links in image tags should be extracted.'),
+    '#description' => t('Enable this checkbox if links in image tags should be extracted. The img element is used to add images to the content.'),
   );
   $form['tag']['linkchecker_extract_from_object'] = array(
     '#default_value' => variable_get('linkchecker_extract_from_object', 0),
     '#type' => 'checkbox',
     '#title' => t('Extract links in <code>&lt;object&gt;</code> and <code>&lt;param&gt;</code> tags'),
-    '#description' => t('Enable this checkbox if multimedia links in object and their param tags should be extracted.'),
+    '#description' => t('Enable this checkbox if multimedia and other links in object and their param tags should be extracted. The object tag is used for flash, java, quicktime and other applets.'),
   );
   $form['tag']['linkchecker_extract_from_source'] = array(
     '#default_value' => variable_get('linkchecker_extract_from_source', 0),
     '#type' => 'checkbox',
     '#title' => t('Extract links in <code>&lt;source&gt;</code> tags'),
-    '#description' => t('Enable this checkbox if links in source tags should be extracted.'),
+    '#description' => t('Enable this checkbox if links in source tags should be extracted. The source element is used to specify multiple media resources for audio and video elements.'),
   );
   $form['tag']['linkchecker_extract_from_video'] = array(
     '#default_value' => variable_get('linkchecker_extract_from_video', 0),
     '#type' => 'checkbox',
     '#title' => t('Extract links in <code>&lt;video&gt;</code> tags'),
-    '#description' => t('Enable this checkbox if links in video tags should be extracted.'),
+    '#description' => t('Enable this checkbox if links in video tags should be extracted. The video element is used in to embed video content.'),
   );
 
   $form['check'] = array(
