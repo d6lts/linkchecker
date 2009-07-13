@@ -853,6 +853,7 @@ function _linkchecker_extract_links($text = '') {
   // Finds all hyperlinks in the content.
   $matches_a = array();
   if (variable_get('linkchecker_extract_from_a', 1) == 1) {
+    // Extract all chars in the href value, except double and single quotes.
     $pattern_a = '/<(a|area)\s[^>]*href=["\']([^"\']*)["\'][^>]*>/i';
     preg_match_all($pattern_a, $text, $matches_a);
   }
