@@ -1249,7 +1249,6 @@ function _linkchecker_cleanup_links() {
               SELECT DISTINCT lid FROM {linkchecker_nodes}
             )');
 
-  watchdog('linkchecker', t('Wiped out obsolete links.'));
 }
 
 /**
