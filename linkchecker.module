@@ -330,8 +330,10 @@ function _linkchecker_status_handling($link, $response) {
             }
           }
 
+          // Always use the default revision setting. See node_object_prepare().
+          $node_options = variable_get('node_options_'. $node->type, array('status', 'promote'));
+          $node->revision = in_array('revision', $node_options);
           // Save changed node and update the node link list.
-          $node->revision = variable_get('linkchecker_create_new_revision_on_update', 1);
           node_save($node);
           watchdog('linkchecker', 'Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
         }
