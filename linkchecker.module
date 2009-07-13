@@ -458,7 +458,6 @@ function linkchecker_comment($comment, $op) {
   $comment = (array) $comment;
 
   switch ($op) {
-    case 'update':
     case 'publish':
       $node_type = db_result(db_query("SELECT type FROM {node} WHERE nid = %d", $comment['nid']));
       if (_linkchecker_scan_nodetype($node_type)) {
