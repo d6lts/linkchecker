@@ -3,16 +3,16 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  linkchecker.module,v 1.7.2.81 2009/07/12 20:59:46 hass
+#  linkchecker.module,v 1.7.2.85 2009/07/13 21:53:40 hass
 #  linkchecker.info,v 1.2.2.2 2009/01/25 23:41:02 hass
-#  linkchecker.admin.inc,v 1.1.2.4 2009/07/12 21:24:31 hass
-#  linkchecker.install,v 1.2.2.20 2009/07/12 14:04:53 hass
+#  linkchecker.admin.inc,v 1.1.2.6 2009/07/13 18:30:46 hass
+#  linkchecker.install,v 1.2.2.22 2009/07/13 18:30:46 hass
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-07-12 23:42+0200\n"
+"POT-Creation-Date: 2009-07-13 23:54+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -49,43 +49,39 @@ msgstr ""
 msgid "Finished importing blocks with an error."
 msgstr ""
 
-#: linkchecker.module:385;391;409;42
+#: linkchecker.module:388;394;412;42
 msgid "Broken links"
 msgstr ""
 
-#: linkchecker.module:335;356;380;385;391;409;840;1179;0
+#: linkchecker.module:338;359;383;388;394;412;1182;0
 msgid "linkchecker"
 msgstr ""
 
-#: linkchecker.module:335
+#: linkchecker.module:338
 msgid "Changed permanently moved link in %node from %src to %dst."
 msgstr ""
 
-#: linkchecker.module:356
+#: linkchecker.module:359
 msgid "Changed permanently moved link in comment %comment from %src to %dst."
 msgstr ""
 
-#: linkchecker.module:380
+#: linkchecker.module:383
 msgid "Changed permanently moved link in box %bid from %src to %dst."
 msgstr ""
 
-#: linkchecker.module:385
+#: linkchecker.module:388
 msgid "Link %link has changed and needs to be updated."
 msgstr ""
 
-#: linkchecker.module:391
+#: linkchecker.module:394
 msgid "Broken link %link has been found."
 msgstr ""
 
-#: linkchecker.module:409
+#: linkchecker.module:412
 msgid "Method HEAD is not allowed for link %link. Method has been changed to GET."
 msgstr ""
 
-#: linkchecker.module:840
-msgid "Wiped out obsolete links."
-msgstr ""
-
-#: linkchecker.module:1179
+#: linkchecker.module:1182
 msgid "Set @type %title to unpublished."
 msgstr ""
 
@@ -107,7 +103,7 @@ msgid_plural "@count blocks have been scanned."
 msgstr[0] ""
 msgstr[1] ""
 
-#: linkchecker.module:446;497
+#: linkchecker.module:449;500
 msgid "Link check of <a href=\"@url\">@url</a> failed once (status code: @code)."
 msgid_plural "Link check of <a href=\"@url\">@url</a> failed @count times (status code: @code)."
 msgstr[0] ""
@@ -334,7 +330,7 @@ msgid "Update permanently moved links"
 msgstr ""
 
 #: includes/linkchecker.admin.inc:157
-msgid "If enabled, outdated links in content providing a <em>Moved Permanently</em> (status code 301) are automatically updated to the most recent URL. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. Changes will be logged in <a href=\"@dblog\">recent log entries</a>."
+msgid "If enabled, outdated links in content providing a <em>Moved Permanently</em> (status code 301) are automatically updated to the most recent URL. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. A new node revision is automatically created on link updates if <em>create new revision</em> is enabled in the <a href=\"@node_types\">node type</a> workflow settings. It is recommended to create new revisions for all link checker enabled node types. Changes are always logged in <a href=\"@dblog\">recent log entries</a>."
 msgstr ""
 
 #: includes/linkchecker.admin.inc:161;175

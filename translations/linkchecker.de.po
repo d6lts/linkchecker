@@ -11,8 +11,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation of Linkchecker\n"
-"POT-Creation-Date: 2009-07-12 23:42+0200\n"
-"PO-Revision-Date: 2009-07-13 00:05+0100\n"
+"POT-Creation-Date: 2009-07-13 23:54+0200\n"
+"PO-Revision-Date: 2009-07-13 23:57+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -50,43 +50,39 @@ msgstr "Blöcke werden nach Links durchsucht"
 msgid "Finished importing blocks with an error."
 msgstr "Das Importieren von Blöcken wurde mit einem Fehler beendet."
 
-#: linkchecker.module:385;391;409;42
+#: linkchecker.module:388;394;412;42
 msgid "Broken links"
 msgstr "Beschädigte Links"
 
-#: linkchecker.module:335;356;380;385;391;409;840;1179;0
+#: linkchecker.module:338;359;383;388;394;412;1182;0
 msgid "linkchecker"
 msgstr "linkchecker"
 
-#: linkchecker.module:335
+#: linkchecker.module:338
 msgid "Changed permanently moved link in %node from %src to %dst."
 msgstr "Dauerhaft verschobener Link in Beitrag %node wurde von %src auf %dst geändert."
 
-#: linkchecker.module:356
+#: linkchecker.module:359
 msgid "Changed permanently moved link in comment %comment from %src to %dst."
 msgstr "Dauerhaft verschobener Link in Kommentar %comment wurde von %src auf %dst geändert."
 
-#: linkchecker.module:380
+#: linkchecker.module:383
 msgid "Changed permanently moved link in box %bid from %src to %dst."
 msgstr "Dauerhaft verschobener Link in Box %bid wurde von %src auf %dst geändert."
 
-#: linkchecker.module:385
+#: linkchecker.module:388
 msgid "Link %link has changed and needs to be updated."
 msgstr "Link %link wurde geändert und muss aktualisiert werden."
 
-#: linkchecker.module:391
+#: linkchecker.module:394
 msgid "Broken link %link has been found."
 msgstr "Ein beschädigter Link %link wurde gefunden."
 
-#: linkchecker.module:409
+#: linkchecker.module:412
 msgid "Method HEAD is not allowed for link %link. Method has been changed to GET."
 msgstr "Die Methode HEAD ist für den Link %link nicht zulässig. Die Methode wurde auf GET geändert."
 
-#: linkchecker.module:840
-msgid "Wiped out obsolete links."
-msgstr "Veraltete Links wurden beseitigt."
-
-#: linkchecker.module:1179
+#: linkchecker.module:1182
 msgid "Set @type %title to unpublished."
 msgstr "Die Veröffentlichung von @type %title wurde zurückgezogen."
 
@@ -108,7 +104,7 @@ msgid_plural "@count blocks have been scanned."
 msgstr[0] "Ein Block wurde durchsucht."
 msgstr[1] "@count Blöcke wurden durchsucht."
 
-#: linkchecker.module:446;497
+#: linkchecker.module:449;500
 msgid "Link check of <a href=\"@url\">@url</a> failed once (status code: @code)."
 msgid_plural "Link check of <a href=\"@url\">@url</a> failed @count times (status code: @code)."
 msgstr[0] "Die Linküberprüfung von <a href=\"@url\">@url</a> ist einmal fehlgeschlagen (Status-Code: @code)."
@@ -340,7 +336,7 @@ msgid "Update permanently moved links"
 msgstr "Dauerhaft verschobene Links aktualisieren"
 
 #: includes/linkchecker.admin.inc:157
-msgid "If enabled, outdated links in content providing a <em>Moved Permanently</em> (status code 301) are automatically updated to the most recent URL. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. Changes will be logged in <a href=\"@dblog\">recent log entries</a>."
+msgid "If enabled, outdated links in content providing a <em>Moved Permanently</em> (status code 301) are automatically updated to the most recent URL. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. A new node revision is automatically created on link updates if <em>create new revision</em> is enabled in the <a href=\"@node_types\">node type</a> workflow settings. It is recommended to create new revisions for all link checker enabled node types. Changes are always logged in <a href=\"@dblog\">recent log entries</a>."
 msgstr ""
 
 #: includes/linkchecker.admin.inc:161;175
