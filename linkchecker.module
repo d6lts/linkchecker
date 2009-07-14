@@ -1011,80 +1011,99 @@ function _linkchecker_filter_url($text = '') {
  * @param $new_link
  *   The old link should be overwritten with this new link.
  */
-function _linkchecker_link_replace(&$text, $old_link = '', $new_link = '') {
+function _linkchecker_link_replace(&$text, $old_link_fqdn = '', $new_link_fqdn = '') {
   // Don't do any string replacement if one of the values is empty.
-  if (!empty($text) && !empty($old_link) && !empty($new_link)) {
-    // Remove hostname from local URLs.
-    $old_link = str_replace('http://'. $_SERVER['HTTP_HOST'], '', $old_link);
-    $new_link = str_replace('http://'. $_SERVER['HTTP_HOST'], '', $new_link);
+  if (!empty($text) && !empty($old_link_fqdn) && !empty($new_link_fqdn)) {
+    // Remove protocols and hostname from local URLs.
+    $base_roots = array(
+      strtolower('http://'. $_SERVER['HTTP_HOST']),
+      strtolower('https://'. $_SERVER['HTTP_HOST'])
+    );
+    $old_link = str_replace($base_roots, '', $old_link_fqdn);
+    $new_link = str_replace($base_roots, '', $new_link_fqdn);
 
-    // Create array of regex link with HTML decoded and encoded URLs.
-    $old_links = array();
-    $old_links[] = preg_quote(check_url($old_link), '/');
-    $old_links[] = preg_quote($old_link, '/');
-
-    // Remove duplicate URLs from array if URLs do not have URL parameters.
-    // If more than one URL parameter exists - one URL in the array will have
-    // an unencoded ampersand "&" and a second URL will have an HTML encoded
-    // ampersand "&amp;".
-    $regex_old_links = implode('|', array_unique($old_links));
+    // Build variables with all URLs and run check_url() only once.
+    $old_html_link_fqdn = check_url($old_link_fqdn);
+    $new_html_link_fqdn = check_url($new_link_fqdn);
+    $old_html_link = check_url($old_link);
     $new_html_link = check_url($new_link);
 
-    // Create array to fill with replacement rules.
-    $replacements = array();
-
-    // Add replace rules for a/area tags.
-    if (variable_get('linkchecker_extract_from_a', 1) == 1) {
-      // TODO: If link text between opening an closing a-tag having the same
-      // URL, also replace the link text. Create a replace regex for this task.
-      $text = str_replace('>' . check_url($old_link) . '</a>', '>' . check_url($new_link) . '</a>', $text);
-      $text = str_replace('>' . $old_link . '</a>', '>' . check_url($new_link) . '</a>', $text);
-      $replacements['/(<(a|area)\s[^>]*href=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\4';
+    // Replace links in CCK link and text and Links weblink fields.
+    if (in_array($text, array($old_html_link_fqdn, $old_html_link, $old_link_fqdn, $old_link))) {
+      // Keep old and new links in the same encoding and format and short or fully qualified.
+      $text = str_replace($old_html_link_fqdn, $new_html_link_fqdn, $text);
+      $text = str_replace($old_html_link, $new_html_link, $text);
+      $text = str_replace($old_link_fqdn, $new_link_fqdn, $text);
+      $text = str_replace($old_link, $new_link, $text);
     }
+    else {
+      // Create an array of preg quoted links with HTML decoded and encoded URLs.
+      $old_links_quoted = array();
+      $old_links_quoted[] = preg_quote($old_html_link_fqdn, '/');
+      $old_links_quoted[] = preg_quote($old_html_link, '/');
+      $old_links_quoted[] = preg_quote($old_link, '/');
 
-    // Add replace rules for audio tags.
-    if (variable_get('linkchecker_extract_from_audio', 0) == 1) {
-      $replacements['/(<audio\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-    }
+      // Remove duplicate URLs from array if URLs do not have URL parameters.
+      // If more than one URL parameter exists - one URL in the array will have
+      // an unencoded ampersand "&" and a second URL will have an HTML encoded
+      // ampersand "&amp;".
+      $regex_old_links = implode('|', array_unique($old_links_quoted));
 
-    // Add replace rules for embed tags.
-    if (variable_get('linkchecker_extract_from_embed', 0) == 1) {
-      $replacements['/(<embed\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-      $replacements['/(<embed\s[^>]*pluginurl=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-      $replacements['/(<embed\s[^>]*pluginspage=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-    }
+      // Create array to fill with replacement rules.
+      $replacements = array();
 
-    // Add replace rules for iframe tags.
-    if (variable_get('linkchecker_extract_from_iframe', 0) == 1) {
-      $replacements['/(<iframe\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-    }
+      // Add replace rules for a/area tags.
+      if (variable_get('linkchecker_extract_from_a', 1) == 1) {
+        // TODO: If link text between opening an closing a-tag having the same
+        // URL, also replace the link text. Create a replace regex for this task.
+        $text = str_replace(array('>' . $old_html_link_fqdn . '</a>', '>' . $old_html_link . '</a>', '>' . $old_link . '</a>'), '>' . $new_html_link . '</a>', $text);
+        $replacements['/(<(a|area)\s[^>]*href=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\4';
+      }
 
-    // Add replace rules for img tags.
-    if (variable_get('linkchecker_extract_from_img', 0) == 1) {
-      $replacements['/(<img\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-    }
+      // Add replace rules for audio tags.
+      if (variable_get('linkchecker_extract_from_audio', 0) == 1) {
+        $replacements['/(<audio\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+      }
 
-    // Add replace rules for object/param tags.
-    if (variable_get('linkchecker_extract_from_object', 0) == 1) {
-      $replacements['/(<object\s[^>]*data=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-      $replacements['/(<object\s[^>]*codebase=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-      $replacements['/(<param\s[^>]*((name|src)=["\'](archive|filename|href|movie|src|url)["\']\s[^>]*)+value=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\6';
-    }
+      // Add replace rules for embed tags.
+      if (variable_get('linkchecker_extract_from_embed', 0) == 1) {
+        $replacements['/(<embed\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+        $replacements['/(<embed\s[^>]*pluginurl=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+        $replacements['/(<embed\s[^>]*pluginspage=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+      }
 
-    // Add replace rules for source tags.
-    if (variable_get('linkchecker_extract_from_source', 0) == 1) {
-      $replacements['/(<source\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-    }
+      // Add replace rules for iframe tags.
+      if (variable_get('linkchecker_extract_from_iframe', 0) == 1) {
+        $replacements['/(<iframe\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+      }
 
-    // Add replace rules for video tags.
-    if (variable_get('linkchecker_extract_from_video', 0) == 1) {
-      $replacements['/(<video\s[^>]*poster=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-      $replacements['/(<video\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
-    }
+      // Add replace rules for img tags.
+      if (variable_get('linkchecker_extract_from_img', 0) == 1) {
+        $replacements['/(<img\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+      }
 
-    // Replace link by applying all replacement rules on text.
-    foreach ($replacements as $pattern => $replacement) {
-      $text = preg_replace($pattern, $replacement, $text);
+      // Add replace rules for object/param tags.
+      if (variable_get('linkchecker_extract_from_object', 0) == 1) {
+        $replacements['/(<object\s[^>]*data=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+        $replacements['/(<object\s[^>]*codebase=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+        $replacements['/(<param\s[^>]*((name|src)=["\'](archive|filename|href|movie|src|url)["\']\s[^>]*)+value=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\6';
+      }
+
+      // Add replace rules for source tags.
+      if (variable_get('linkchecker_extract_from_source', 0) == 1) {
+        $replacements['/(<source\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+      }
+
+      // Add replace rules for video tags.
+      if (variable_get('linkchecker_extract_from_video', 0) == 1) {
+        $replacements['/(<video\s[^>]*poster=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+        $replacements['/(<video\s[^>]*src=["\'])('. $regex_old_links .')(["\'][^>]*>)/i'] = '\1'. $new_html_link .'\3';
+      }
+
+      // Replace link by applying all replacement rules on text.
+      foreach ($replacements as $pattern => $replacement) {
+        $text = preg_replace($pattern, $replacement, $text);
+      }
     }
   }
 }
