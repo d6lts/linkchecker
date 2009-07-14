@@ -1006,9 +1006,9 @@ function _linkchecker_filter_url($text = '') {
  *
  * @param $text
  *   The text a link is inside. Passed in as a reference.
- * @param $old_link
- *   The old link to search for.
- * @param $new_link
+ * @param $old_link_fqdn
+ *   The old link to search for in strings.
+ * @param $new_link_fqdn
  *   The old link should be overwritten with this new link.
  */
 function _linkchecker_link_replace(&$text, $old_link_fqdn = '', $new_link_fqdn = '') {
