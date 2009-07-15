@@ -300,6 +300,7 @@ function _linkchecker_status_handling($link, $response) {
           $text_items = array();
           $text_items[] = 'title';
           $text_items[] = 'body';
+          $text_items[] = 'teaser';
 
           // Update weblink nodes from 'links' module package.
           if (module_exists('links_weblink') && isset($node->links_weblink_url)) {
