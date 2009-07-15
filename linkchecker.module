@@ -535,6 +535,7 @@ function _linkchecker_add_node_links($node) {
   $text_items = array();
   $text_items[] = $node->title;
   $text_items[] = $node->body;
+  $text_items[] = $node->teaser;
 
   // Search for links in weblink nodes from 'links' module package.
   if (module_exists('links_weblink') && isset($node->links_weblink_url)) {
