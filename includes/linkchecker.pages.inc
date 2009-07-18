@@ -39,8 +39,8 @@ function linkchecker_admin_report() {
         SELECT DISTINCT lid FROM {linkchecker_nodes}
       ) q1
     ) q2 ON q2.lid = ll.lid
-    WHERE ll.last_checked <> %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")";
-  $result = pager_query($links_report_sql . tablesort_sql($header), 50, 0, NULL, array_merge(array(0), $ignore_response_codes));
+    WHERE ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")";
+  $result = pager_query($links_report_sql . tablesort_sql($header), 50, 0, NULL, array_merge(array(0, 1), $ignore_response_codes));
 
   // Evaluate permission once for performance reasons.
   $access_edit_link_settings = user_access('edit link settings');
