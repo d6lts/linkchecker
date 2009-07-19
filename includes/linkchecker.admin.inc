@@ -42,7 +42,7 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#default_value' => variable_get('linkchecker_fqdn_only', 1),
     '#type' => 'checkbox',
     '#title' => t('Check full qualified domain names only'),
-    '#description' => t('Enable this checkbox if only full qualified URLs should be checked. If unchecked, all internal and external URLs will be checked.')
+    '#description' => t('Enable this checkbox if only full qualified URLs (http://example.com/foo/bar) should be checked. If unchecked, all internal (/node/123) and external (http://example.com/foo/bar) URLs will be checked.')
   );
 
   $pathfilter_dependencies = '<div class="admin-dependencies">';
