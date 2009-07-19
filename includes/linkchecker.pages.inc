@@ -137,7 +137,7 @@ function _linkchecker_report_page($links_report_sql, $links_report_parameters = 
     }
 
     // Show link to comments having this broken link.
-    if (!empty($account)) {
+    if (!empty($account) && module_exists('comment') && variable_get('linkchecker_scan_comments', 0)) {
       $comments = db_query('SELECT lc.cid
         FROM linkchecker_comments lc
         INNER JOIN comments c ON c.cid = lc.cid
