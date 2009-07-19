@@ -11,7 +11,7 @@
  */
 function linkchecker_admin_report_page() {
 
-  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
+  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
 
   // Search for of broken links in nodes and comments of the current user.
   $links_report_sql = "SELECT ll.*
@@ -39,7 +39,7 @@ function linkchecker_admin_report_page() {
 function linkchecker_user_report_page($account) {
   drupal_set_title(check_plain($account->name));
 
-  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
+  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
 
   // Search for of broken links in nodes and comments of the current user.
   if (module_exists('comment') && variable_get('linkchecker_scan_comments', 0)) {
