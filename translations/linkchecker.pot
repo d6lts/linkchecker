@@ -3,16 +3,18 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  linkchecker.module,v 1.7.2.85 2009/07/13 21:53:40 hass
+#  linkchecker.module,v 1.7.2.96 2009/07/19 20:45:34 hass
 #  linkchecker.info,v 1.2.2.2 2009/01/25 23:41:02 hass
-#  linkchecker.admin.inc,v 1.1.2.6 2009/07/13 18:30:46 hass
-#  linkchecker.install,v 1.2.2.22 2009/07/13 18:30:46 hass
+#  linkchecker.pages.inc,v 1.1.2.5 2009/07/19 10:31:20 hass
+#  linkchecker.install,v 1.2.2.27 2009/07/19 10:31:20 hass
+#  linkchecker.admin.inc,v 1.1.2.10 2009/07/19 17:00:39 hass
+#  linkchecker.batch.inc,v 1.1.2.2 2009/07/19 17:01:46 hass
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-07-13 23:54+0200\n"
+"POT-Creation-Date: 2009-07-19 22:58+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -21,119 +23,81 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: linkchecker.module:24
+#: linkchecker.module:26
 msgid "This module provides an aid to finding broken links on your site. It periodically checks contents of all public nodes, tries to find any html links and check for their validity. It reports broken links through the admin interface. For more information about status codes see <a href=\"@rfc\">Status Code Definitions</a>."
 msgstr ""
 
-#: linkchecker.module:78
-msgid "Scanning nodes for links"
-msgstr ""
-
-#: linkchecker.module:107
-msgid "Finished importing nodes with an error."
-msgstr ""
-
-#: linkchecker.module:129
-msgid "Scanning comments for links"
-msgstr ""
-
-#: linkchecker.module:158
-msgid "Finished importing comments with an error."
-msgstr ""
-
-#: linkchecker.module:179
-msgid "Scanning blocks for links"
-msgstr ""
-
-#: linkchecker.module:207
-msgid "Finished importing blocks with an error."
-msgstr ""
-
-#: linkchecker.module:388;394;412;42
+#: linkchecker.module:251;257;275;44;53
 msgid "Broken links"
 msgstr ""
 
-#: linkchecker.module:338;359;383;388;394;412;1182;0
+#: linkchecker.module:201;222;246;251;257;275;1082;0
 msgid "linkchecker"
 msgstr ""
 
-#: linkchecker.module:338
+#: linkchecker.module:201
 msgid "Changed permanently moved link in %node from %src to %dst."
 msgstr ""
 
-#: linkchecker.module:359
+#: linkchecker.module:222
 msgid "Changed permanently moved link in comment %comment from %src to %dst."
 msgstr ""
 
-#: linkchecker.module:383
+#: linkchecker.module:246
 msgid "Changed permanently moved link in box %bid from %src to %dst."
 msgstr ""
 
-#: linkchecker.module:388
+#: linkchecker.module:251
 msgid "Link %link has changed and needs to be updated."
 msgstr ""
 
-#: linkchecker.module:394
+#: linkchecker.module:257
 msgid "Broken link %link has been found."
 msgstr ""
 
-#: linkchecker.module:412
+#: linkchecker.module:275
 msgid "Method HEAD is not allowed for link %link. Method has been changed to GET."
 msgstr ""
 
-#: linkchecker.module:1182
+#: linkchecker.module:1082
 msgid "Set @type %title to unpublished."
 msgstr ""
 
-#: linkchecker.module:104
-msgid "One node has been scanned."
-msgid_plural "@count nodes have been scanned."
-msgstr[0] ""
-msgstr[1] ""
-
-#: linkchecker.module:155
-msgid "One comment has been scanned."
-msgid_plural "@count comments have been scanned."
-msgstr[0] ""
-msgstr[1] ""
-
-#: linkchecker.module:204
-msgid "One block has been scanned."
-msgid_plural "@count blocks have been scanned."
-msgstr[0] ""
-msgstr[1] ""
-
-#: linkchecker.module:449;500
+#: linkchecker.module:312;362
 msgid "Link check of <a href=\"@url\">@url</a> failed once (status code: @code)."
 msgid_plural "Link check of <a href=\"@url\">@url</a> failed @count times (status code: @code)."
 msgstr[0] ""
 msgstr[1] ""
 
-#: linkchecker.module:15
-msgid "access linkchecker"
+#: linkchecker.module:17
+msgid "access broken links report"
 msgstr ""
 
-#: linkchecker.module:15
-msgid "edit link settings"
+#: linkchecker.module:17
+msgid "access own broken links report"
 msgstr ""
 
-#: linkchecker.module:15
+#: linkchecker.module:17
 msgid "administer linkchecker"
 msgstr ""
 
-#: linkchecker.module:34 linkchecker.info:0
+#: linkchecker.module:17
+msgid "edit link settings"
+msgstr ""
+
+#: linkchecker.module:36 linkchecker.info:0
 msgid "Link checker"
 msgstr ""
 
-#: linkchecker.module:35
+#: linkchecker.module:37
 msgid "Link checker configuration."
 msgstr ""
 
-#: linkchecker.module:43
+#: linkchecker.module:45;54
 msgid "Shows a list of broken links in content."
 msgstr ""
 
-#: linkchecker.module:50 includes/linkchecker.admin.inc:344
+#: linkchecker.module:63 includes/linkchecker.pages.inc:121
 msgid "Edit link settings"
 msgstr ""
 
@@ -218,7 +182,7 @@ msgid "Check full qualified domain names only"
 msgstr ""
 
 #: includes/linkchecker.admin.inc:45
-msgid "Enable this checkbox if only full qualified URLs should be checked. If unchecked, all internal and external URLs will be checked."
+msgid "Enable this checkbox if only full qualified URLs (http://example.com/foo/bar) should be checked. If unchecked, all internal (/node/123) and external (http://example.com/foo/bar) URLs will be checked."
 msgstr ""
 
 #: includes/linkchecker.admin.inc:55
@@ -417,11 +381,11 @@ msgstr ""
 msgid "Clear link data and analyze content for links"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:214;421
+#: includes/linkchecker.admin.inc:214 includes/linkchecker.pages.inc:214
 msgid "Save configuration"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:215;422
+#: includes/linkchecker.admin.inc:215 includes/linkchecker.pages.inc:215
 msgid "Reset to defaults"
 msgstr ""
 
@@ -429,83 +393,129 @@ msgstr ""
 msgid "Invalid response code %code found."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:317
+#: includes/linkchecker.batch.inc:26;70;114
+msgid "Scanning for links"
+msgstr ""
+
+#: includes/linkchecker.batch.inc:42
+msgid "Node: @title"
+msgstr ""
+
+#: includes/linkchecker.batch.inc:50
+msgid "Scanning for links in nodes have failed with an error."
+msgstr ""
+
+#: includes/linkchecker.batch.inc:86
+msgid "Comment: @title"
+msgstr ""
+
+#: includes/linkchecker.batch.inc:94
+msgid "Scanning for links in comments have failed with an error."
+msgstr ""
+
+#: includes/linkchecker.batch.inc:130
+msgid "Block: @title"
+msgstr ""
+
+#: includes/linkchecker.batch.inc:138
+msgid "Scanning for links in blocks have failed with an error."
+msgstr ""
+
+#: includes/linkchecker.batch.inc:47
+msgid "One node has been scanned."
+msgid_plural "@count nodes have been scanned."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/linkchecker.batch.inc:91
+msgid "One comment has been scanned."
+msgid_plural "@count comments have been scanned."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/linkchecker.batch.inc:135
+msgid "One block has been scanned."
+msgid_plural "@count blocks have been scanned."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/linkchecker.pages.inc:102
 msgid "URL"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:318
+#: includes/linkchecker.pages.inc:103
 msgid "Response"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:319
+#: includes/linkchecker.pages.inc:104
 msgid "Error"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:320
+#: includes/linkchecker.pages.inc:105
 msgid "Operations"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:350
+#: includes/linkchecker.pages.inc:136
 msgid "Edit node @node"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:356
+#: includes/linkchecker.pages.inc:150
 msgid "Edit comment @comment"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:362
+#: includes/linkchecker.pages.inc:157
 msgid "Edit block @block"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:367
+#: includes/linkchecker.pages.inc:163
 msgid "Create redirection"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:380
+#: includes/linkchecker.pages.inc:176
 msgid "No broken links have been found."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:395
+#: includes/linkchecker.pages.inc:188
 msgid "Settings"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:397
+#: includes/linkchecker.pages.inc:190
 msgid "The link <a href=\"@url\">@url</a> has been checked lastly at @last_checked and failed @fail_count times."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:405
+#: includes/linkchecker.pages.inc:198
 msgid "Select request method"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:408
+#: includes/linkchecker.pages.inc:201
 msgid "HEAD"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:409
+#: includes/linkchecker.pages.inc:202
 msgid "GET"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:411
+#: includes/linkchecker.pages.inc:204
 msgid "Select the request method used for link checks of this link. If you encounter issues like status code 500 errors with the HEAD request method you should try the GET request method before ignoring a link."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:417
+#: includes/linkchecker.pages.inc:210
 msgid "Check link status"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:418
+#: includes/linkchecker.pages.inc:211
 msgid "Disable this checkbox if you don't like to get informed any longer about this broken link. Use this setting only as the very last option if there is no other way to solve a failed link check."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:431
+#: includes/linkchecker.pages.inc:224
 msgid "The link settings for %url have been saved and the fail counter has been resetted."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:436
+#: includes/linkchecker.pages.inc:229
 msgid "The link settings for %url have been saved."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:310
+#: includes/linkchecker.pages.inc:95
 msgid "There is 1 unchecked link of about @links_all links in the database. Please be patient until all links have been checked via cron."
 msgid_plural "There are @count unchecked links of about @links_all links in the database. Please be patient until all links have been checked via cron."
 msgstr[0] ""
