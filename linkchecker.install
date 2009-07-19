@@ -500,7 +500,7 @@ function linkchecker_update_6209() {
   }
 
   foreach ($perms as $key => $value) {
-    db_query("UPDATE {permission} SET perm = '%s' WHERE rid = %d", $key, $value);
+    db_query("UPDATE {permission} SET perm = '%s' WHERE rid = %d", $value, $key);
   }
 
   return $ret;
