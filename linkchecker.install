@@ -417,3 +417,24 @@ function linkchecker_update_5208() {
 
   return $ret;
 }
+
+/**
+ * Update the permissions table, to reflect changes to hook_perm.
+ */
+function linkchecker_update_5209() {
+  $ret = array();
+
+  $res = db_query('SELECT rid, perm FROM {permission}');
+  $perms = array();
+  while ($p = db_fetch_object($res)) {
+    $perm = $p->perm;
+    $perm = preg_replace('/access linkchecker/', 'access broken links report', $perm);
+    $perms[$p->rid] = $perm;
+  }
+
+  foreach ($perms as $key => $value) {
+    db_query("UPDATE {permission} SET perm = '%s' WHERE rid = %d", $value, $key);
+  }
+
+  return $ret;
+}

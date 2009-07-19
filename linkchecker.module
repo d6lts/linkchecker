@@ -12,7 +12,7 @@
  * Implementation of hook_perm().
  */
 function linkchecker_perm() {
-  return array('access linkchecker', 'edit link settings', 'administer linkchecker');
+  return array('access broken links report', 'administer linkchecker', 'edit link settings');
 }
 
 /**
@@ -55,7 +55,7 @@ function linkchecker_menu($may_cache) {
       'title' => t('Broken links'),
       'description' => t('Shows a list of broken links in content.'),
       'callback' => 'linkchecker_admin_report',
-      'access' => user_access('access linkchecker'),
+      'access' => user_access('access broken links report'),
     );
   }
   else {
