@@ -438,3 +438,23 @@ function linkchecker_update_5209() {
 
   return $ret;
 }
+
+/**
+ * Add status code 302 to the default list of ignored response codes.
+ */
+function linkchecker_update_5210() {
+  $ret = array();
+
+  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
+  if (!in_array('302', $ignore_response_codes)) {
+    $ignore_response_codes[] = '302';
+    sort($ignore_response_codes);
+    variable_set('linkchecker_ignore_response_codes', implode("\n", $ignore_response_codes));
+    $ret[] = array('success' => TRUE, 'query' => 'Added the status code 302 to the list of ignored response codes.');
+  }
+  else {
+    $ret[] = array('success' => TRUE, 'query' => 'No action taken. The status code 302 was already on the list of ignored response codes.');
+  }
+
+  return $ret;
+}
