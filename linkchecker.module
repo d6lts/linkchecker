@@ -12,7 +12,7 @@
  * Implementation of hook_perm().
  */
 function linkchecker_perm() {
-  return array('access linkchecker', 'edit link settings', 'administer linkchecker');
+  return array('access broken links report', 'access own broken links report', 'administer linkchecker', 'edit link settings');
 }
 
 /**
@@ -41,10 +41,21 @@ function linkchecker_menu() {
   $items['admin/reports/linkchecker'] = array(
     'title' => 'Broken links',
     'description' => 'Shows a list of broken links in content.',
-    'page callback' => 'linkchecker_admin_report',
+    'page callback' => 'linkchecker_admin_report_page',
     'type' => MENU_NORMAL_ITEM,
-    'access arguments' => array('access linkchecker'),
+    'access arguments' => array('access broken links report'),
     'file' => 'includes/linkchecker.pages.inc',
+  );
+  // Add the user menu item after node/edit item.
+  $items['user/%user/linkchecker'] = array(
+    'title' => 'Broken links',
+    'description' => 'Shows a list of broken links in content.',
+    'page callback' => 'linkchecker_user_report_page',
+    'page arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('access own broken links report'),
+    'file' => 'includes/linkchecker.pages.inc',
+    'weight' => 3,
   );
   $items['linkchecker/%linkchecker_link/edit'] = array(
     'title' => 'Edit link settings',

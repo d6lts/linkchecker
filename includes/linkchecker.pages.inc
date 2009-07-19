@@ -7,9 +7,87 @@
  */
 
 /**
- * Menu callback for reporting.
+ * Menu callback for general reporting.
  */
-function linkchecker_admin_report() {
+function linkchecker_admin_report_page() {
+
+  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
+
+  // Search for of broken links in nodes and comments of the current user.
+  $links_report_sql = "SELECT ll.*
+    FROM {linkchecker_links} ll
+    INNER JOIN (
+      SELECT DISTINCT lid FROM (
+        SELECT DISTINCT lid FROM {linkchecker_boxes}
+        UNION ALL
+        SELECT DISTINCT lid FROM {linkchecker_comments}
+        UNION ALL
+        SELECT DISTINCT lid FROM {linkchecker_nodes}
+      ) q1
+    ) q2 ON q2.lid = ll.lid
+    WHERE ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")";
+
+  // Build the array variable with all parameters for the pager_query.
+  $links_report_parameters = array_merge(array(0, 1), $ignore_response_codes);
+
+  return _linkchecker_report_page($links_report_sql, $links_report_parameters);
+}
+
+/**
+ * Menu callback for author specific reporting.
+ */
+function linkchecker_user_report_page($account) {
+  drupal_set_title(check_plain($account->name));
+
+  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
+
+  // Search for of broken links in nodes and comments of the current user.
+  if (module_exists('comment') && variable_get('linkchecker_scan_comments', 0)) {
+    $links_report_sql = "SELECT ll.*
+      FROM linkchecker_links ll
+      INNER JOIN (
+        SELECT DISTINCT lid FROM (
+          SELECT DISTINCT ll.lid
+          FROM node n
+          INNER JOIN node_revisions r ON r.nid = n.nid AND r.vid = n.vid
+          INNER JOIN linkchecker_nodes ln ON ln.nid = n.nid
+          INNER JOIN linkchecker_links ll ON ll.lid = ln.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
+          WHERE n.uid = %d OR r.uid = %d
+          UNION ALL
+          SELECT DISTINCT ll.lid
+          FROM comments c
+          INNER JOIN linkchecker_comments lc ON lc.cid = c.nid
+          INNER JOIN linkchecker_links ll ON ll.lid = lc.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
+          WHERE c.uid = %d
+        ) q1
+      ) q2 ON q2.lid = ll.lid";
+
+    // Build the array variable with all parameters for the pager_query with comment module enabled.
+    $links_report_parameters = array_merge(array(0, 1), $ignore_response_codes, array($account->uid, $account->uid, 0, 1), $ignore_response_codes, array($account->uid));
+  }
+  else {
+    // Search for of broken links in nodes of the current user.
+    $links_report_sql = "SELECT ll.*
+      FROM linkchecker_links ll
+      INNER JOIN (
+        SELECT DISTINCT lid FROM (
+          SELECT DISTINCT ll.lid
+          FROM node n
+          INNER JOIN node_revisions r ON r.nid = n.nid AND r.vid = n.vid
+          INNER JOIN linkchecker_nodes ln ON ln.nid = n.nid
+          INNER JOIN linkchecker_links ll ON ll.lid = ln.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
+          WHERE n.uid = %d OR r.uid = %d
+        ) q1
+      ) q2 ON q2.lid = ll.lid";
+
+    // Build the array variable with all parameters for the pager_query with comment module disabled.
+    $links_report_parameters = array_merge(array(0, 1), $ignore_response_codes, array($account->uid, $account->uid));
+  }
+
+  return _linkchecker_report_page($links_report_sql, $links_report_parameters, $account);
+}
+
+function _linkchecker_report_page($links_report_sql, $links_report_parameters = NULL, $account = NULL) {
 
   $links_unchecked = db_result(db_query('SELECT count(lid) FROM {linkchecker_links} WHERE last_checked = %d', 0));
   if ($links_unchecked > 0) {
@@ -27,23 +105,12 @@ function linkchecker_admin_report() {
     array('data' => t('Operations')),
   );
 
-  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n304\n401\n403"));
-  $links_report_sql = "SELECT ll.*
-    FROM {linkchecker_links} ll
-    INNER JOIN (
-      SELECT DISTINCT lid FROM (
-        SELECT DISTINCT lid FROM {linkchecker_boxes}
-        UNION ALL
-        SELECT DISTINCT lid FROM {linkchecker_comments}
-        UNION ALL
-        SELECT DISTINCT lid FROM {linkchecker_nodes}
-      ) q1
-    ) q2 ON q2.lid = ll.lid
-    WHERE ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")";
-  $result = pager_query($links_report_sql . tablesort_sql($header), 50, 0, NULL, array_merge(array(0, 1), $ignore_response_codes));
+  $result = pager_query($links_report_sql . tablesort_sql($header), 50, 0, NULL, $links_report_parameters);
 
   // Evaluate permission once for performance reasons.
   $access_edit_link_settings = user_access('edit link settings');
+  $access_administer_blocks = user_access('administer blocks');
+  $access_administer_redirects = user_access('administer redirects');
 
   $rows = array();
   while ($link = db_fetch_object($result)) {
@@ -55,34 +122,53 @@ function linkchecker_admin_report() {
     }
 
     // Show link to nodes having this broken link.
-    $nodes = db_query('SELECT nid FROM {linkchecker_nodes} WHERE lid = %d', $link->lid);
+    if (!empty($account)) {
+      $nodes = db_query('SELECT ln.nid
+        FROM linkchecker_nodes ln
+        INNER JOIN node n ON n.nid = ln.nid
+        INNER JOIN node_revisions r ON r.nid = n.nid AND r.vid = n.vid
+        WHERE ln.lid = %d AND (n.uid = %d OR r.uid = %d)', $link->lid, $account->uid, $account->uid);
+    }
+    else {
+      $nodes = db_query('SELECT nid FROM {linkchecker_nodes} WHERE lid = %d', $link->lid);
+    }
     while ($node = db_fetch_object($nodes)) {
       $links[] = l(t('Edit node @node', array('@node' => $node->nid)), 'node/' . $node->nid . '/edit', array('query' => 'destination=admin/reports/linkchecker'));
     }
 
     // Show link to comments having this broken link.
-    $comments = db_query('SELECT cid FROM {linkchecker_comments} WHERE lid = %d', $link->lid);
+    if (!empty($account)) {
+      $comments = db_query('SELECT lc.cid
+        FROM linkchecker_comments lc
+        INNER JOIN comments c ON c.cid = lc.cid
+        WHERE lc.lid = %d AND c.uid = %d', $link->lid, $account->uid);
+    }
+    else {
+      $comments = db_query('SELECT cid FROM {linkchecker_comments} WHERE lid = %d', $link->lid);
+    }
     while ($comment = db_fetch_object($comments)) {
       $links[] = l(t('Edit comment @comment', array('@comment' => $comment->cid)), 'comment/edit/' . $comment->cid, array('query' => 'destination=admin/reports/linkchecker'));
     }
 
     // Show link to blocks having this broken link.
-    $boxes = db_query('SELECT bid FROM {linkchecker_boxes} WHERE lid = %d', $link->lid);
-    while ($box = db_fetch_object($boxes)) {
-      $links[] = l(t('Edit block @block', array('@block' => $box->bid)), 'admin/build/block/configure/block/' . $box->bid, array('query' => 'destination=admin/reports/linkchecker'));
+    if ($access_administer_blocks) {
+      $boxes = db_query('SELECT bid FROM {linkchecker_boxes} WHERE lid = %d', $link->lid);
+      while ($box = db_fetch_object($boxes)) {
+        $links[] = l(t('Edit block @block', array('@block' => $box->bid)), 'admin/build/block/configure/block/' . $box->bid, array('query' => 'destination=admin/reports/linkchecker'));
+      }
     }
 
     // Show link to redirect this broken internal link.
-    if (module_exists('path_redirect') && _linkchecker_is_internal_url($link)) {
+    if (module_exists('path_redirect') && $access_administer_redirects && _linkchecker_is_internal_url($link)) {
       $links[] = l(t('Create redirection'), 'admin/build/path-redirect/add', array('query' => array('src' => $link->internal)));
     }
 
-    // Create table data for output.
+    // Create table data for output. Use inline styles to prevent extra CSS file.
     $rows[] = array(
       l(_filter_url_trim($link->url, 40), $link->url),
       $link->code,
       $link->error,
-      implode('<br/>', $links),
+      '<ul style="margin:0"><li style="white-space:nowrap">' . implode('</li><li>', $links) . '</li></ul>',
     );
   }
 
