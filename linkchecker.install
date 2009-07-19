@@ -495,7 +495,7 @@ function linkchecker_update_6209() {
   $perms = array();
   while ($p = db_fetch_object($res)) {
     $perm = $p->perm;
-    $perm = preg_replace('/access linkchecker/', 'access broken links report', $p->perm);
+    $perm = preg_replace('/access linkchecker/', 'access broken links report', $perm);
     $perms[$p->rid] = $perm;
   }
 
