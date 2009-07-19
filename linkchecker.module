@@ -8,6 +8,8 @@
  * Developed by Alexander Hass, http://www.yaml-for-drupal.com/.
  */
 
+define('LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS', 'example.com,example.net,example.org');
+
 /**
  * Implementation of hook_perm().
  */
@@ -439,13 +441,19 @@ function _linkchecker_add_node_links($node) {
 
     // Only add links to database that do not exists.
     $i = 0;
-    foreach ($new_links as $link) {
-      $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
-      if (!$lid) {
-        db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
-        $lid = db_last_insert_id('linkchecker_links', 'lid');
+    foreach ($new_links as $url) {
+      $token = md5($url);
+      $link = db_fetch_object(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", $token));
+      if (!$link) {
+        $link->token = $token;
+        $link->url = $url;
+        // #524380: Automatically disable link checking for example.com/net/org domains.
+        if (preg_match('/' . implode('|', explode(',', preg_quote(LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS))) . '/', $link->url)) {
+          $link->status = 0;
+        }
+        drupal_write_record('linkchecker_links', $link);
       }
-      db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $lid);
+      db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $link->lid);
 
       // Break processing if max links limit per run has been reached.
       $i++;
@@ -485,13 +493,19 @@ function _linkchecker_add_comment_links($comment) {
 
     // Only add unique links to database that do not exist.
     $i = 0;
-    foreach ($new_links as $link) {
-      $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
-      if (!$lid) {
-        db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
-        $lid = db_last_insert_id('linkchecker_links', 'lid');
+    foreach ($new_links as $url) {
+      $token = md5($url);
+      $link = db_fetch_object(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", $token));
+      if (!$link) {
+        $link->token = $token;
+        $link->url = $url;
+        // #524380: Automatically disable link checking for example.com/net/org domains.
+        if (preg_match('/' . implode('|', explode(',', preg_quote(LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS))) . '/', $link->url)) {
+          $link->status = 0;
+        }
+        drupal_write_record('linkchecker_links', $link);
       }
-      db_query("INSERT INTO {linkchecker_comments} (cid, lid) VALUES (%d, %d)", $comment['cid'], $lid);
+      db_query("INSERT INTO {linkchecker_comments} (cid, lid) VALUES (%d, %d)", $comment['cid'], $link->lid);
 
       // Break processing if max links limit per run has been reached.
       $i++;
@@ -532,13 +546,19 @@ function _linkchecker_add_box_links($box, $bid) {
 
     // Only add unique links to database that do not exist.
     $i = 0;
-    foreach ($new_links as $link) {
-      $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
-      if (!$lid) {
-        db_query("INSERT INTO {linkchecker_links} (token, url) VALUES ('%s', '%s')", md5($link), $link);
-        $lid = db_last_insert_id('linkchecker_links', 'lid');
+    foreach ($new_links as $url) {
+      $token = md5($url);
+      $link = db_fetch_object(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", $token));
+      if (!$link) {
+        $link->token = $token;
+        $link->url = $url;
+        // #524380: Automatically disable link checking for example.com/net/org domains.
+        if (preg_match('/' . implode('|', explode(',', preg_quote(LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS))) . '/', $link->url)) {
+          $link->status = 0;
+        }
+        drupal_write_record('linkchecker_links', $link);
       }
-      db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $lid);
+      db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $link->lid);
 
       // Break processing if max links limit per run has been reached.
       $i++;
