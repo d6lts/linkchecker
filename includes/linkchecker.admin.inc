@@ -225,6 +225,7 @@ function linkchecker_admin_settings_form(&$form_state) {
 }
 
 function linkchecker_admin_settings_form_validate($form, &$form_state) {
+  $form_state['values']['linkchecker_disable_link_check_for_urls'] = trim($form_state['values']['linkchecker_disable_link_check_for_urls']);
   $form_state['values']['linkchecker_ignore_response_codes'] = trim($form_state['values']['linkchecker_ignore_response_codes']);
   $ignore_response_codes = preg_split('/(\r\n?|\n)/', $form_state['values']['linkchecker_ignore_response_codes']);
   foreach ($ignore_response_codes as $ignore_response_code) {

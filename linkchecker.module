@@ -448,7 +448,7 @@ function _linkchecker_add_node_links($node) {
         $link->token = $token;
         $link->url = $url;
         // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', explode("\n", preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
+        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
           $link->status = 0;
         }
         drupal_write_record('linkchecker_links', $link);
@@ -500,7 +500,7 @@ function _linkchecker_add_comment_links($comment) {
         $link->token = $token;
         $link->url = $url;
         // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', explode("\n", preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
+        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
           $link->status = 0;
         }
         drupal_write_record('linkchecker_links', $link);
@@ -553,7 +553,7 @@ function _linkchecker_add_box_links($box, $bid) {
         $link->token = $token;
         $link->url = $url;
         // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', explode("\n", preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
+        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
           $link->status = 0;
         }
         drupal_write_record('linkchecker_links', $link);
