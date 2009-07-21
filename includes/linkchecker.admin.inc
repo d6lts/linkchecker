@@ -145,6 +145,13 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#default_value' => variable_get('linkchecker_check_links_interval', 2419200),
     '#options' => drupal_map_assoc(array(86400, 172800, 259200, 604800, 1209600, 2419200, 4838400), 'format_interval'),
   );
+  $form['check']['linkchecker_disable_link_check_for_urls'] = array(
+    '#default_value' => variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS),
+    '#type' => 'textarea',
+    '#title' => t('Do not check the link status of links containing these URLs'),
+    '#description' => t('By default this list contains the domain names reserved for use in documentation and not available for registration. See <a href="@rfc-2606">RFC 2606</a>, Section 3 for more information. URLs on this list are still extracted, but the link setting <em>Check link status</em> becomes automatically disabled to prevent false alarms. If you change this list you need to clear all link data and re-analyze your content. Otherwise this setting will only affect new links added after the configuration change.', array('@rfc-2606' => 'http://www.rfc-editor.org/rfc/rfc2606.txt')),
+    '#wysiwyg' => FALSE,
+  );
 
   $form['error'] = array(
     '#type' => 'fieldset',

@@ -27,6 +27,7 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_check_links_max');
   variable_del('linkchecker_check_useragent');
   variable_del('linkchecker_cleanup_links_last');
+  variable_del('linkchecker_disable_link_check_for_urls');
   variable_del('linkchecker_extract_from_a');
   variable_del('linkchecker_extract_from_audio');
   variable_del('linkchecker_extract_from_embed');

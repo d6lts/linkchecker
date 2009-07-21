@@ -8,7 +8,7 @@
  * Developed by Alexander Hass, http://www.yaml-for-drupal.com/.
  */
 
-define('LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS', 'example.com,example.net,example.org');
+define('LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS', "example.com\nexample.net\nexample.org");
 
 /**
  * Implementation of hook_perm().
@@ -447,8 +447,8 @@ function _linkchecker_add_node_links($node) {
       if (!$link) {
         $link->token = $token;
         $link->url = $url;
-        // #524380: Automatically disable link checking for example.com/net/org domains.
-        if (preg_match('/' . implode('|', explode(',', preg_quote(LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS))) . '/', $link->url)) {
+        // Automatically disable link checking for domains.
+        if (preg_match('/' . implode('|', explode("\n", preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
           $link->status = 0;
         }
         drupal_write_record('linkchecker_links', $link);
@@ -499,8 +499,8 @@ function _linkchecker_add_comment_links($comment) {
       if (!$link) {
         $link->token = $token;
         $link->url = $url;
-        // #524380: Automatically disable link checking for example.com/net/org domains.
-        if (preg_match('/' . implode('|', explode(',', preg_quote(LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS))) . '/', $link->url)) {
+        // Automatically disable link checking for domains.
+        if (preg_match('/' . implode('|', explode("\n", preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
           $link->status = 0;
         }
         drupal_write_record('linkchecker_links', $link);
@@ -552,8 +552,8 @@ function _linkchecker_add_box_links($box, $bid) {
       if (!$link) {
         $link->token = $token;
         $link->url = $url;
-        // #524380: Automatically disable link checking for example.com/net/org domains.
-        if (preg_match('/' . implode('|', explode(',', preg_quote(LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS))) . '/', $link->url)) {
+        // Automatically disable link checking for domains.
+        if (preg_match('/' . implode('|', explode("\n", preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
           $link->status = 0;
         }
         drupal_write_record('linkchecker_links', $link);
