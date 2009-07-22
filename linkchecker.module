@@ -997,7 +997,7 @@ function _linkchecker_add_node_links($node) {
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
         // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
+        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $link->url)) {
           db_query("INSERT INTO {linkchecker_links} (lid, token, url, status) VALUES (%d, '%s', '%s', %d)", $lid, md5($link), $link, 0);
         }
         else {
@@ -1049,7 +1049,7 @@ function _linkchecker_add_comment_links($comment) {
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
         // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
+        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $link->url)) {
           db_query("INSERT INTO {linkchecker_links} (lid, token, url, status) VALUES (%d, '%s', '%s', %d)", $lid, md5($link), $link, 0);
         }
         else {
@@ -1102,7 +1102,7 @@ function _linkchecker_add_box_links($box, $bid) {
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
         // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $link->url)) {
+        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $link->url)) {
           db_query("INSERT INTO {linkchecker_links} (lid, token, url, status) VALUES (%d, '%s', '%s', %d)", $lid, md5($link), $link, 0);
         }
         else {
