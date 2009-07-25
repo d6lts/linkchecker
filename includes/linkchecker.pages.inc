@@ -17,11 +17,11 @@ function linkchecker_admin_report_page() {
   $links_report_sql = "SELECT ll.*
     FROM {linkchecker_links} ll
     INNER JOIN (
-      SELECT DISTINCT lid FROM (
+      SELECT lid FROM (
         SELECT DISTINCT lid FROM {linkchecker_boxes}
-        UNION ALL
+        UNION
         SELECT DISTINCT lid FROM {linkchecker_comments}
-        UNION ALL
+        UNION
         SELECT DISTINCT lid FROM {linkchecker_nodes}
       ) q1
     ) q2 ON q2.lid = ll.lid
@@ -46,14 +46,14 @@ function linkchecker_user_report_page($account) {
     $links_report_sql = "SELECT ll.*
       FROM linkchecker_links ll
       INNER JOIN (
-        SELECT DISTINCT lid FROM (
+        SELECT lid FROM (
           SELECT DISTINCT ll.lid
           FROM node n
           INNER JOIN node_revisions r ON r.nid = n.nid AND r.vid = n.vid
           INNER JOIN linkchecker_nodes ln ON ln.nid = n.nid
           INNER JOIN linkchecker_links ll ON ll.lid = ln.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
           WHERE n.uid = %d OR r.uid = %d
-          UNION ALL
+          UNION
           SELECT DISTINCT ll.lid
           FROM comments c
           INNER JOIN linkchecker_comments lc ON lc.cid = c.nid
@@ -70,7 +70,7 @@ function linkchecker_user_report_page($account) {
     $links_report_sql = "SELECT ll.*
       FROM linkchecker_links ll
       INNER JOIN (
-        SELECT DISTINCT lid FROM (
+        SELECT lid FROM (
           SELECT DISTINCT ll.lid
           FROM node n
           INNER JOIN node_revisions r ON r.nid = n.nid AND r.vid = n.vid

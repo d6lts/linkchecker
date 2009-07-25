@@ -721,9 +721,9 @@ function _linkchecker_cleanup_links() {
   db_query('DELETE FROM {linkchecker_links}
             WHERE lid NOT IN (
               SELECT DISTINCT lid FROM {linkchecker_boxes}
-              UNION ALL
+              UNION
               SELECT DISTINCT lid FROM {linkchecker_comments}
-              UNION ALL
+              UNION
               SELECT DISTINCT lid FROM {linkchecker_nodes}
             )');
 
