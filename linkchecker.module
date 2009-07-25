@@ -877,6 +877,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
         $path = str_replace('/./', '/', $path);
 
         // Remove '../' segments where possible. Loop until all segments are removed.
+        // Taken over from _drupal_build_css_path() in common.inc.
         $last = '';
         while ($path != $last) {
           $last = $path;
