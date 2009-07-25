@@ -378,11 +378,11 @@ function linkchecker_admin_report() {
   $links_report_sql = "SELECT ll.*
     FROM {linkchecker_links} ll
     INNER JOIN (
-      SELECT DISTINCT lid FROM (
+      SELECT lid FROM (
         SELECT DISTINCT lid FROM {linkchecker_boxes}
-        UNION ALL
+        UNION
         SELECT DISTINCT lid FROM {linkchecker_comments}
-        UNION ALL
+        UNION
         SELECT DISTINCT lid FROM {linkchecker_nodes}
       ) q1
     ) q2 ON q2.lid = ll.lid
@@ -1277,9 +1277,9 @@ function _linkchecker_cleanup_links() {
   db_query('DELETE FROM {linkchecker_links}
             WHERE lid NOT IN (
               SELECT DISTINCT lid FROM {linkchecker_boxes}
-              UNION ALL
+              UNION
               SELECT DISTINCT lid FROM {linkchecker_comments}
-              UNION ALL
+              UNION
               SELECT DISTINCT lid FROM {linkchecker_nodes}
             )');
 
