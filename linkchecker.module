@@ -424,7 +424,7 @@ function _linkchecker_add_node_links($node) {
     }
   }
 
-  // Get the node path for extraction of relative links.
+  // Get the absolute node path for extraction of relative links.
   $languages = language_list();
   $path = url('node/'. $node->nid, array('language' => $languages[$node->language], 'absolute' => TRUE));
   // Extract all links in a node.
@@ -479,7 +479,7 @@ function _linkchecker_add_comment_links($comment) {
   $text_items[] = $comment['subject'];
   $text_items[] = $comment['comment'];
 
-  // Get the node path for extraction of relative links.
+  // Get the absolute node path for extraction of relative links.
   $languages = language_list();
   $path = url('node/'. $comment['nid'], array('language' => $languages[$comment['language']], 'absolute' => TRUE));
   // Extract all links in a comment.
@@ -736,8 +736,8 @@ function _linkchecker_cleanup_links() {
  *    The text to be scanned for links.
  * @param $content_path
  *    Path to the content that is currently scanned for links. This value is
- *    required to build full qualified links from relative links. If not
- *    provided relative links are not extracted from content.
+ *    required to build full qualified links from relative links. Relative links
+ *    are not extracted from content, if path is not provided.
  * @return
  *    Array of full qualified and unique URLs found in content.
  */
