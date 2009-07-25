@@ -424,8 +424,11 @@ function _linkchecker_add_node_links($node) {
     }
   }
 
+  // Get the node path for extraction of relative links.
+  $languages = language_list();
+  $path = url('node/'. $node->nid, array('language' => $languages[$node->language], 'absolute' => TRUE));
   // Extract all links in a node.
-  $links = _linkchecker_extract_links(implode(' ', $text_items));
+  $links = _linkchecker_extract_links(implode(' ', $text_items), $path);
 
   // Node have links.
   if (!empty($links)) {
@@ -476,8 +479,11 @@ function _linkchecker_add_comment_links($comment) {
   $text_items[] = $comment['subject'];
   $text_items[] = $comment['comment'];
 
+  // Get the node path for extraction of relative links.
+  $languages = language_list();
+  $path = url('node/'. $comment['nid'], array('language' => $languages[$comment['language']], 'absolute' => TRUE));
   // Extract all links in a comment.
-  $links = _linkchecker_extract_links(implode(' ', $text_items));
+  $links = _linkchecker_extract_links(implode(' ', $text_items), $path);
 
   // Comment have links.
   if (!empty($links)) {
@@ -724,9 +730,18 @@ function _linkchecker_cleanup_links() {
 }
 
 /**
- * Extract links from node content.
+ * Extract links from content.
+ *
+ * @param $text
+ *    The text to be scanned for links.
+ * @param $content_path
+ *    Path to the content that is currently scanned for links. This value is
+ *    required to build full qualified links from relative links. If not
+ *    provided relative links are not extracted from content.
+ * @return
+ *    Array of full qualified and unique URLs found in content.
  */
-function _linkchecker_extract_links($text = '') {
+function _linkchecker_extract_links($text = '', $content_path = NULL) {
 
   // Try to find URLs and make them compatible with _linkchecker_extract_links regex.
   $text = _linkchecker_filter_url($text);
@@ -845,14 +860,46 @@ function _linkchecker_extract_links($text = '') {
       continue;
     }
     // Local URLs.
-    elseif (valid_url($ret[$i], FALSE)) {
+    elseif (valid_url($ret[$i], FALSE) && variable_get('linkchecker_fqdn_only', 1) == 0) {
       // Absolute local URLs need to start with [/].
-      if (preg_match('!^[/]!', $ret[$i]) && variable_get('linkchecker_fqdn_only', 1) == 0) {
+      if (preg_match('!^/!', $ret[$i])) {
         // Add to Array and change HTML encoded links into plain text links.
         $links[] = decode_entities('http://'. $_SERVER['HTTP_HOST'] . $ret[$i]);
       }
+      // Relative URLs like "./foo/bar" and "../foo/bar".
+      elseif (!empty($content_path) && preg_match('!^\.{1,2}/!', $ret[$i])) {
+        // Build URL with the base path of current content.
+        $last_slash = strrpos($content_path, '/');
+        $absolute_base_path = drupal_substr($content_path, 0, $last_slash + 1);
+        $path = $absolute_base_path . decode_entities($ret[$i]);
+
+        // Remove './' segments where possible.
+        $path = str_replace('/./', '/', $path);
+
+        // Remove '../' segments where possible. Loop until all segments are removed.
+        $last = '';
+        while ($path != $last) {
+          $last = $path;
+          $path = preg_replace('`(^|/)(?!\.\./)([^/]+)/\.\./`', '$1', $path);
+        }
+
+        // Add URLs to array.
+        $links[] = $path;
+      }
+      // Anchors and URL parameters like "#foo" and "?foo=bar".
+      elseif (!empty($content_path) && preg_match('!^[?#]!', $ret[$i])) {
+        // Add to Array and change HTML encoded links into plain text links.
+        $links[] = $content_path . decode_entities($ret[$i]);
+      }
+      // Realtive URLs like "test.png".
+      elseif (!empty($content_path) && preg_match('!^[^/]!', $ret[$i])) {
+        // Build URL with the base path of current content.
+        $last_slash = strrpos($content_path, '/');
+        $absolute_base_path = drupal_substr($content_path, 0, $last_slash + 1);
+        $links[] = $absolute_base_path . decode_entities($ret[$i]);
+      }
       else {
-        // TODO: Relative URLs like "../foo/bar" are currently not supported.
+        // TODO: Are there more special cases the module need to handle?
       }
     }
   }
