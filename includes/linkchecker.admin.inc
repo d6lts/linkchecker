@@ -257,6 +257,9 @@ function linkchecker_admin_settings_form_submit($form, &$form_state) {
  * Submit callback; Analyze all node types, boxes and cck fields.
  */
 function linkchecker_analyze_links_submit($form, &$form_state) {
+  // Exclude unnecessary elements.
+  unset($form_state['values']['linkchecker_analyze'], $form_state['values']['linkchecker_clear_analyze']);
+
   // Save form settings.
   system_settings_form_submit($form, $form_state);
 
@@ -280,6 +283,9 @@ function linkchecker_analyze_links_submit($form, &$form_state) {
  * Submit callback; Clear link data and analyze all node types, boxes and cck fields.
  */
 function linkchecker_clear_analyze_links_submit($form, &$form_state) {
+  // Exclude unnecessary elements.
+  unset($form_state['values']['linkchecker_analyze'], $form_state['values']['linkchecker_clear_analyze']);
+
   // Save form settings.
   system_settings_form_submit($form, $form_state);
 
