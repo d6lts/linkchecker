@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: German translation of Linkchecker\n"
 "POT-Creation-Date: 2009-07-26 23:11+0200\n"
-"PO-Revision-Date: 2009-07-27 00:43+0100\n"
+"PO-Revision-Date: 2009-07-27 00:49+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -197,7 +197,7 @@ msgstr "Links in <code>&lt;a&gt;</code> und <code>&lt;area&gt;</code>-Tags extra
 
 #: includes/linkchecker.admin.inc:57
 msgid "Enable this checkbox if normal hyperlinks should be extracted. The anchor element defines a hyperlink, the named target destination for a hyperlink, or both. The area elememt defines a hot-spot region on an image, and associates it with a hypertext link."
-msgstr "Dieses Kontrollkästchen aktivieren, um normale Hyperlinks zu extrahieren. Das Anker-Element bestimmt einen Hyperlink, das benannte Ziel für einen Hyperlink oder beides. Das Area-Element bestimmt eine Hotspot-Region auf einem Bild und verbindet diese mit einem Hypertext-Link."
+msgstr "Dieses Kontrollkästchen aktivieren, um normale Hyperlinks zu extrahieren. Das Anker-Element definiert einen Hyperlink, das benannte Ziel für einen Hyperlink oder beides. Das Area-Element legt eine Hotspot-Region auf einem Bild fest und verbindet diese mit einem Hypertext-Link."
 
 #: includes/linkchecker.admin.inc:62
 msgid "Extract links in <code>&lt;audio&gt;</code> tags"
