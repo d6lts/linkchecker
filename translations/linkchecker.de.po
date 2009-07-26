@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: German translation of Linkchecker\n"
 "POT-Creation-Date: 2009-07-26 23:11+0200\n"
-"PO-Revision-Date: 2009-07-26 23:39+0100\n"
+"PO-Revision-Date: 2009-07-27 00:43+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -197,7 +197,7 @@ msgstr "Links in <code>&lt;a&gt;</code> und <code>&lt;area&gt;</code>-Tags extra
 
 #: includes/linkchecker.admin.inc:57
 msgid "Enable this checkbox if normal hyperlinks should be extracted. The anchor element defines a hyperlink, the named target destination for a hyperlink, or both. The area elememt defines a hot-spot region on an image, and associates it with a hypertext link."
-msgstr ""
+msgstr "Dieses Kontrollkästchen aktivieren, um normale Hyperlinks zu extrahieren. Das Anker-Element bestimmt einen Hyperlink, das benannte Ziel für einen Hyperlink oder beides. Das Area-Element bestimmt eine Hotspot-Region auf einem Bild und verbindet diese mit einem Hypertext-Link."
 
 #: includes/linkchecker.admin.inc:62
 msgid "Extract links in <code>&lt;audio&gt;</code> tags"
@@ -215,7 +215,7 @@ msgstr "Links in <code>&lt;embed&gt;</code>-Tags extrahieren"
 
 #: includes/linkchecker.admin.inc:69
 msgid "Enable this checkbox if links in embed tags should be extracted. This is an obsolete and non-standard element that was used for embedding plugins in past and should no longer used in modern websites."
-msgstr ""
+msgstr "Dieses Kontrollkästchen aktivieren, um Links in Embed-Tags zu extrahieren. Dies ist ein veraltetes und nicht standardisiertes Element, das in der Vergangenheit zum Einbetten von Plugins verwendet wurde und in modernen Websites nicht mehr verwendet werden sollte."
 
 #: includes/linkchecker.admin.inc:74
 msgid "Extract links in <code>&lt;iframe&gt;</code> tags"
@@ -223,7 +223,7 @@ msgstr "Links in <code>&lt;iframe&gt;</code>-Tags extrahieren"
 
 #: includes/linkchecker.admin.inc:75
 msgid "Enable this checkbox if links in iframe tags should be extracted. The iframe element is used to embed another HTML page into a page."
-msgstr ""
+msgstr "Dieses Kontrollkästchen aktivieren, um Links in Iframe-Tags zu extrahieren. Das Iframe-Element wird verwendet, um eine andere HTML-Seite in eine Seite einzubetten."
 
 #: includes/linkchecker.admin.inc:80
 msgid "Extract links in <code>&lt;img&gt;</code> tags"
@@ -239,7 +239,7 @@ msgstr "Links in <code>&lt;object&gt;</code> und <code>&lt;param&gt;</code>-Tags
 
 #: includes/linkchecker.admin.inc:87
 msgid "Enable this checkbox if multimedia and other links in object and their param tags should be extracted. The object tag is used for flash, java, quicktime and other applets."
-msgstr ""
+msgstr "Dieses Kontrollkästchen aktivieren, um Multimedia und andere Links in Object- und ihren Param-Tags zu extrahieren. Der Object-Tag wird für Flash, Java, Quicktime und andere Anwendungen verwendet."
 
 #: includes/linkchecker.admin.inc:92
 msgid "Extract links in <code>&lt;source&gt;</code> tags"
@@ -247,7 +247,7 @@ msgstr "Links in <code>&lt;source&gt;</code>-Tags extrahieren"
 
 #: includes/linkchecker.admin.inc:93
 msgid "Enable this checkbox if links in source tags should be extracted. The source element is used to specify multiple media resources for audio and video elements."
-msgstr ""
+msgstr "Dieses Kontrollkästchen aktivieren, um Links in Source-Tags zu extrahieren. Das Source-Element wird verwendet, um mehrere Medienquellen für Audio- und Video-Elemente anzugeben."
 
 #: includes/linkchecker.admin.inc:98
 msgid "Extract links in <code>&lt;video&gt;</code> tags"
@@ -279,11 +279,11 @@ msgstr "Diese Intervalleinstellung legt fest, wie oft Cron den Status von Links 
 
 #: includes/linkchecker.admin.inc:139
 msgid "Do not check the link status of links containing these URLs"
-msgstr ""
+msgstr "Den Link-Status von Links nicht überprüften, die diese URLs enthalten"
 
 #: includes/linkchecker.admin.inc:140
 msgid "By default this list contains the domain names reserved for use in documentation and not available for registration. See <a href=\"@rfc-2606\">RFC 2606</a>, Section 3 for more information. URLs on this list are still extracted, but the link setting <em>Check link status</em> becomes automatically disabled to prevent false alarms. If you change this list you need to clear all link data and re-analyze your content. Otherwise this setting will only affect new links added after the configuration change."
-msgstr ""
+msgstr "Standardmäßig enthält diese Liste die Domainnamen, die für die Verwendung von Dokumentation reserviert und für die Registrierung nicht verfügbar sind. Weitere Information befindet sich im Abschnitt 3 der <a href=\"@rfc-2606\">RFC 2606</a>. URLs in dieser Liste werden immernoch extrahiert, aber die Link-Einstellung <em>Linkstatus überprüfen</em> wird automatisch deaktiviert, um Fehlalarme zu verhindern. Sollte diese Liste geändert werden, müssen die Linkdaten gelöscht und die Inhalte neu analysiert werden. Ansonsten wird diese Einstellung nur neue Links betreffen, die nach der Konfigurationsänderung hinzugefügt werden."
 
 #: includes/linkchecker.admin.inc:146
 msgid "Error handling"
@@ -291,7 +291,7 @@ msgstr "Fehlerbehandlung"
 
 #: includes/linkchecker.admin.inc:147
 msgid "Defines error handling and custom actions to be executed if specific HTTP requests are failing."
-msgstr ""
+msgstr "Legt die Fehlerbehandlung und benutzerdefinierten Aktionen fest, die beim Fehlschlag bestimmter HTTP-Anfragen ausgeführt werden."
 
 #: includes/linkchecker.admin.inc:151
 msgid "Update permanently moved links"
@@ -331,7 +331,7 @@ msgstr "Beitragsveröffentlichung bei „Datei wurde nicht gefunden“-Fehler zu
 
 #: includes/linkchecker.admin.inc:166
 msgid "If enabled, a node with one or more broken links (status code 404) will be unpublished and moved to moderation queue for review after the number of specified fails. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily error."
-msgstr ""
+msgstr "Sobald aktiviert, wird die Veröffentlichung eines Beitrag mit einem oder mehreren beschädigten Links (Status-code 404) nach der Anzahl der festgelegten Fehlschläge zurückgezogen und zur Überprüfung in die Moderationswarteschlange verschoben. Es wird empfohlen einen Wert von <em>drei</em> zu verwwenden, um sicherzustellen das es sich nicht nur im einem temporären Fehler handelt."
 
 #: includes/linkchecker.admin.inc:171
 msgid "After one file not found error"
@@ -503,7 +503,7 @@ msgstr "GET"
 
 #: includes/linkchecker.pages.inc:204
 msgid "Select the request method used for link checks of this link. If you encounter issues like status code 500 errors with the HEAD request method you should try the GET request method before ignoring a link."
-msgstr ""
+msgstr "Die Anfragemethode für Link-Checks dieses Links auswählen. Sollten Probleme wie etwa ein Status-Code 500-Fehler mit der HEAD-Anfragemethode auftreten, sollte vor dem Ignorieren eines Links zunächst die GET-Anfragemethode ausprobiert werden."
 
 #: includes/linkchecker.pages.inc:210
 msgid "Check link status"
@@ -511,7 +511,7 @@ msgstr "Linkstatus überprüfen"
 
 #: includes/linkchecker.pages.inc:211
 msgid "Disable this checkbox if you don't like to get informed any longer about this broken link. Use this setting only as the very last option if there is no other way to solve a failed link check."
-msgstr ""
+msgstr "Dieses Kontrollkästchen deaktivieren, wenn nicht weiter über diesen beschädigten Link informiert werden soll. Diese Einstellung sollte nur als die allterletzte Option genutzt werden, wenn es keinen anderen Weg gibt einen fehlgeschlagenen Link-Check zu beheben."
 
 #: includes/linkchecker.pages.inc:224
 msgid "The link settings for %url have been saved and the fail counter has been resetted."
