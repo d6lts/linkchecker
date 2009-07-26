@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: German translation of Linkchecker\n"
 "POT-Creation-Date: 2009-07-26 23:11+0200\n"
-"PO-Revision-Date: 2009-07-27 00:49+0100\n"
+"PO-Revision-Date: 2009-07-27 00:55+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -331,7 +331,7 @@ msgstr "Beitragsveröffentlichung bei „Datei wurde nicht gefunden“-Fehler zu
 
 #: includes/linkchecker.admin.inc:166
 msgid "If enabled, a node with one or more broken links (status code 404) will be unpublished and moved to moderation queue for review after the number of specified fails. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily error."
-msgstr "Sobald aktiviert, wird die Veröffentlichung eines Beitrag mit einem oder mehreren beschädigten Links (Status-code 404) nach der Anzahl der festgelegten Fehlschläge zurückgezogen und zur Überprüfung in die Moderationswarteschlange verschoben. Es wird empfohlen einen Wert von <em>drei</em> zu verwwenden, um sicherzustellen das es sich nicht nur im einem temporären Fehler handelt."
+msgstr "Sobald aktiviert, wird die Veröffentlichung eines Beitrags mit einem oder mehreren beschädigten Links (Status-Code 404) nach der Anzahl der festgelegten Fehlschläge zurückgezogen und zur Überprüfung in die Moderationswarteschlange verschoben. Es wird empfohlen einen Wert von <em>drei</em> zu verwwenden, um sicherzustellen das es sich nicht nur im einem temporären Fehler handelt."
 
 #: includes/linkchecker.admin.inc:171
 msgid "After one file not found error"
