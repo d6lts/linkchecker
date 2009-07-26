@@ -252,8 +252,7 @@ function linkchecker_admin_settings_form() {
   );
 
   // Buttons are only required for testing and debugging reasons.
-  $description = '<p>' . t('Before using either of these options to clear link data, use the <em>Save configuration</em> button below to save any changes you may have made above.') . '</p>';
-  $description .= '<p>' . t('These actions will either clear all link checker tables in the database and/or analyze all selected node types, blocks and cck fields (see settings above) for new/updated/removed links. Normally there is no need to press one of these buttons. Use this only for immediate cleanup tasks and to force a full re-build of the links to be checked in the linkchecker tables. All custom link settings will be lost!') . '</p>';
+  $description = '<p>' . t('These actions will either clear all link checker tables in the database and/or analyze all selected node types, blocks and cck fields (see settings above) for new/updated/removed links. Normally there is no need to press one of these buttons. Use this only for immediate cleanup tasks and to force a full re-build of the links to be checked in the linkchecker tables. All custom link settings will be lost!') . '</p>';
   $description .= '<p>' . t('<strong>Note</strong>: These functions ONLY collect the links, they do not evaluate the HTTP response codes, this will be done during normal cron runs.') . '</p>';
 
   $form['clear'] = array(
@@ -288,9 +287,15 @@ function linkchecker_admin_settings_form_validate($form_id, &$form_values) {
 
 function linkchecker_admin_settings_form_submit($form_id, $form_values) {
 
+  // Exclude unnecessary elements.
+  unset($form_values['linkchecker_analyze'], $form_values['linkchecker_clear_analyze']);
+
   // Submit handler per button workaround
   switch ($form_values['op']) {
     case t('Analyze content for links'):
+      // Save form settings.
+      system_settings_form_submit($form_id, $form_values);
+
       // Start batch and analyze all content.
       _linkchecker_batch_import();
 
@@ -299,6 +304,9 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
       break;
 
     case t('Clear link data and analyze content for links'):
+      // Save form settings.
+      system_settings_form_submit($form_id, $form_values);
+
       db_query("TRUNCATE TABLE {linkchecker_nodes}");
       db_query("TRUNCATE TABLE {linkchecker_comments}");
       db_query("TRUNCATE TABLE {linkchecker_boxes}");
@@ -313,9 +321,6 @@ function linkchecker_admin_settings_form_submit($form_id, $form_values) {
       break;
 
     default:
-      // Exclude unnecessary elements.
-      unset($form_values['linkchecker_analyze'], $form_values['linkchecker_clear_analyze']);
-
       // Have node types or comment or block selection changed?
       $additional_nodetypes_selected = array_diff($form_values['linkchecker_scan_nodetypes'], variable_get('linkchecker_scan_nodetypes', array()));
       $linkchecker_scan_comments_changed = ($form_values['linkchecker_scan_comments'] > variable_get('linkchecker_scan_comments', 0)) ? TRUE : FALSE;
