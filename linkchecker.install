@@ -408,7 +408,7 @@ function linkchecker_update_5207() {
 }
 
 /**
- * Remove obsolte variable.
+ * Remove obsolete variable.
  */
 function linkchecker_update_5208() {
   $ret = array();
@@ -460,7 +460,7 @@ function linkchecker_update_5210() {
 }
 
 /**
- * Remove obsolte variable.
+ * Remove obsolete variable.
  */
 function linkchecker_update_5210() {
   $ret = array();
