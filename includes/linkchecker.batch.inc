@@ -39,7 +39,7 @@ function _linkchecker_batch_node_import_op($nid, &$context) {
 
   // Store results for post-processing in the finished callback.
   $context['results'][] = $node->nid;
-  $context['message'] = t('Node: @title', array('@title' => check_plain($node->title)));
+  $context['message'] = t('Node: @title', array('@title' => $node->title));
 }
 
 function _linkchecker_batch_node_import_finished($success, $results, $operations) {
@@ -83,7 +83,7 @@ function _linkchecker_batch_comments_import_op($cid, &$context) {
 
   // Store results for post-processing in the finished callback.
   $context['results'][] = $comment['cid'];
-  $context['message'] = t('Comment: @title', array('@title' => check_plain($comment['subject'])));
+  $context['message'] = t('Comment: @title', array('@title' => $comment['subject']));
 }
 
 function _linkchecker_batch_comments_import_finished($success, $results, $operations) {
@@ -127,7 +127,7 @@ function _linkchecker_batch_import_boxes_op($bid, &$context) {
 
   // Store some result for post-processing in the finished callback.
   $context['results'][] = $box['bid'];
-  $context['message'] = t('Block: @title', array('@title' => check_plain($box['info'])));
+  $context['message'] = t('Block: @title', array('@title' => $box['info']));
 }
 
 function _linkchecker_batch_box_import_finished($success, $results, $operations) {
