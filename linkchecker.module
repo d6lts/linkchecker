@@ -858,16 +858,21 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
     }
     // Local URLs.
     elseif (valid_url($ret[$i], FALSE) && variable_get('linkchecker_fqdn_only', 1) == 0) {
+      // Get full qualified url with base path of content.
+      $absolute_base_path = _linkchecker_absolute_base_path($content_path);
+
       // Absolute local URLs need to start with [/].
       if (preg_match('!^/!', $ret[$i])) {
         // Add to Array and change HTML encoded links into plain text links.
         $links[] = decode_entities('http://'. $_SERVER['HTTP_HOST'] . $ret[$i]);
       }
+      // Anchors and URL parameters like "#foo" and "?foo=bar".
+      elseif (!empty($content_path) && preg_match('!^[?#]!', $ret[$i])) {
+        // Add to Array and change HTML encoded links into plain text links.
+        $links[] = $content_path . decode_entities($ret[$i]);
+      }
       // Relative URLs like "./foo/bar" and "../foo/bar".
-      elseif (!empty($content_path) && preg_match('!^\.{1,2}/!', $ret[$i])) {
-        // Build URL with the base path of current content.
-        $last_slash = strrpos($content_path, '/');
-        $absolute_base_path = drupal_substr($content_path, 0, $last_slash + 1);
+      elseif (!empty($absolute_base_path) && preg_match('!^\.{1,2}/!', $ret[$i])) {
         $path = $absolute_base_path . decode_entities($ret[$i]);
 
         // Remove './' segments where possible.
@@ -884,16 +889,8 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
         // Add URLs to array.
         $links[] = $path;
       }
-      // Anchors and URL parameters like "#foo" and "?foo=bar".
-      elseif (!empty($content_path) && preg_match('!^[?#]!', $ret[$i])) {
-        // Add to Array and change HTML encoded links into plain text links.
-        $links[] = $content_path . decode_entities($ret[$i]);
-      }
-      // Realtive URLs like "test.png".
-      elseif (!empty($content_path) && preg_match('!^[^/]!', $ret[$i])) {
-        // Build URL with the base path of current content.
-        $last_slash = strrpos($content_path, '/');
-        $absolute_base_path = drupal_substr($content_path, 0, $last_slash + 1);
+      // Relative URLs like "test.png".
+      elseif (!empty($absolute_base_path) && preg_match('!^[^/]!', $ret[$i])) {
         $links[] = $absolute_base_path . decode_entities($ret[$i]);
       }
       else {
@@ -1010,6 +1007,48 @@ function _linkchecker_link_replace(&$text, $old_link_fqdn = '', $new_link_fqdn =
       }
     }
   }
+}
+
+/**
+ * Get the path of an URL.
+ *
+ * @param $url
+ *   The http/https URL to parse.
+ * @return
+ *   Full qualified URL with absolute path of the URL.
+ */
+function _linkchecker_absolute_base_path($url) {
+
+  // Parse the URL and make sure we can handle the schema.
+  $uri = parse_url($url);
+
+  if ($uri == FALSE) {
+    return NULL;
+  }
+
+  if (!isset($uri['scheme'])) {
+    return NULL;
+  }
+
+  // Break if the schema is not supported.
+  if (!in_array($uri['scheme'], array('http', 'https'))) {
+    return NULL;
+  }
+
+  $scheme = isset($uri['scheme']) ? $uri['scheme'] . '://' : '';
+  $user = isset($uri['user']) ? $uri['user'] . ($uri['pass'] ? ':' . $uri['pass'] : '') . '@' : '';
+  $port = isset($uri['port']) ? $uri['port'] : 80;
+  $host = $uri['host'] . ($port != 80 ? ':'. $port : '');
+  $path = isset($uri['path']) ? $uri['path'] : '/';
+
+  // Glue the URL variables.
+  $absolute_url = $scheme . $user . $host . $path;
+
+  // Find the last slash and remove all after the last slash to get the path.
+  $last_slash = strrpos($absolute_url, '/');
+  $absolute_base_url = drupal_substr($absolute_url, 0, $last_slash + 1);
+
+  return $absolute_base_url;
 }
 
 /**
