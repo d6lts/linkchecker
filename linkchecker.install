@@ -462,7 +462,7 @@ function linkchecker_update_5210() {
 /**
  * Remove obsolete variable.
  */
-function linkchecker_update_5210() {
+function linkchecker_update_5211() {
   $ret = array();
 
   variable_del('linkchecker_pathfilter_support');
