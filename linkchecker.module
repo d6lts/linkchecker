@@ -427,6 +427,7 @@ function _linkchecker_add_node_links($node) {
   // Get the absolute node path for extraction of relative links.
   $languages = language_list();
   $path = url('node/'. $node->nid, array('language' => $languages[$node->language], 'absolute' => TRUE));
+
   // Extract all links in a node.
   $links = _linkchecker_extract_links(implode(' ', $text_items), $path);
 
@@ -478,7 +479,9 @@ function _linkchecker_add_comment_links($comment) {
 
   // Get the absolute node path for extraction of relative links.
   $languages = language_list();
-  $path = url('node/'. $comment['nid'], array('language' => $languages[$comment['language']], 'absolute' => TRUE));
+  $node_language = db_result(db_query("SELECT language FROM {node} WHERE nid = %d", $comment['nid']));
+  $path = url('node/'. $comment['nid'], array('language' => $languages[$node_language], 'absolute' => TRUE));
+
   // Extract all links in a comment.
   $links = _linkchecker_extract_links(implode(' ', $text_items), $path);
 
