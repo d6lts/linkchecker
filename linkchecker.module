@@ -986,13 +986,7 @@ function _linkchecker_add_node_links($node) {
       $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
-        // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $link->url)) {
-          db_query("INSERT INTO {linkchecker_links} (lid, token, url, status) VALUES (%d, '%s', '%s', %d)", $lid, md5($link), $link, 0);
-        }
-        else {
-          db_query("INSERT INTO {linkchecker_links} (lid, token, url) VALUES (%d, '%s', '%s')", $lid, md5($link), $link);
-        }
+        db_query("INSERT INTO {linkchecker_links} (lid, token, url, status) VALUES (%d, '%s', '%s', %d)", $lid, md5($link), $link, _linkchecker_link_check_status_filter($link));
       }
       db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $lid);
 
@@ -1040,13 +1034,7 @@ function _linkchecker_add_comment_links($comment) {
       $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
-        // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $link->url)) {
-          db_query("INSERT INTO {linkchecker_links} (lid, token, url, status) VALUES (%d, '%s', '%s', %d)", $lid, md5($link), $link, 0);
-        }
-        else {
-          db_query("INSERT INTO {linkchecker_links} (lid, token, url) VALUES (%d, '%s', '%s')", $lid, md5($link), $link);
-        }
+        db_query("INSERT INTO {linkchecker_links} (lid, token, url, status) VALUES (%d, '%s', '%s', %d)", $lid, md5($link), $link, _linkchecker_link_check_status_filter($link));
       }
       db_query("INSERT INTO {linkchecker_comments} (cid, lid) VALUES (%d, %d)", $comment['cid'], $lid);
 
@@ -1093,13 +1081,7 @@ function _linkchecker_add_box_links($box, $bid) {
       $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
-        // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $link->url)) {
-          db_query("INSERT INTO {linkchecker_links} (lid, token, url, status) VALUES (%d, '%s', '%s', %d)", $lid, md5($link), $link, 0);
-        }
-        else {
-          db_query("INSERT INTO {linkchecker_links} (lid, token, url) VALUES (%d, '%s', '%s')", $lid, md5($link), $link);
-        }
+        db_query("INSERT INTO {linkchecker_links} (lid, token, url, status) VALUES (%d, '%s', '%s', %d)", $lid, md5($link), $link, _linkchecker_link_check_status_filter($link));
       }
       db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $lid);
 
@@ -1591,6 +1573,17 @@ function _linkchecker_absolute_base_path($url) {
   $absolute_base_url = drupal_substr($absolute_url, 0, $last_slash + 1);
 
   return $absolute_base_url;
+}
+
+/**
+ * Verifies against the url blacklist, if the link status should be checked or not.
+ */
+function _linkchecker_link_check_status_filter($url) {
+  $status = TRUE;
+  if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $url)) {
+    $status = FALSE;
+  }
+  return $status;
 }
 
 /**
