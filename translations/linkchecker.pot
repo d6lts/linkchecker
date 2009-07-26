@@ -3,18 +3,18 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  linkchecker.module,v 1.7.2.96 2009/07/19 20:45:34 hass
+#  linkchecker.module,v 1.7.2.108 2009/07/26 21:10:37 hass
 #  linkchecker.info,v 1.2.2.2 2009/01/25 23:41:02 hass
-#  linkchecker.pages.inc,v 1.1.2.5 2009/07/19 10:31:20 hass
-#  linkchecker.install,v 1.2.2.27 2009/07/19 10:31:20 hass
-#  linkchecker.admin.inc,v 1.1.2.10 2009/07/19 17:00:39 hass
+#  linkchecker.pages.inc,v 1.1.2.6 2009/07/25 13:57:21 hass
+#  linkchecker.install,v 1.2.2.30 2009/07/26 12:34:23 hass
+#  linkchecker.admin.inc,v 1.1.2.14 2009/07/26 11:16:57 hass
 #  linkchecker.batch.inc,v 1.1.2.2 2009/07/19 17:01:46 hass
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-07-19 22:58+0200\n"
+"POT-Creation-Date: 2009-07-26 23:11+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -31,7 +31,7 @@ msgstr ""
 msgid "Broken links"
 msgstr ""
 
-#: linkchecker.module:201;222;246;251;257;275;1082;0
+#: linkchecker.module:201;222;246;251;257;275;1148;0
 msgid "linkchecker"
 msgstr ""
 
@@ -59,7 +59,7 @@ msgstr ""
 msgid "Method HEAD is not allowed for link %link. Method has been changed to GET."
 msgstr ""
 
-#: linkchecker.module:1082
+#: linkchecker.module:1148
 msgid "Set @type %title to unpublished."
 msgstr ""
 
@@ -149,15 +149,15 @@ msgstr ""
 msgid "Enable link checking for the selected node type(s)."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:25;49
+#: includes/linkchecker.admin.inc:25
 msgid "Depends on: !dependencies"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:25;49
+#: includes/linkchecker.admin.inc:25
 msgid "@module (<span class=\"admin-enabled\">enabled</span>)"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:25;49
+#: includes/linkchecker.admin.inc:25
 msgid "@module (<span class=\"admin-disabled\">disabled</span>)"
 msgstr ""
 
@@ -185,211 +185,211 @@ msgstr ""
 msgid "Enable this checkbox if only full qualified URLs (http://example.com/foo/bar) should be checked. If unchecked, all internal (/node/123) and external (http://example.com/foo/bar) URLs will be checked."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:55
-msgid "Pathfilter module support"
-msgstr ""
-
-#: includes/linkchecker.admin.inc:56
-msgid "Enable this checkbox for <a href=\"@pathfilter\">pathfilter</a> module support."
-msgstr ""
-
-#: includes/linkchecker.admin.inc:62
+#: includes/linkchecker.admin.inc:50
 msgid "Link extraction"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:68
+#: includes/linkchecker.admin.inc:56
 msgid "Extract links in <code>&lt;a&gt;</code> and <code>&lt;area&gt;</code> tags"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:69
+#: includes/linkchecker.admin.inc:57
 msgid "Enable this checkbox if normal hyperlinks should be extracted. The anchor element defines a hyperlink, the named target destination for a hyperlink, or both. The area elememt defines a hot-spot region on an image, and associates it with a hypertext link."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:74
+#: includes/linkchecker.admin.inc:62
 msgid "Extract links in <code>&lt;audio&gt;</code> tags"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:75
+#: includes/linkchecker.admin.inc:63
 msgid "Enable this checkbox if links in audio tags should be extracted. The audio element is used to embed sound content."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:80
+#: includes/linkchecker.admin.inc:68
 msgid "Extract links in <code>&lt;embed&gt;</code> tags"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:81
+#: includes/linkchecker.admin.inc:69
 msgid "Enable this checkbox if links in embed tags should be extracted. This is an obsolete and non-standard element that was used for embedding plugins in past and should no longer used in modern websites."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:86
+#: includes/linkchecker.admin.inc:74
 msgid "Extract links in <code>&lt;iframe&gt;</code> tags"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:87
+#: includes/linkchecker.admin.inc:75
 msgid "Enable this checkbox if links in iframe tags should be extracted. The iframe element is used to embed another HTML page into a page."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:92
+#: includes/linkchecker.admin.inc:80
 msgid "Extract links in <code>&lt;img&gt;</code> tags"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:93
+#: includes/linkchecker.admin.inc:81
 msgid "Enable this checkbox if links in image tags should be extracted. The img element is used to add images to the content."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:98
+#: includes/linkchecker.admin.inc:86
 msgid "Extract links in <code>&lt;object&gt;</code> and <code>&lt;param&gt;</code> tags"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:99
+#: includes/linkchecker.admin.inc:87
 msgid "Enable this checkbox if multimedia and other links in object and their param tags should be extracted. The object tag is used for flash, java, quicktime and other applets."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:104
+#: includes/linkchecker.admin.inc:92
 msgid "Extract links in <code>&lt;source&gt;</code> tags"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:105
+#: includes/linkchecker.admin.inc:93
 msgid "Enable this checkbox if links in source tags should be extracted. The source element is used to specify multiple media resources for audio and video elements."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:110
+#: includes/linkchecker.admin.inc:98
 msgid "Extract links in <code>&lt;video&gt;</code> tags"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:111
+#: includes/linkchecker.admin.inc:99
 msgid "Enable this checkbox if links in video tags should be extracted. The video element is used in to embed video content."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:116
+#: includes/linkchecker.admin.inc:104
 msgid "Check settings"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:122
+#: includes/linkchecker.admin.inc:110
 msgid "User-Agent"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:123
+#: includes/linkchecker.admin.inc:111
 msgid "Defines the user agent that will be used for checking links on remote sites. If someone blocks the standard Drupal user agent you can try with a more common browser."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:143
+#: includes/linkchecker.admin.inc:131
 msgid "Check interval for links"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:144
+#: includes/linkchecker.admin.inc:132
 msgid "This interval setting defines how often cron will re-check the status of links."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:151
+#: includes/linkchecker.admin.inc:139
+msgid "Do not check the link status of links containing these URLs"
+msgstr ""
+
+#: includes/linkchecker.admin.inc:140
+msgid "By default this list contains the domain names reserved for use in documentation and not available for registration. See <a href=\"@rfc-2606\">RFC 2606</a>, Section 3 for more information. URLs on this list are still extracted, but the link setting <em>Check link status</em> becomes automatically disabled to prevent false alarms. If you change this list you need to clear all link data and re-analyze your content. Otherwise this setting will only affect new links added after the configuration change."
+msgstr ""
+
+#: includes/linkchecker.admin.inc:146
 msgid "Error handling"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:152
+#: includes/linkchecker.admin.inc:147
 msgid "Defines error handling and custom actions to be executed if specific HTTP requests are failing."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:156
+#: includes/linkchecker.admin.inc:151
 msgid "Update permanently moved links"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:157
+#: includes/linkchecker.admin.inc:152
 msgid "If enabled, outdated links in content providing a <em>Moved Permanently</em> (status code 301) are automatically updated to the most recent URL. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. A new node revision is automatically created on link updates if <em>create new revision</em> is enabled in the <a href=\"@node_types\">node type</a> workflow settings. It is recommended to create new revisions for all link checker enabled node types. Changes are always logged in <a href=\"@dblog\">recent log entries</a>."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:161;175
+#: includes/linkchecker.admin.inc:156;170
 msgid "Disabled"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:162
+#: includes/linkchecker.admin.inc:157
 msgid "After one failed check"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:163
+#: includes/linkchecker.admin.inc:158
 msgid "After two failed checks"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:164
+#: includes/linkchecker.admin.inc:159
 msgid "After three failed checks"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:165
+#: includes/linkchecker.admin.inc:160
 msgid "After five failed checks"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:166
+#: includes/linkchecker.admin.inc:161
 msgid "After ten failed checks"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:170
+#: includes/linkchecker.admin.inc:165
 msgid "Unpublish node on file not found error"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:171
+#: includes/linkchecker.admin.inc:166
 msgid "If enabled, a node with one or more broken links (status code 404) will be unpublished and moved to moderation queue for review after the number of specified fails. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily error."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:176
+#: includes/linkchecker.admin.inc:171
 msgid "After one file not found error"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:177
+#: includes/linkchecker.admin.inc:172
 msgid "After two file not found errors"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:178
+#: includes/linkchecker.admin.inc:173
 msgid "After three file not found errors"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:179
+#: includes/linkchecker.admin.inc:174
 msgid "After five file not found errors"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:180
+#: includes/linkchecker.admin.inc:175
 msgid "After ten file not found errors"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:186
+#: includes/linkchecker.admin.inc:181
 msgid "Don't treat these response codes as errors"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:187
+#: includes/linkchecker.admin.inc:182
 msgid "One HTTP status code per line, e.g. 403."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:192
+#: includes/linkchecker.admin.inc:187
 msgid "Before using either of these options to clear link data, use the <em>Save configuration</em> button below to save any changes you may have made above."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:193
-msgid "These actions will either clear all link checker tables in the database and/or analyze all selected node types, blocks and cck fields (see settings above) for new/updated/removed links. Normally there is no need to press one of these buttons. Use this only for immediate cleanup tasks and to force a full re-build of the links to be checked in the linkchecker tables."
+#: includes/linkchecker.admin.inc:188
+msgid "These actions will either clear all link checker tables in the database and/or analyze all selected node types, blocks and cck fields (see settings above) for new/updated/removed links. Normally there is no need to press one of these buttons. Use this only for immediate cleanup tasks and to force a full re-build of the links to be checked in the linkchecker tables. All custom link settings will be lost!"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:194
+#: includes/linkchecker.admin.inc:189
 msgid "<strong>Note</strong>: These functions ONLY collect the links, they do not evaluate the HTTP response codes, this will be done during normal cron runs."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:198
+#: includes/linkchecker.admin.inc:193
 msgid "Clear link data"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:205
+#: includes/linkchecker.admin.inc:200
 msgid "Analyze content for links"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:210
+#: includes/linkchecker.admin.inc:205
 msgid "Clear link data and analyze content for links"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:214 includes/linkchecker.pages.inc:214
+#: includes/linkchecker.admin.inc:209 includes/linkchecker.pages.inc:214
 msgid "Save configuration"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:215 includes/linkchecker.pages.inc:215
+#: includes/linkchecker.admin.inc:210 includes/linkchecker.pages.inc:215
 msgid "Reset to defaults"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:225
+#: includes/linkchecker.admin.inc:221
 msgid "Invalid response code %code found."
 msgstr ""
 
