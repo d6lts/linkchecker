@@ -45,18 +45,6 @@ function linkchecker_admin_settings_form(&$form_state) {
     '#description' => t('Enable this checkbox if only full qualified URLs (http://example.com/foo/bar) should be checked. If unchecked, all internal (/node/123) and external (http://example.com/foo/bar) URLs will be checked.')
   );
 
-  $pathfilter_dependencies = '<div class="admin-dependencies">';
-  $pathfilter_dependencies .= t('Depends on: !dependencies', array('!dependencies' => (module_exists('pathfilter') ? t('@module (<span class="admin-enabled">enabled</span>)', array('@module' => 'Path Filter')) : t('@module (<span class="admin-disabled">disabled</span>)', array('@module' => 'Path Filter')))));
-  $pathfilter_dependencies .= '</div>';
-
-  $form['settings']['linkchecker_pathfilter_support'] = array(
-    '#default_value' => variable_get('linkchecker_pathfilter_support', 0),
-    '#type' => 'checkbox',
-    '#title' => t('Pathfilter module support'),
-    '#description' => t('Enable this checkbox for <a href="@pathfilter">pathfilter</a> module support.', array('@pathfilter' => 'http://drupal.org/project/pathfilter')) . $pathfilter_dependencies,
-    '#disabled' => module_exists('pathfilter') ? FALSE : TRUE,
-  );
-
   $form['tag'] = array(
     '#type' => 'fieldset',
     '#title' => t('Link extraction'),
