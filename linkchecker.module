@@ -458,7 +458,9 @@ function _linkchecker_add_node_links($node) {
 
       // Break processing if max links limit per run has been reached.
       $i++;
-      if ($i >= $scan_max_links_per_run) { break; }
+      if ($i >= $scan_max_links_per_run) {
+        break;
+      }
     }
 
     // Remove dead link references for cleanup reasons as very last step.
@@ -512,7 +514,9 @@ function _linkchecker_add_comment_links($comment) {
 
       // Break processing if max links limit per run has been reached.
       $i++;
-      if ($i >= $scan_max_links_per_run) { break; }
+      if ($i >= $scan_max_links_per_run) {
+        break;
+      }
     }
 
     // Remove dead link references for cleanup reasons as very last step.
@@ -562,7 +566,9 @@ function _linkchecker_add_box_links($box, $bid) {
 
       // Break processing if max links limit per run has been reached.
       $i++;
-      if ($i >= $scan_max_links_per_run) { break; }
+      if ($i >= $scan_max_links_per_run) {
+        break;
+      }
     }
 
     // Remove dead link references for cleanup reasons as very last step.
@@ -911,8 +917,8 @@ function _linkchecker_link_replace(&$text, $old_link_fqdn = '', $new_link_fqdn =
   if (!empty($text) && !empty($old_link_fqdn) && !empty($new_link_fqdn)) {
     // Remove protocols and hostname from local URLs.
     $base_roots = array(
-      strtolower('http://'. $_SERVER['HTTP_HOST']),
-      strtolower('https://'. $_SERVER['HTTP_HOST'])
+      drupal_strtolower('http://'. $_SERVER['HTTP_HOST']),
+      drupal_strtolower('https://'. $_SERVER['HTTP_HOST'])
     );
     $old_link = str_replace($base_roots, '', $old_link_fqdn);
     $new_link = str_replace($base_roots, '', $new_link_fqdn);
