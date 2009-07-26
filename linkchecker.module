@@ -113,18 +113,6 @@ function linkchecker_admin_settings_form() {
     '#description' => t('Enable this checkbox if only full qualified URLs (http://example.com/foo/bar) should be checked. If unchecked, all internal (/node/123) and external (http://example.com/foo/bar) URLs will be checked.')
   );
 
-  $pathfilter_dependencies = '<div class="admin-dependencies">';
-  $pathfilter_dependencies .= t('Depends on: !dependencies', array('!dependencies' => (module_exists('pathfilter') ? t('@module (<span class="admin-enabled">enabled</span>)', array('@module' => 'Path Filter')) : t('@module (<span class="admin-disabled">disabled</span>)', array('@module' => 'Path Filter')))));
-  $pathfilter_dependencies .= '</div>';
-
-  $form['settings']['linkchecker_pathfilter_support'] = array(
-    '#default_value' => variable_get('linkchecker_pathfilter_support', 0),
-    '#type' => 'checkbox',
-    '#title' => t('Pathfilter module support'),
-    '#description' => t('Enable this checkbox for <a href="@pathfilter">pathfilter</a> module support.', array('@pathfilter' => 'http://drupal.org/project/pathfilter')) . $pathfilter_dependencies,
-    '#disabled' => module_exists('pathfilter') ? FALSE : TRUE,
-  );
-
   $form['tag'] = array(
     '#type' => 'fieldset',
     '#title' => t('Link extraction'),
@@ -947,13 +935,13 @@ function _linkchecker_add_node_links($node) {
 
   // Create array of node fields to scan.
   $text_items = array();
-  $text_items[] = $node->title;
-  $text_items[] = $node->body;
-  $text_items[] = $node->teaser;
+  $text_items[] = _filter_url($node->title, $node->format);
+  $text_items[] = check_markup($node->body, $node->format, FALSE);
+  $text_items[] = check_markup($node->teaser, $node->format, FALSE);
 
   // Search for links in weblink nodes from 'links' module package.
   if (module_exists('links_weblink') && isset($node->links_weblink_url)) {
-    $text_items[] = $node->links_weblink_url;
+    $text_items[] = _filter_url($node->links_weblink_url, $node->format);
   }
 
   // Search for CCK-fields of types 'link' and 'text'.
@@ -963,12 +951,12 @@ function _linkchecker_add_node_links($node) {
       if (isset($node->{$field['field_name']})) {
         if (module_exists('link') && $field['type'] == 'link') {
           foreach ($node->$field['field_name'] as $delta => $item) {
-            $text_items[] = $item['url'];
+            $text_items[] = _filter_url($item['url'], $node->format);
           }
         }
         elseif (module_exists('text') && $field['type'] == 'text') {
           foreach ($node->$field['field_name'] as $delta => $item) {
-            $text_items[] = $item['value'];
+            $text_items[] = _filter_url($item['value'], $node->format);
           }
         }
       }
@@ -1026,8 +1014,8 @@ function _linkchecker_add_comment_links($comment) {
 
   // Create array of comment fields to scan.
   $text_items = array();
-  $text_items[] = $comment['subject'];
-  $text_items[] = $comment['comment'];
+  $text_items[] = _filter_url($comment['subject'], $comment['format']);
+  $text_items[] = check_markup($comment['comment'], $comment['format'], FALSE);
 
   // Get the absolute node path for extraction of relative links.
   $path = url('node/'. $comment['nid'], NULL, NULL, TRUE);
@@ -1080,9 +1068,9 @@ function _linkchecker_add_box_links($box, $bid) {
 
   // Create array of box fields to scan.
   $text_items = array();
-  $text_items[] = $box['info'];
-  $text_items[] = $box['title'];
-  $text_items[] = $box['body'];
+  $text_items[] = _filter_url($box['info'], $box['format']);
+  $text_items[] = _filter_url($box['title'], $box['format']);
+  $text_items[] = check_markup($box['body'], $box['format'], FALSE);
 
   // Extract all links in a box.
   $links = _linkchecker_extract_links(implode(' ', $text_items));
@@ -1299,9 +1287,6 @@ function _linkchecker_cleanup_links() {
  */
 function _linkchecker_extract_links($text = '', $content_path = NULL) {
 
-  // Try to find URLs and make them compatible with _linkchecker_extract_links regex.
-  $text = _linkchecker_filter_url($text);
-
   // Finds all hyperlinks in the content.
   $matches_a = array();
   if (variable_get('linkchecker_extract_from_a', 1) == 1) {
@@ -1460,29 +1445,6 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
   }
 
   return array_unique($links);
-}
-
-/**
- * This is a customized clone of the core function _filter_url().
- */
-function _linkchecker_filter_url($text = '') {
-
-  $text = ' ' . $text . ' ';
-
-  // Match pathfilter.module URLs prefixed with "internal:" and force them to be absolute for URL checking.
-  if (module_exists('pathfilter') && variable_get('linkchecker_pathfilter_support', 0)) {
-    $absolute = (variable_get('pathfilter_link_type', 'absolute') == 'absolute' ? 'TRUE' : 'FALSE');
-    $text = preg_replace('/"internal:([^"#\?]+)\??([^"#]+)?#?([^"]+)?"/e', "'\"'. url('$1', array('query' => '$2' ? '$2' : NULL, 'fragment' => '$3' ? '$3' : NULL, 'absolute' => " . $absolute . ")) .'\"'", $text);
-  }
-
-  // Match absolute URLs.
-  $text = preg_replace_callback("`(<p>|<li>|<br\s*/?>|[ \n\r\t\(])((http://|https://|ftp://|mailto:|smb://|afp://|file://|gopher://|news://|ssl://|sslv2://|sslv3://|tls://|tcp://|udp://)([a-zA-Z0-9@:%_+*~#?&=.,/;-]*[a-zA-Z0-9@:%_+*~#&=/;-]))([.,?!]*?)(?=(</p>|</li>|<br\s*/?>|[ \n\r\t\)]))`i", '_filter_url_parse_full_links', $text);
-
-  // Match www domains/addresses.
-  $text = preg_replace_callback("`(<p>|<li>|[ \n\r\t\(])(www\.[a-zA-Z0-9@:%_+*~#?&=.,/;-]*[a-zA-Z0-9@:%_+~#\&=/;-])([.,?!]*?)(?=(</p>|</li>|<br\s*/?>|[ \n\r\t\)]))`i", '_filter_url_parse_partial_links', $text);
-  $text = substr($text, 1, -1);
-
-  return $text;
 }
 
 /**

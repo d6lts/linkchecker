@@ -107,7 +107,6 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_extract_from_video');
   variable_del('linkchecker_fqdn_only');
   variable_del('linkchecker_ignore_response_codes');
-  variable_del('linkchecker_pathfilter_support');
   variable_del('linkchecker_scan_blocks');
   variable_del('linkchecker_scan_comments');
   variable_del('linkchecker_scan_nodetypes');
@@ -456,6 +455,17 @@ function linkchecker_update_5210() {
   else {
     $ret[] = array('success' => TRUE, 'query' => 'No action taken. The status code 302 was already on the list of ignored response codes.');
   }
+
+  return $ret;
+}
+
+/**
+ * Remove obsolte variable.
+ */
+function linkchecker_update_5210() {
+  $ret = array();
+
+  variable_del('linkchecker_pathfilter_support');
 
   return $ret;
 }
