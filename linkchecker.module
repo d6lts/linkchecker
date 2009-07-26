@@ -450,10 +450,7 @@ function _linkchecker_add_node_links($node) {
       if (!$link) {
         $link->token = $token;
         $link->url = $url;
-        // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $link->url)) {
-          $link->status = 0;
-        }
+        $link->status = _linkchecker_link_check_status_filter($url);
         drupal_write_record('linkchecker_links', $link);
       }
       db_query("INSERT INTO {linkchecker_nodes} (nid, lid) VALUES (%d, %d)", $node->nid, $link->lid);
@@ -505,10 +502,7 @@ function _linkchecker_add_comment_links($comment) {
       if (!$link) {
         $link->token = $token;
         $link->url = $url;
-        // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $link->url)) {
-          $link->status = 0;
-        }
+        $link->status = _linkchecker_link_check_status_filter($url);
         drupal_write_record('linkchecker_links', $link);
       }
       db_query("INSERT INTO {linkchecker_comments} (cid, lid) VALUES (%d, %d)", $comment['cid'], $link->lid);
@@ -558,10 +552,7 @@ function _linkchecker_add_box_links($box, $bid) {
       if (!$link) {
         $link->token = $token;
         $link->url = $url;
-        // Automatically disable link checking for domains.
-        if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $link->url)) {
-          $link->status = 0;
-        }
+        $link->status = _linkchecker_link_check_status_filter($url);
         drupal_write_record('linkchecker_links', $link);
       }
       db_query("INSERT INTO {linkchecker_boxes} (bid, lid) VALUES (%d, %d)", $bid, $link->lid);
@@ -1049,6 +1040,17 @@ function _linkchecker_absolute_base_path($url) {
   $absolute_base_url = drupal_substr($absolute_url, 0, $last_slash + 1);
 
   return $absolute_base_url;
+}
+
+/**
+ * Verifies against the url blacklist, if the link status should be checked or not.
+ */
+function _linkchecker_link_check_status_filter($url) {
+  $status = TRUE;
+  if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $url)) {
+    $status = FALSE;
+  }
+  return $status;
 }
 
 /**
