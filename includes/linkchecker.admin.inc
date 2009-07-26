@@ -270,7 +270,6 @@ function linkchecker_analyze_links_submit($form, &$form_state) {
     }
   }
 
-  // FIXME: Batch title does not update on second batch_set(), http://drupal.org/node/368742
   if (variable_get('linkchecker_scan_blocks', 0)) {
     module_load_include('inc', 'linkchecker', '/includes/linkchecker.batch');
     batch_set(_linkchecker_batch_import_boxes());
@@ -299,7 +298,6 @@ function linkchecker_clear_analyze_links_submit($form, &$form_state) {
     }
   }
 
-  // FIXME: Batch title does not update on second batch_set(), http://drupal.org/node/368742
   if (variable_get('linkchecker_scan_blocks', 0)) {
     module_load_include('inc', 'linkchecker', '/includes/linkchecker.batch');
     batch_set(_linkchecker_batch_import_boxes());
