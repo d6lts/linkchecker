@@ -48,7 +48,7 @@ function linkchecker_menu() {
     'access arguments' => array('access broken links report'),
     'file' => 'includes/linkchecker.pages.inc',
   );
-  // Add the user menu item after node/edit item.
+  // Add the user menu item after node/edit tab.
   $items['user/%user/linkchecker'] = array(
     'title' => 'Broken links',
     'description' => 'Shows a list of broken links in content.',
