@@ -499,7 +499,7 @@ function linkchecker_update_6209() {
     $perms[$p->rid] = $perm;
   }
 
-  foreach ($perms as $permission => $rid) {
+  foreach ($perms as $rid => $permission) {
     $ret[] = update_sql("UPDATE {permission} SET perm = '$permission' WHERE rid = $rid");
   }
 
