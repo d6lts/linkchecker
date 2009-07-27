@@ -3,18 +3,18 @@
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  linkchecker.module,v 1.7.2.108 2009/07/26 21:10:37 hass
+#  linkchecker.module,v 1.7.2.111 2009/07/27 21:23:16 hass
 #  linkchecker.info,v 1.2.2.2 2009/01/25 23:41:02 hass
 #  linkchecker.pages.inc,v 1.1.2.6 2009/07/25 13:57:21 hass
-#  linkchecker.install,v 1.2.2.30 2009/07/26 12:34:23 hass
-#  linkchecker.admin.inc,v 1.1.2.14 2009/07/26 11:16:57 hass
-#  linkchecker.batch.inc,v 1.1.2.2 2009/07/19 17:01:46 hass
+#  linkchecker.install,v 1.2.2.32 2009/07/27 20:32:27 hass
+#  linkchecker.admin.inc,v 1.1.2.17 2009/07/26 23:24:14 hass
+#  linkchecker.batch.inc,v 1.1.2.3 2009/07/26 23:03:19 hass
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-07-26 23:11+0200\n"
+"POT-Creation-Date: 2009-07-28 00:46+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -31,7 +31,7 @@ msgstr ""
 msgid "Broken links"
 msgstr ""
 
-#: linkchecker.module:201;222;246;251;257;275;1148;0
+#: linkchecker.module:201;222;246;251;257;275;1154;0
 msgid "linkchecker"
 msgstr ""
 
@@ -59,7 +59,7 @@ msgstr ""
 msgid "Method HEAD is not allowed for link %link. Method has been changed to GET."
 msgstr ""
 
-#: linkchecker.module:1148
+#: linkchecker.module:1154
 msgid "Set @type %title to unpublished."
 msgstr ""
 
@@ -358,38 +358,34 @@ msgid "One HTTP status code per line, e.g. 403."
 msgstr ""
 
 #: includes/linkchecker.admin.inc:187
-msgid "Before using either of these options to clear link data, use the <em>Save configuration</em> button below to save any changes you may have made above."
-msgstr ""
-
-#: includes/linkchecker.admin.inc:188
 msgid "These actions will either clear all link checker tables in the database and/or analyze all selected node types, blocks and cck fields (see settings above) for new/updated/removed links. Normally there is no need to press one of these buttons. Use this only for immediate cleanup tasks and to force a full re-build of the links to be checked in the linkchecker tables. All custom link settings will be lost!"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:189
+#: includes/linkchecker.admin.inc:188
 msgid "<strong>Note</strong>: These functions ONLY collect the links, they do not evaluate the HTTP response codes, this will be done during normal cron runs."
 msgstr ""
 
-#: includes/linkchecker.admin.inc:193
+#: includes/linkchecker.admin.inc:192
 msgid "Clear link data"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:200
+#: includes/linkchecker.admin.inc:199
 msgid "Analyze content for links"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:205
+#: includes/linkchecker.admin.inc:204
 msgid "Clear link data and analyze content for links"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:209 includes/linkchecker.pages.inc:214
+#: includes/linkchecker.admin.inc:208 includes/linkchecker.pages.inc:214
 msgid "Save configuration"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:210 includes/linkchecker.pages.inc:215
+#: includes/linkchecker.admin.inc:209 includes/linkchecker.pages.inc:215
 msgid "Reset to defaults"
 msgstr ""
 
-#: includes/linkchecker.admin.inc:221
+#: includes/linkchecker.admin.inc:220
 msgid "Invalid response code %code found."
 msgstr ""
 

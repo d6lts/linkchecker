@@ -11,8 +11,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation of Linkchecker\n"
-"POT-Creation-Date: 2009-07-26 23:11+0200\n"
-"PO-Revision-Date: 2009-07-27 00:55+0100\n"
+"POT-Creation-Date: 2009-07-28 00:46+0200\n"
+"PO-Revision-Date: 2009-07-28 01:24+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -24,13 +24,13 @@ msgstr ""
 
 #: linkchecker.module:26
 msgid "This module provides an aid to finding broken links on your site. It periodically checks contents of all public nodes, tries to find any html links and check for their validity. It reports broken links through the admin interface. For more information about status codes see <a href=\"@rfc\">Status Code Definitions</a>."
-msgstr ""
+msgstr "Dieses Modul bietet die Mithilfe an, beschädigte Links in einer Website zu finden. Es überprüft regelmäßig die Inhalte alle veröffentlichten Beiträge und versucht alle HTML-Links zu finden und deren Gültigkeit zu überprüfen. Es berichtet über beschädigte Links in der Verwaltungsoberfläche. Nähere Informationen über Status-Codes befinden sich unter <a href=\"@rfc\">Status-Code Definitionen</a>."
 
 #: linkchecker.module:251;257;275;44;53
 msgid "Broken links"
 msgstr "Beschädigte Links"
 
-#: linkchecker.module:201;222;246;251;257;275;1148;0
+#: linkchecker.module:201;222;246;251;257;275;1154;0
 msgid "linkchecker"
 msgstr "linkchecker"
 
@@ -58,7 +58,7 @@ msgstr "Ein beschädigter Link %link wurde gefunden."
 msgid "Method HEAD is not allowed for link %link. Method has been changed to GET."
 msgstr "Die Methode HEAD ist für den Link %link nicht zulässig. Die Methode wurde auf GET geändert."
 
-#: linkchecker.module:1148
+#: linkchecker.module:1154
 msgid "Set @type %title to unpublished."
 msgstr "Die Veröffentlichung von @type %title wurde zurückgezogen."
 
@@ -87,7 +87,7 @@ msgstr "Linkeinstellungen bearbeiten"
 #: linkchecker.module:36
 #: linkchecker.info:0
 msgid "Link checker"
-msgstr "Link checker"
+msgstr "Link-Checker"
 
 #: linkchecker.module:37
 msgid "Link checker configuration."
@@ -297,9 +297,11 @@ msgstr "Legt die Fehlerbehandlung und benutzerdefinierten Aktionen fest, die bei
 msgid "Update permanently moved links"
 msgstr "Dauerhaft verschobene Links aktualisieren"
 
+# remove: remote -> could also be local
 #: includes/linkchecker.admin.inc:152
+#, fuzzy
 msgid "If enabled, outdated links in content providing a <em>Moved Permanently</em> (status code 301) are automatically updated to the most recent URL. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily change. This feature trust remote sites to provide a valid permanent redirect. A new node revision is automatically created on link updates if <em>create new revision</em> is enabled in the <a href=\"@node_types\">node type</a> workflow settings. It is recommended to create new revisions for all link checker enabled node types. Changes are always logged in <a href=\"@dblog\">recent log entries</a>."
-msgstr ""
+msgstr "Sobald aktiviert, werden veraltete Links im Inhalt, die einen <em>Moved Permanently</em> (Status-Code 301) bereitstellen, automatisch auf die neueste URL aktualisiert. Es wird empfohlen einen Wert von <em>drei</em> zu verwenden, um sicherzustellen das es sich nicht nur um einen temporären Fehler handelt. Diese Funktion vertraut den Websites, dass diese eine gültige dauerhafte Umleitung zu Verfügung stellen. Sobald in den Einstellungen für den Arbeitsablauf des <a href=\"@node_types\">Beitragtyps</a> die Option <em>Neue Version erstellen</em> aktiviert ist, wird bei Link-Aktualisierungen automatisch eine neue Beitragsversion erstellt. Es wird empfohlen für alle Link-Checker aktivierten Beitragstypen neue Versionen zu erstellen. Die Änderungen werden immer unter <a href=\"@dblog\">Neue Log-Einträge</a> protokolliert."
 
 #: includes/linkchecker.admin.inc:156;170
 msgid "Disabled"
@@ -331,7 +333,7 @@ msgstr "Beitragsveröffentlichung bei „Datei wurde nicht gefunden“-Fehler zu
 
 #: includes/linkchecker.admin.inc:166
 msgid "If enabled, a node with one or more broken links (status code 404) will be unpublished and moved to moderation queue for review after the number of specified fails. If used, it is recommended to use a value of <em>three</em> to make sure this is not only a temporarily error."
-msgstr "Sobald aktiviert, wird die Veröffentlichung eines Beitrags mit einem oder mehreren beschädigten Links (Status-Code 404) nach der Anzahl der festgelegten Fehlschläge zurückgezogen und zur Überprüfung in die Moderationswarteschlange verschoben. Es wird empfohlen einen Wert von <em>drei</em> zu verwwenden, um sicherzustellen das es sich nicht nur im einem temporären Fehler handelt."
+msgstr "Sobald aktiviert, wird die Veröffentlichung eines Beitrags mit einem oder mehreren beschädigten Links (Status-Code 404) nach der Anzahl der festgelegten Fehlschläge zurückgezogen und zur Überprüfung in die Moderationswarteschlange verschoben. Es wird empfohlen einen Wert von <em>drei</em> zu verwenden, um sicherzustellen das es sich nicht nur um einen temporären Fehler handelt."
 
 #: includes/linkchecker.admin.inc:171
 msgid "After one file not found error"
@@ -362,40 +364,37 @@ msgid "One HTTP status code per line, e.g. 403."
 msgstr "Ein HTTP-Status-Code pro Zeile, z.b. 403."
 
 #: includes/linkchecker.admin.inc:187
-msgid "Before using either of these options to clear link data, use the <em>Save configuration</em> button below to save any changes you may have made above."
-msgstr ""
+#, fuzzy
+msgid "These actions will either clear all link checker tables in the database and/or analyze all selected node types, blocks and cck fields (see settings above) for new/updated/removed links. Normally there is no need to press one of these buttons. Use this only for immediate cleanup tasks and to force a full re-build of the links to be checked in the linkchecker tables. All custom link settings will be lost!"
+msgstr "Diese Aktionen werden entweder alle Link-Checker Tabellen in der Datenbank leeren und/oder alle ausgewählten Beitragstypen, Blöcke und CCK-Felder (siehe Einstellungen oberhalb) nach neuen/aktualisierten/entfernten Links durchsuchen. Normalerweise gibt es keine Notwendigkeit einen dieser beiden Schaltknöpfe zu drücken. Diese sollten nur für umgehende Bereinigungsaufgaben und für einen vollständigen Neuaufbau der zu überprüfenden Links in den Link-Checker Tabellen verwendet werden. Alle benutzerdefinierten Link-Einstellungen gehen verloren!"
 
 #: includes/linkchecker.admin.inc:188
-msgid "These actions will either clear all link checker tables in the database and/or analyze all selected node types, blocks and cck fields (see settings above) for new/updated/removed links. Normally there is no need to press one of these buttons. Use this only for immediate cleanup tasks and to force a full re-build of the links to be checked in the linkchecker tables. All custom link settings will be lost!"
-msgstr ""
-
-#: includes/linkchecker.admin.inc:189
 msgid "<strong>Note</strong>: These functions ONLY collect the links, they do not evaluate the HTTP response codes, this will be done during normal cron runs."
 msgstr "<strong>Hinweis</strong>: Mit diesen Funktionen werden die Links NUR erfasst. Die HTTP-Antwortcodes werden nicht ausgewertet, da dies während dem normalen Cron-Lauf erfolgt."
 
-#: includes/linkchecker.admin.inc:193
+#: includes/linkchecker.admin.inc:192
 msgid "Clear link data"
 msgstr "Linkdaten leeren"
 
-#: includes/linkchecker.admin.inc:200
+#: includes/linkchecker.admin.inc:199
 msgid "Analyze content for links"
 msgstr "Inhalt nach Links durchsuchen"
 
-#: includes/linkchecker.admin.inc:205
+#: includes/linkchecker.admin.inc:204
 msgid "Clear link data and analyze content for links"
 msgstr "Linkdaten leeren und Inhalt nach Links durchsuchen"
 
-#: includes/linkchecker.admin.inc:209
+#: includes/linkchecker.admin.inc:208
 #: includes/linkchecker.pages.inc:214
 msgid "Save configuration"
 msgstr "Konfiguration speichern"
 
-#: includes/linkchecker.admin.inc:210
+#: includes/linkchecker.admin.inc:209
 #: includes/linkchecker.pages.inc:215
 msgid "Reset to defaults"
 msgstr "Zurücksetzen"
 
-#: includes/linkchecker.admin.inc:221
+#: includes/linkchecker.admin.inc:220
 msgid "Invalid response code %code found."
 msgstr "Ungültiger Antwort-Code %code wurde gefunden."
 
