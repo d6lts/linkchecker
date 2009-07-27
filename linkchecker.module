@@ -1056,7 +1056,7 @@ function _linkchecker_absolute_base_path($url) {
  */
 function _linkchecker_link_check_status_filter($url) {
   $status = TRUE;
-  if (preg_match('/' . implode('|', preg_split('/(\r\n?|\n)/', preg_quote(variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), '/'))) . '/', $url)) {
+  if (preg_match('/' . implode('|', array_map(create_function('$links', 'return preg_quote($links, \'/\');'), preg_split('/(\r\n?|\n)/', variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)))) . '/', $url) {
     $status = FALSE;
   }
   return $status;
