@@ -49,7 +49,7 @@ function linkchecker_user_report_page($account) {
         SELECT lid FROM (
           SELECT DISTINCT ll.lid
           FROM node n
-          INNER JOIN node_revisions r ON r.nid = n.nid AND r.vid = n.vid
+          INNER JOIN node_revisions r ON r.vid = n.vid
           INNER JOIN linkchecker_nodes ln ON ln.nid = n.nid
           INNER JOIN linkchecker_links ll ON ll.lid = ln.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
           WHERE n.uid = %d OR r.uid = %d
@@ -73,7 +73,7 @@ function linkchecker_user_report_page($account) {
         SELECT lid FROM (
           SELECT DISTINCT ll.lid
           FROM node n
-          INNER JOIN node_revisions r ON r.nid = n.nid AND r.vid = n.vid
+          INNER JOIN node_revisions r ON r.vid = n.vid
           INNER JOIN linkchecker_nodes ln ON ln.nid = n.nid
           INNER JOIN linkchecker_links ll ON ll.lid = ln.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
           WHERE n.uid = %d OR r.uid = %d
