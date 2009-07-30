@@ -8,6 +8,16 @@
  * Developed by Alexander Hass, http://www.yaml-for-drupal.com/.
  */
 
+/**
+ * Defines the maximum limit of links collected in one chunk if content is
+ * scanned for links. A value that is too high may overload the database server.
+ */
+define('LINKCHECKER_SCAN_MAX_LINKS_PER_RUN', '100');
+
+/**
+ * A list of domain names reserved for use in documentation and not available
+ * for registration. See RFC 2606, Section 3 for more information.
+ */
 define('LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS', "example.com\nexample.net\nexample.org");
 
 /**
@@ -390,10 +400,15 @@ function linkchecker_block_box_delete_form_submit($form, &$form_state) {
 
 /**
  * Add node links to database.
+ *
+ * @param $node
+ *   The fully populated node object.
+ *
+ * @param $skip_missing_links_detection
+ *   To prevent endless batch loops the value need to be TRUE. With FALSE
+ *   the need for content re-scans is detected by the number of missing links.
  */
-function _linkchecker_add_node_links($node) {
-  $scan_max_links_per_run = 100;
-
+function _linkchecker_add_node_links($node, $skip_missing_links_detection = FALSE) {
   // Create array of node fields to scan.
   $text_items = array();
   $text_items[] = _filter_url($node->title, $node->format);
@@ -435,17 +450,11 @@ function _linkchecker_add_node_links($node) {
   if (!empty($links)) {
     // Remove all links from the links array already in the database
     // and only add missing links to database.
-    $new_links = _linkchecker_node_links_missing($node->nid, $links);
-
-    // Add a job for scanning the next 100 links via job_queue module.
-    $missing_links_count = count($new_links)-$scan_max_links_per_run;
-    if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
-      job_queue_add('_linkchecker_scan_node_links', 'Scan node '. $node->nid .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($node->nid), '', FALSE);
-    }
+    $missing_links = _linkchecker_node_links_missing($node->nid, $links);
 
     // Only add links to database that do not exists.
     $i = 0;
-    foreach ($new_links as $url) {
+    foreach ($missing_links as $url) {
       $token = md5($url);
       $link = db_fetch_object(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", $token));
       if (!$link) {
@@ -458,8 +467,35 @@ function _linkchecker_add_node_links($node) {
 
       // Break processing if max links limit per run has been reached.
       $i++;
-      if ($i >= $scan_max_links_per_run) {
+      if ($i >= LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
         break;
+      }
+    }
+
+    // The first chunk of links not yet found in the {linkchecker_links} table
+    // have now been imported by the above code. If the number of missing links
+    // still exceeds the scan limit defined in LINKCHECKER_SCAN_MAX_LINKS_PER_RUN
+    // the content need to be re-scanned until all links have been collected and
+    // saved in {linkchecker_links} table.
+    //
+    // Above code has already scanned a number of LINKCHECKER_SCAN_MAX_LINKS_PER_RUN
+    // links and need to be substracted from the number of missing links to
+    // calculate the correct number of re-scan rounds.
+    //
+    // To prevent endless loops the $skip_missing_links_detection need to be TRUE.
+    // This value will be set by the calling batch process that already knows
+    // that it is running a batch job and the number of required re-scan rounds.
+    $missing_links_count = count($missing_links) - LINKCHECKER_SCAN_MAX_LINKS_PER_RUN;
+    if (!$skip_missing_links_detection && $missing_links_count > 0) {
+      module_load_include('inc', 'linkchecker', '/includes/linkchecker.batch');
+      batch_set(_linkchecker_batch_import_single_node($node->nid, $missing_links_count));
+
+      // If batches were set in the submit handlers, we process them now,
+      // possibly ending execution. We make sure we do not react to the batch
+      // that is already being processed (if a batch operation performs a
+      // drupal_execute).
+      if ($batch = &batch_get() && !isset($batch['current_set'])) {
+        batch_process();
       }
     }
 
@@ -470,10 +506,15 @@ function _linkchecker_add_node_links($node) {
 
 /**
  * Add comment links to database.
+ *
+ * @param $comment
+ *   The fully populated comment array.
+ *
+ * @param $skip_missing_links_detection
+ *   To prevent endless batch loops the value need to be TRUE. With FALSE
+ *   the need for content re-scans is detected by the number of missing links.
  */
-function _linkchecker_add_comment_links($comment) {
-  $scan_max_links_per_run = 100;
-
+function _linkchecker_add_comment_links($comment, $skip_missing_links_detection = FALSE) {
   // Create array of comment fields to scan.
   $text_items = array();
   $text_items[] = _filter_url($comment['subject'], $comment['format']);
@@ -491,17 +532,11 @@ function _linkchecker_add_comment_links($comment) {
   if (!empty($links)) {
     // Remove all links from the links array already in the database
     // and only add missing links to database.
-    $new_links = _linkchecker_node_links_missing($comment['cid'], $links);
-
-    // Add a job for scanning the next 100 links via job_queue module.
-    $missing_links_count = count($new_links)-$scan_max_links_per_run;
-    if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
-      job_queue_add('_linkchecker_scan_comment_links', 'Scan comment '. $comment['cid'] .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($comment['cid']), '', FALSE);
-    }
+    $missing_links = _linkchecker_node_links_missing($comment['cid'], $links);
 
     // Only add unique links to database that do not exist.
     $i = 0;
-    foreach ($new_links as $url) {
+    foreach ($missing_links as $url) {
       $token = md5($url);
       $link = db_fetch_object(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", $token));
       if (!$link) {
@@ -514,8 +549,35 @@ function _linkchecker_add_comment_links($comment) {
 
       // Break processing if max links limit per run has been reached.
       $i++;
-      if ($i >= $scan_max_links_per_run) {
+      if ($i >= LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
         break;
+      }
+    }
+
+    // The first chunk of links not yet found in the {linkchecker_links} table
+    // have now been imported by the above code. If the number of missing links
+    // still exceeds the scan limit defined in LINKCHECKER_SCAN_MAX_LINKS_PER_RUN
+    // the content need to be re-scanned until all links have been collected and
+    // saved in {linkchecker_links} table.
+    //
+    // Above code has already scanned a number of LINKCHECKER_SCAN_MAX_LINKS_PER_RUN
+    // links and need to be substracted from the number of missing links to
+    // calculate the correct number of re-scan rounds.
+    //
+    // To prevent endless loops the $skip_missing_links_detection need to be TRUE.
+    // This value will be set by the calling batch process that already knows
+    // that it is running a batch job and the number of required re-scan rounds.
+    $missing_links_count = count($missing_links) - LINKCHECKER_SCAN_MAX_LINKS_PER_RUN;
+    if (!$skip_missing_links_detection && $missing_links_count > 0) {
+      module_load_include('inc', 'linkchecker', '/includes/linkchecker.batch');
+      batch_set(_linkchecker_batch_import_single_comment($comment['cid'], $missing_links_count));
+
+      // If batches were set in the submit handlers, we process them now,
+      // possibly ending execution. We make sure we do not react to the batch
+      // that is already being processed (if a batch operation performs a
+      // drupal_execute).
+      if ($batch = &batch_get() && !isset($batch['current_set'])) {
+        batch_process();
       }
     }
 
@@ -525,11 +587,16 @@ function _linkchecker_add_comment_links($comment) {
 }
 
 /**
- * Add box links to database.
+ * Add block links to database.
+ *
+ * @param $box
+ *   The fully populated block array.
+ *
+ * @param $skip_missing_links_detection
+ *   To prevent endless batch loops the value need to be TRUE. With FALSE
+ *   the need for content re-scans is detected by the number of missing links.
  */
-function _linkchecker_add_box_links($box, $bid) {
-  $scan_max_links_per_run = 100;
-
+function _linkchecker_add_box_links($box, $bid, $skip_missing_links_detection = FALSE) {
   // Create array of box fields to scan.
   $text_items = array();
   $text_items[] = _filter_url($box['info'], $box['format']);
@@ -543,17 +610,11 @@ function _linkchecker_add_box_links($box, $bid) {
   if (!empty($links)) {
     // Remove all links from the links array already in the database
     // and only add missing links to database.
-    $new_links = _linkchecker_box_links_missing($bid, $links);
-
-    // Add a job for scanning the next 100 links via job_queue module.
-    $missing_links_count = count($new_links)-$scan_max_links_per_run;
-    if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
-      job_queue_add('_linkchecker_scan_box_links', 'Scan block '. $bid .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($bid), '', FALSE);
-    }
+    $missing_links = _linkchecker_box_links_missing($bid, $links);
 
     // Only add unique links to database that do not exist.
     $i = 0;
-    foreach ($new_links as $url) {
+    foreach ($missing_links as $url) {
       $token = md5($url);
       $link = db_fetch_object(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", $token));
       if (!$link) {
@@ -566,8 +627,35 @@ function _linkchecker_add_box_links($box, $bid) {
 
       // Break processing if max links limit per run has been reached.
       $i++;
-      if ($i >= $scan_max_links_per_run) {
+      if ($i >= LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
         break;
+      }
+    }
+
+    // The first chunk of links not yet found in the {linkchecker_links} table
+    // have now been imported by the above code. If the number of missing links
+    // still exceeds the scan limit defined in LINKCHECKER_SCAN_MAX_LINKS_PER_RUN
+    // the content need to be re-scanned until all links have been collected and
+    // saved in {linkchecker_links} table.
+    //
+    // Above code has already scanned a number of LINKCHECKER_SCAN_MAX_LINKS_PER_RUN
+    // links and need to be substracted from the number of missing links to
+    // calculate the correct number of re-scan rounds.
+    //
+    // To prevent endless loops the $skip_missing_links_detection need to be TRUE.
+    // This value will be set by the calling batch process that already knows
+    // that it is running a batch job and the number of required re-scan rounds.
+    $missing_links_count = count($missing_links) - LINKCHECKER_SCAN_MAX_LINKS_PER_RUN;
+    if (!$skip_missing_links_detection && $missing_links_count > 0) {
+      module_load_include('inc', 'linkchecker', '/includes/linkchecker.batch');
+      batch_set(_linkchecker_batch_import_single_box($bid, $missing_links_count));
+
+      // If batches were set in the submit handlers, we process them now,
+      // possibly ending execution. We make sure we do not react to the batch
+      // that is already being processed (if a batch operation performs a
+      // drupal_execute).
+      if ($batch = &batch_get() && !isset($batch['current_set'])) {
+        batch_process();
       }
     }
 
@@ -655,39 +743,6 @@ function _linkchecker_box_links_missing($bid, $links) {
 }
 
 /**
- * Scan specified node for links. Helper function for job_queue scans.
- *
- * @param $nid
- *   The node id to scan.
- */
-function _linkchecker_scan_node_links($nid) {
-  $node = node_load(array('nid' => $nid));
-  _linkchecker_add_node_links($node);
-}
-
-/**
- * Scan specified comment for links. Helper function for job_queue scans.
- *
- * @param $cid
- *   The comment id to scan.
- */
-function _linkchecker_scan_comment_links($cid) {
-  $comment = _linkchecker_comment_load($cid);
-  _linkchecker_add_comment_links($comment);
-}
-
-/**
- * Scan specified box for links. Helper function for job_queue scans.
- *
- * @param $bid
- *   The box id to scan.
- */
-function _linkchecker_scan_box_links($bid) {
-  $box = block_box_get($bid);
-  _linkchecker_add_box_links($box);
-}
-
-/**
  * Run perodically via cron and delete all links without a references.
  *
  * For speed reasons and check results we keep the links for some time
@@ -706,18 +761,18 @@ function _linkchecker_cleanup_links() {
     // FIXME: Remove comments
   }
 
-  // Remove comment links if comment scanning is disabled.
-  // TODO: Remove comments of unpubslished nodes.
+  // Remove comment link references if comment scanning is disabled.
+  // TODO: Remove comments of unpublished nodes.
   if (variable_get('linkchecker_scan_comments', 0) == 0) {
     db_query('DELETE FROM {linkchecker_comments}');
   }
 
-  // Remove block links if block scanning is disabled.
+  // Remove block link references if block scanning is disabled.
   if (variable_get('linkchecker_scan_blocks', 0) == 0) {
     db_query('DELETE FROM {linkchecker_boxes}');
   }
 
-  // TODO: Requires MySQL 5.x for subselects. Untested with pgsql.
+  // Remove dead links without references.
   db_query('DELETE FROM {linkchecker_links}
             WHERE lid NOT IN (
               SELECT DISTINCT lid FROM {linkchecker_boxes}
@@ -734,10 +789,12 @@ function _linkchecker_cleanup_links() {
  *
  * @param $text
  *    The text to be scanned for links.
+ *
  * @param $content_path
  *    Path to the content that is currently scanned for links. This value is
  *    required to build full qualified links from relative links. Relative links
  *    are not extracted from content, if path is not provided.
+ *
  * @return
  *    Array of full qualified and unique URLs found in content.
  */
@@ -859,7 +916,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
     // Local URLs.
     elseif (valid_url($ret[$i], FALSE) && variable_get('linkchecker_fqdn_only', 1) == 0) {
       // Get full qualified url with base path of content.
-      $absolute_base_path = _linkchecker_absolute_base_path($content_path);
+      $absolute_content_path = _linkchecker_absolute_content_path($content_path);
 
       // Absolute local URLs need to start with [/].
       if (preg_match('!^/!', $ret[$i])) {
@@ -872,8 +929,8 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
         $links[] = $content_path . decode_entities($ret[$i]);
       }
       // Relative URLs like "./foo/bar" and "../foo/bar".
-      elseif (!empty($absolute_base_path) && preg_match('!^\.{1,2}/!', $ret[$i])) {
-        $path = $absolute_base_path . decode_entities($ret[$i]);
+      elseif (!empty($absolute_content_path) && preg_match('!^\.{1,2}/!', $ret[$i])) {
+        $path = $absolute_content_path . decode_entities($ret[$i]);
 
         // Remove './' segments where possible.
         $path = str_replace('/./', '/', $path);
@@ -890,8 +947,8 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
         $links[] = $path;
       }
       // Relative URLs like "test.png".
-      elseif (!empty($absolute_base_path) && preg_match('!^[^/]!', $ret[$i])) {
-        $links[] = $absolute_base_path . decode_entities($ret[$i]);
+      elseif (!empty($absolute_content_path) && preg_match('!^[^/]!', $ret[$i])) {
+        $links[] = $absolute_content_path . decode_entities($ret[$i]);
       }
       else {
         // TODO: Are there more special cases the module need to handle?
@@ -907,8 +964,10 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
  *
  * @param $text
  *   The text a link is inside. Passed in as a reference.
+ *
  * @param $old_link_fqdn
  *   The old link to search for in strings.
+ *
  * @param $new_link_fqdn
  *   The old link should be overwritten with this new link.
  */
@@ -1014,10 +1073,11 @@ function _linkchecker_link_replace(&$text, $old_link_fqdn = '', $new_link_fqdn =
  *
  * @param $url
  *   The http/https URL to parse.
+ *
  * @return
  *   Full qualified URL with absolute path of the URL.
  */
-function _linkchecker_absolute_base_path($url) {
+function _linkchecker_absolute_content_path($url) {
 
   // Parse the URL and make sure we can handle the schema.
   $uri = parse_url($url);
@@ -1046,9 +1106,9 @@ function _linkchecker_absolute_base_path($url) {
 
   // Find the last slash and remove all after the last slash to get the path.
   $last_slash = strrpos($absolute_url, '/');
-  $absolute_base_url = drupal_substr($absolute_url, 0, $last_slash + 1);
+  $absolute_content_url = drupal_substr($absolute_url, 0, $last_slash + 1);
 
-  return $absolute_base_url;
+  return $absolute_content_url;
 }
 
 /**
@@ -1067,6 +1127,7 @@ function _linkchecker_link_check_status_filter($url) {
  *
  * @param $code
  *   An numeric response code.
+ *
  * @return
  *   TRUE if the status code is valid.
  */
@@ -1123,6 +1184,7 @@ function _linkchecker_isvalid_response_code($code) {
  *
  * @param $node_type
  *   Verifies if the node type is enabled for link checks and should be scanned.
+ *
  * @return
  *   TRUE if node type should be scanned, otherwise FALSE.
  */
@@ -1152,8 +1214,6 @@ function _linkchecker_unpublish_nodes($lid) {
     $node->status = 0;
     node_save($node);
     watchdog('linkchecker', 'Set @type %title to unpublished.', array('@type' => $node->type, '%title' => $node->title));
-
-    // TODO: Add email notification for authors.
   }
 }
 

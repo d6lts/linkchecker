@@ -6,6 +6,13 @@
  * Installation file for Link Checker module.
  */
 
+/**
+ * Defines the minimum MySQL version number this module supports.
+ *
+ * Previous versions do not support subselects, but for performance reasons
+ * the module makes use of them whenever possible. PgSQL do not have this
+ * kind of limitations in the versions supported by Drupal 6.
+ */
 define('LINKCHECKER_MINIMUM_MYSQL', '5.0');
 
 /**
@@ -194,14 +201,6 @@ function linkchecker_requirements($phase) {
       break;
 
     case 'runtime':
-      if (!module_exists('job_queue')) {
-        $requirements['linkchecker_job_queue'] = array(
-          'title' => $t('Job queue'),
-          'value' => $t('Not found'),
-          'severity' => REQUIREMENT_WARNING,
-          'description' => $t('Install <a href="@url">job_queue</a> module if you have a node, comment or block with more than 100 links. Without the job_queue module only the first 100 links may be checked!', array('@url' => 'http://drupal.org/project/job_queue')),
-        );
-      }
 /*      $requirements['linkchecker_curl'] = array(
         'title' => $t('cURL'),
         'value' => $has_curl ? $t('Enabled') : $t('Not found'),

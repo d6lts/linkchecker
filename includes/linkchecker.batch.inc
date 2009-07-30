@@ -139,3 +139,149 @@ function _linkchecker_batch_box_import_finished($success, $results, $operations)
   }
   drupal_set_message($message);
 }
+
+/**
+ * Recurring scans of a single node via batch API.
+ *
+ * @param $nid
+ *   The unique node id to scan for links.
+ *
+ * @param $missing_links_count
+ *   The number of links not yet added to linkchecker_links table. By this
+ *   number the re-scan rounds are calulated.
+ *
+ * @return
+ *   The batch task definition.
+ */
+function _linkchecker_batch_import_single_node($nid, $missing_links_count) {
+  $operations = array();
+  for ($i = 0; $i <= $missing_links_count; $i = $i+LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
+    $operations[] = array('_linkchecker_batch_single_node_import_op', array($nid));
+  }
+  $batch = array(
+    'file' => drupal_get_path('module', 'linkchecker') .'/includes/linkchecker.batch.inc',
+    'finished' => '_linkchecker_batch_single_node_import_finished',
+    'operations' => $operations,
+    'title' => t('Scanning for links'),
+    'progress_message' => t('Remaining @remaining of @total scans.'),
+  );
+
+  return $batch;
+}
+
+function _linkchecker_batch_single_node_import_op($nid, &$context) {
+  // Load the node and scan for links.
+  $node = node_load($nid, NULL, TRUE);
+  _linkchecker_add_node_links($node, TRUE);
+
+  // Store results for post-processing in the finished callback.
+  $context['results'][] = $node->nid;
+  $context['message'] = t('Node: @title', array('@title' => $node->title));
+}
+
+function _linkchecker_batch_single_node_import_finished($success, $results, $operations) {
+  if ($success) {
+    $message = format_plural(count($results), 'Node @nid has been re-scanned once to collect all links.', 'Node @nid has been re-scanned @count times to collect all links.', array('@nid' => $results[0]));
+  }
+  else {
+    $message = t('Recurring scanning for links in node @nid have failed with an error.', array('@nid' => $results[0]));
+  }
+  drupal_set_message($message);
+}
+
+/**
+ * Recurring scans of a single comment via batch API.
+ *
+ * @param $cid
+ *   The unique comment id to scan for links.
+ *
+ * @param $missing_links_count
+ *   The number of links not yet added to linkchecker_links table. By this
+ *   number the re-scan rounds are calulated.
+ *
+ * @return
+ *   The batch task definition.
+ */
+function _linkchecker_batch_import_single_comment($cid, $missing_links_count) {
+  $operations = array();
+  for ($i = 0; $i <= $missing_links_count; $i = $i+LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
+    $operations[] = array('_linkchecker_batch_single_comment_import_op', array($cid));
+  }
+  $batch = array(
+    'file' => drupal_get_path('module', 'linkchecker') .'/includes/linkchecker.batch.inc',
+    'finished' => '_linkchecker_batch_single_comment_import_finished',
+    'operations' => $operations,
+    'title' => t('Scanning for links'),
+    'progress_message' => t('Remaining @remaining of @total scans.'),
+  );
+
+  return $batch;
+}
+
+function _linkchecker_batch_single_comment_import_op($nid, &$context) {
+  $comment = _linkchecker_comment_load($cid);
+  _linkchecker_add_comment_links($comment, TRUE);
+
+  // Store results for post-processing in the finished callback.
+  $context['results'][] = $comment['cid'];
+  $context['message'] = t('Comment: @title', array('@title' => $comment['subject']));
+}
+
+function _linkchecker_batch_single_comment_import_finished($success, $results, $operations) {
+  if ($success) {
+    $message = format_plural(count($results), 'Comment @cid has been re-scanned once to collect all links.', 'Comment @cid has been re-scanned @count times to collect all links.', array('@cid' => $results[0]));
+  }
+  else {
+    $message = t('Recurring scanning for links in comment @cid have failed with an error.', array('@cid' => $results[0]));
+  }
+  drupal_set_message($message);
+}
+
+/**
+ * Recurring scans of a single block via batch API.
+ *
+ * @param $bid
+ *   The unique block id to scan for links.
+ *
+ * @param $missing_links_count
+ *   The number of links not yet added to linkchecker_links table. By this
+ *   number the re-scan rounds are calulated.
+ *
+ * @return
+ *   The batch task definition.
+ */
+function _linkchecker_batch_import_single_box($bid, $missing_links_count) {
+  $operations = array();
+  for ($i = 0; $i <= $missing_links_count; $i = $i+LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
+    $operations[] = array('_linkchecker_batch_single_box_import_op', array($nid));
+  }
+  $batch = array(
+    'file' => drupal_get_path('module', 'linkchecker') .'/includes/linkchecker.batch.inc',
+    'finished' => '_linkchecker_batch_single_box_import_finished',
+    'operations' => $operations,
+    'title' => t('Scanning for links'),
+    'progress_message' => t('Remaining @remaining of @total scans.'),
+  );
+
+  return $batch;
+}
+
+function _linkchecker_batch_single_box_import_op($bid, &$context) {
+  // Load the box and scan for links.
+  $box = block_box_get($bid);
+  _linkchecker_add_box_links($box, $box['bid'], TRUE);
+
+  // Store some result for post-processing in the finished callback.
+  $context['results'][] = $box['bid'];
+  $context['message'] = t('Block: @title', array('@title' => $box['info']));
+}
+
+function _linkchecker_batch_single_box_import_finished($success, $results, $operations) {
+  if ($success) {
+    $message = format_plural(count($results), 'Block @bid has been re-scanned once to collect all links.', 'Block @bid has been re-scanned @count times to collect all links.', array('@bid' => $results[0]));
+  }
+  else {
+    $message = t('Recurring scanning for links in block @bid have failed with an error.', array('@bid' => $results[0]));
+  }
+  drupal_set_message($message);
+}
