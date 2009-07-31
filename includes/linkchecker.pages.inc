@@ -13,7 +13,8 @@ function linkchecker_admin_report_page() {
 
   $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
 
-  // Search for of broken links in nodes and comments of the current user.
+  // Search for broken links in nodes and comments and blocks of all users.
+  // TODO: Try to make subselect result smaller.
   $links_report_sql = "SELECT ll.*
     FROM {linkchecker_links} ll
     INNER JOIN (
@@ -41,7 +42,7 @@ function linkchecker_user_report_page($account) {
 
   $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
 
-  // Search for of broken links in nodes and comments of the current user.
+  // Search for broken links in nodes and comments of the current user.
   if (module_exists('comment') && variable_get('linkchecker_scan_comments', 0)) {
     $links_report_sql = "SELECT ll.*
       FROM {linkchecker_links} ll
@@ -66,7 +67,7 @@ function linkchecker_user_report_page($account) {
     $links_report_parameters = array_merge(array(0, 1), $ignore_response_codes, array($account->uid, $account->uid, 0, 1), $ignore_response_codes, array($account->uid));
   }
   else {
-    // Search for of broken links in nodes of the current user.
+    // Search for broken links in nodes of the current user.
     $links_report_sql = "SELECT ll.*
       FROM {linkchecker_links} ll
       INNER JOIN (
