@@ -868,7 +868,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
     );
   }
 
-  // Finds img tags with links in the content.
+  // Finds source tags with links in the content.
   $matches_source = array();
   if (variable_get('linkchecker_extract_from_source', 0) == 1) {
     $pattern_source = '/<source\s[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
