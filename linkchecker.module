@@ -999,10 +999,10 @@ function _linkchecker_add_node_links($node) {
       $i++;
       if ($i >= $scan_max_links_per_run) { break; }
     }
-
-    // Remove dead link references for cleanup reasons as very last step.
-    _linkchecker_cleanup_node_references($node->nid, $links);
   }
+
+  // Remove dead link references for cleanup reasons as very last step.
+  _linkchecker_cleanup_node_references($node->nid, $links);
 }
 
 /**
@@ -1047,10 +1047,10 @@ function _linkchecker_add_comment_links($comment) {
       $i++;
       if ($i >= $scan_max_links_per_run) { break; }
     }
-
-    // Remove dead link references for cleanup reasons as very last step.
-    _linkchecker_cleanup_comment_references($comment['cid'], $links);
   }  
+
+  // Remove dead link references for cleanup reasons as very last step.
+  _linkchecker_cleanup_comment_references($comment['cid'], $links);
 }
 
 /**
@@ -1094,10 +1094,10 @@ function _linkchecker_add_box_links($box, $bid) {
       $i++;
       if ($i >= $scan_max_links_per_run) { break; }
     }
-
-    // Remove dead link references for cleanup reasons as very last step.
-    _linkchecker_cleanup_box_references($bid, $links);
   }  
+
+  // Remove dead link references for cleanup reasons as very last step.
+  _linkchecker_cleanup_box_references($bid, $links);
 }
 
 /**
