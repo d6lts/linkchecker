@@ -44,20 +44,20 @@ function linkchecker_user_report_page($account) {
   // Search for of broken links in nodes and comments of the current user.
   if (module_exists('comment') && variable_get('linkchecker_scan_comments', 0)) {
     $links_report_sql = "SELECT ll.*
-      FROM linkchecker_links ll
+      FROM {linkchecker_links} ll
       INNER JOIN (
         SELECT lid FROM (
           SELECT DISTINCT ll.lid
-          FROM node n
-          INNER JOIN node_revisions r ON r.vid = n.vid
-          INNER JOIN linkchecker_nodes ln ON ln.nid = n.nid
-          INNER JOIN linkchecker_links ll ON ll.lid = ln.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
+          FROM {node} n
+          INNER JOIN {node_revisions} r ON r.vid = n.vid
+          INNER JOIN {linkchecker_nodes} ln ON ln.nid = n.nid
+          INNER JOIN {linkchecker_links} ll ON ll.lid = ln.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
           WHERE n.uid = %d OR r.uid = %d
           UNION
           SELECT DISTINCT ll.lid
-          FROM comments c
-          INNER JOIN linkchecker_comments lc ON lc.cid = c.nid
-          INNER JOIN linkchecker_links ll ON ll.lid = lc.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
+          FROM {comments} c
+          INNER JOIN {linkchecker_comments} lc ON lc.cid = c.nid
+          INNER JOIN {linkchecker_links} ll ON ll.lid = lc.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
           WHERE c.uid = %d
         ) q1
       ) q2 ON q2.lid = ll.lid";
@@ -68,14 +68,14 @@ function linkchecker_user_report_page($account) {
   else {
     // Search for of broken links in nodes of the current user.
     $links_report_sql = "SELECT ll.*
-      FROM linkchecker_links ll
+      FROM {linkchecker_links} ll
       INNER JOIN (
         SELECT lid FROM (
           SELECT DISTINCT ll.lid
-          FROM node n
-          INNER JOIN node_revisions r ON r.vid = n.vid
-          INNER JOIN linkchecker_nodes ln ON ln.nid = n.nid
-          INNER JOIN linkchecker_links ll ON ll.lid = ln.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
+          FROM {node} n
+          INNER JOIN {node_revisions} r ON r.vid = n.vid
+          INNER JOIN {linkchecker_nodes} ln ON ln.nid = n.nid
+          INNER JOIN {linkchecker_links} ll ON ll.lid = ln.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
           WHERE n.uid = %d OR r.uid = %d
         ) q1
       ) q2 ON q2.lid = ll.lid";
@@ -124,9 +124,9 @@ function _linkchecker_report_page($links_report_sql, $links_report_parameters = 
     // Show link to nodes having this broken link.
     if (!empty($account)) {
       $nodes = db_query('SELECT ln.nid
-        FROM linkchecker_nodes ln
-        INNER JOIN node n ON n.nid = ln.nid
-        INNER JOIN node_revisions r ON r.nid = n.nid AND r.vid = n.vid
+        FROM {linkchecker_nodes} ln
+        INNER JOIN {node} n ON n.nid = ln.nid
+        INNER JOIN {node_revisions} r ON r.nid = n.nid AND r.vid = n.vid
         WHERE ln.lid = %d AND (n.uid = %d OR r.uid = %d)', $link->lid, $account->uid, $account->uid);
     }
     else {
@@ -139,8 +139,8 @@ function _linkchecker_report_page($links_report_sql, $links_report_parameters = 
     // Show link to comments having this broken link.
     if (!empty($account) && module_exists('comment') && variable_get('linkchecker_scan_comments', 0)) {
       $comments = db_query('SELECT lc.cid
-        FROM linkchecker_comments lc
-        INNER JOIN comments c ON c.cid = lc.cid
+        FROM {linkchecker_comments} lc
+        INNER JOIN {comments} c ON c.cid = lc.cid
         WHERE lc.lid = %d AND c.uid = %d', $link->lid, $account->uid);
     }
     else {
