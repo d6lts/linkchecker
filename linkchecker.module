@@ -8,6 +8,16 @@
  * Developed by Alexander Hass, http://www.yaml-for-drupal.com/.
  */
 
+/**
+ * Defines the maximum limit of links collected in one chunk if content is
+ * scanned for links. A value that is too high may overload the database server.
+ */
+define('LINKCHECKER_SCAN_MAX_LINKS_PER_RUN', '100');
+
+/**
+ * A list of domain names reserved for use in documentation and not available
+ * for registration. See RFC 2606, Section 3 for more information.
+ */
 define('LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS', "example.com\nexample.net\nexample.org");
 
 /**
@@ -504,15 +514,12 @@ function _linkchecker_batch_import() {
  * Batch: Load all nodes 100 by hundred.
  */
 function _linkchecker_batch_import_nodes($node_types = array()) {
-  // TODO: Add limitation setting and test with 500.000+ nodes and review memory consumption.
-  $limit = 100;
-
   // Node import count.
   $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
   $rows = db_result(db_query('SELECT COUNT(DISTINCT nid) FROM {node} WHERE status = %d AND type IN (' . $placeholders . ')', array_merge(array(1), $node_types)));
 
-  for ($row = 0; $row<$rows; $row = $row+$limit) {
-    job_queue_add('_linkchecker_batch_node_import_op', 'Scan nodes from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit, $node_types), '', TRUE);
+  for ($row = 0; $row<$rows; $row = $row+LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
+    job_queue_add('_linkchecker_batch_node_import_op', 'Scan nodes from row '. $row .' to ' . ($row+LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) . '.', array($row, LINKCHECKER_SCAN_MAX_LINKS_PER_RUN, $node_types), '', TRUE);
   }
 }
 
@@ -520,7 +527,6 @@ function _linkchecker_batch_import_nodes($node_types = array()) {
  * Batch operation: Load all nodes, 100 by hundred.
  */
 function _linkchecker_batch_node_import_op($row, $limit, $node_types) {
-
   // Retrieve the next group of records.
   $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
   $result = db_query_range('SELECT nid FROM {node} WHERE status = %d AND type IN (' . $placeholders . ') ORDER BY nid ASC', array_merge(array(1), $node_types), $row, $limit);
@@ -535,15 +541,12 @@ function _linkchecker_batch_node_import_op($row, $limit, $node_types) {
  * Batch: Load all comments 100 by hundred.
  */
 function _linkchecker_batch_import_comments($node_types = array()) {
-  // TODO: Add limitation setting and test with 500.000+ nodes and review memory consumption.
-  $limit = 100;
-
   // Comment import count.
   $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
   $rows = db_result(db_query('SELECT COUNT(DISTINCT cid) FROM {comments} c INNER JOIN {node} n ON c.nid = n.nid WHERE c.status <> %d AND n.status = %d AND n.type IN (' . $placeholders . ')', array_merge(array(COMMENT_NOT_PUBLISHED, 1), $node_types)));
-  
-  for ($row = 0; $row<$rows; $row = $row+$limit) {
-    job_queue_add('_linkchecker_batch_comments_import_op', 'Scan comments from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit, $node_types), '', TRUE);
+
+  for ($row = 0; $row<$rows; $row = $row+LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
+    job_queue_add('_linkchecker_batch_comments_import_op', 'Scan comments from row '. $row .' to ' . ($row+LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) . '.', array($row, LINKCHECKER_SCAN_MAX_LINKS_PER_RUN, $node_types), '', TRUE);
   }
 }
 
@@ -551,7 +554,6 @@ function _linkchecker_batch_import_comments($node_types = array()) {
  * Batch operation: Load all comments, 100 by hundred.
  */
 function _linkchecker_batch_comments_import_op($row, $limit, $node_types) {
-
   // Retrieve the next group of records.
   $placeholders = implode(',', array_fill(0, count($node_types), "'%s'"));
   $result = db_query_range('SELECT cid FROM {comments} c INNER JOIN {node} n ON c.nid = n.nid WHERE c.status <> %d AND n.status = %d AND n.type IN (' . $placeholders . ') ORDER BY cid ASC', array_merge(array(COMMENT_NOT_PUBLISHED, 1), $node_types), $row, $limit);
@@ -580,13 +582,10 @@ function _linkchecker_batch_import_comments_op($row, $limit) {
  * Batch: Load all boxes 100 by hundred.
  */
 function _linkchecker_batch_import_boxes() {
-  // TODO: Add limitation setting and test with 500.000+ boxes and review memory consumption.
-  $limit = 100;
-
   // Block import.
   $rows = db_result(db_query('SELECT COUNT(DISTINCT bid) FROM {boxes}'));
-  for ($row = 0; $row<$rows; $row = $row+$limit) {
-    job_queue_add('_linkchecker_batch_import_boxes_op', 'Scan boxes from row '. $row .' to ' . ($row+$limit) . '.', array($row, $limit), '', TRUE);
+  for ($row = 0; $row<$rows; $row = $row+LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
+    job_queue_add('_linkchecker_batch_import_boxes_op', 'Scan boxes from row '. $row .' to ' . ($row+LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) . '.', array($row, LINKCHECKER_SCAN_MAX_LINKS_PER_RUN), '', TRUE);
   }
 }
 
@@ -936,8 +935,6 @@ function linkchecker_block_box_delete_form_submit($form_id, $form_values) {
  * Add node links to database.
  */
 function _linkchecker_add_node_links($node) {
-  $scan_max_links_per_run = 100;
-
   // Create array of node fields to scan.
   $text_items = array();
   $text_items[] = _filter_url($node->title, $node->format);
@@ -977,17 +974,17 @@ function _linkchecker_add_node_links($node) {
   if (!empty($links)) {
     // Remove all links from the links array already in the database
     // and only add missing links to database.
-    $new_links = _linkchecker_node_links_missing($node->nid, $links);
+    $missing_links = _linkchecker_node_links_missing($node->nid, $links);
 
-    // Add a job for scanning the next 100 links via job_queue module.
-    $missing_links_count = count($new_links)-$scan_max_links_per_run;
-    if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
+    // Add a job for scanning the next LINKCHECKER_SCAN_MAX_LINKS_PER_RUN links via job_queue module.
+    $missing_links_count = count($missing_links)-LINKCHECKER_SCAN_MAX_LINKS_PER_RUN;
+    if (module_exists('job_queue') && $missing_links_count > 0) {
       job_queue_add('_linkchecker_scan_node_links', 'Scan node '. $node->nid .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($node->nid), '', FALSE);
     }
 
     // Only add links to database that do not exists.
     $i = 0;
-    foreach ($new_links as $link) {
+    foreach ($missing_links as $link) {
       $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
@@ -997,7 +994,9 @@ function _linkchecker_add_node_links($node) {
 
       // Break processing if max links limit per run has been reached.
       $i++;
-      if ($i >= $scan_max_links_per_run) { break; }
+      if ($i >= LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
+        break;
+      }
     }
   }
 
@@ -1009,8 +1008,6 @@ function _linkchecker_add_node_links($node) {
  * Add comment links to database.
  */
 function _linkchecker_add_comment_links($comment) {
-  $scan_max_links_per_run = 100;
-
   // Create array of comment fields to scan.
   $text_items = array();
   $text_items[] = _filter_url($comment['subject'], $comment['format']);
@@ -1025,17 +1022,17 @@ function _linkchecker_add_comment_links($comment) {
   if (!empty($links)) {
     // Remove all links from the links array already in the database
     // and only add missing links to database.
-    $new_links = _linkchecker_node_links_missing($comment['cid'], $links);
+    $missing_links = _linkchecker_node_links_missing($comment['cid'], $links);
 
     // Add a job for scanning the next 100 links via job_queue module.
-    $missing_links_count = count($new_links)-$scan_max_links_per_run;
-    if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
+    $missing_links_count = count($missing_links)-LINKCHECKER_SCAN_MAX_LINKS_PER_RUN;
+    if (module_exists('job_queue') && $missing_links_count > 0) {
       job_queue_add('_linkchecker_scan_comment_links', 'Scan comment '. $comment['cid'] .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($comment['cid']), '', FALSE);
     }
 
     // Only add unique links to database that do not exist.
     $i = 0;
-    foreach ($new_links as $link) {
+    foreach ($missing_links as $link) {
       $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
@@ -1045,7 +1042,9 @@ function _linkchecker_add_comment_links($comment) {
 
       // Break processing if max links limit per run has been reached.
       $i++;
-      if ($i >= $scan_max_links_per_run) { break; }
+      if ($i >= LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
+        break;
+      }
     }
   }  
 
@@ -1057,8 +1056,6 @@ function _linkchecker_add_comment_links($comment) {
  * Add box links to database.
  */
 function _linkchecker_add_box_links($box, $bid) {
-  $scan_max_links_per_run = 100;
-
   // Create array of box fields to scan.
   $text_items = array();
   $text_items[] = _filter_url($box['info'], $box['format']);
@@ -1072,17 +1069,17 @@ function _linkchecker_add_box_links($box, $bid) {
   if (!empty($links)) {
     // Remove all links from the links array already in the database
     // and only add missing links to database.
-    $new_links = _linkchecker_box_links_missing($bid, $links);
+    $missing_links = _linkchecker_box_links_missing($bid, $links);
 
     // Add a job for scanning the next 100 links via job_queue module.
-    $missing_links_count = count($new_links)-$scan_max_links_per_run;
-    if (module_exists('job_queue') && $missing_links_count > $scan_max_links_per_run) {
+    $missing_links_count = count($missing_links)-LINKCHECKER_SCAN_MAX_LINKS_PER_RUN;
+    if (module_exists('job_queue') && $missing_links_count > 0) {
       job_queue_add('_linkchecker_scan_box_links', 'Scan block '. $bid .' having '. $missing_links_count .' links not yet added to linkchecker_links table.', array($bid), '', FALSE);
     }
 
     // Only add unique links to database that do not exist.
     $i = 0;
-    foreach ($new_links as $link) {
+    foreach ($missing_links as $link) {
       $lid = db_result(db_query("SELECT lid FROM {linkchecker_links} WHERE token = '%s'", md5($link)));
       if (!$lid) {
         $lid = db_next_id('linkchecker_links_lid');
@@ -1092,7 +1089,9 @@ function _linkchecker_add_box_links($box, $bid) {
 
       // Break processing if max links limit per run has been reached.
       $i++;
-      if ($i >= $scan_max_links_per_run) { break; }
+      if ($i >= LINKCHECKER_SCAN_MAX_LINKS_PER_RUN) {
+        break;
+      }
     }
   }  
 
@@ -1341,7 +1340,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
     );
   }
 
-  // Finds img tags with links in the content.
+  // Finds source tags with links in the content.
   $matches_source = array();
   if (variable_get('linkchecker_extract_from_source', 0) == 1) {
     $pattern_source = '/<source\s[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
