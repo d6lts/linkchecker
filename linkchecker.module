@@ -542,7 +542,7 @@ function _linkchecker_add_comment_links($comment, $skip_missing_links_detection 
   if (!empty($links)) {
     // Remove all links from the links array already in the database
     // and only add missing links to database.
-    $missing_links = _linkchecker_node_links_missing($comment['cid'], $links);
+    $missing_links = _linkchecker_comment_links_missing($comment['cid'], $links);
 
     // Only add unique links to database that do not exist.
     $i = 0;
