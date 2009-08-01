@@ -127,7 +127,7 @@ function _linkchecker_report_page($links_report_sql, $links_report_parameters = 
       $nodes = db_query('SELECT ln.nid
         FROM {linkchecker_nodes} ln
         INNER JOIN {node} n ON n.nid = ln.nid
-        INNER JOIN {node_revisions} r ON r.nid = n.nid AND r.vid = n.vid
+        INNER JOIN {node_revisions} r ON r.vid = n.vid
         WHERE ln.lid = %d AND (n.uid = %d OR r.uid = %d)', $link->lid, $account->uid, $account->uid);
     }
     else {
