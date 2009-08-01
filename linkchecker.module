@@ -1033,7 +1033,7 @@ function _linkchecker_add_comment_links($comment) {
   if (!empty($links)) {
     // Remove all links from the links array already in the database
     // and only add missing links to database.
-    $missing_links = _linkchecker_node_links_missing($comment['cid'], $links);
+    $missing_links = _linkchecker_comment_links_missing($comment['cid'], $links);
 
     // Add a job for scanning the next 100 links via job_queue module.
     $missing_links_count = count($missing_links)-LINKCHECKER_SCAN_MAX_LINKS_PER_RUN;
