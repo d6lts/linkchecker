@@ -354,6 +354,17 @@ function linkchecker_form_alter(&$form, &$form_state, $form_id) {
       break;
 
     case 'block_admin_configure':
+      // When displaying the form, show the broken links warning.
+      if (empty($form_state['post']) && is_numeric(arg(5))) {
+        // Show a message on block edit page if a link check failed once or more.
+        $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
+        $links = db_query("SELECT url, code, fail_count FROM {linkchecker_boxes} lb INNER JOIN {linkchecker_links} ll ON lb.lid = ll.lid WHERE lb.bid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array(arg(5), 0, 1), $ignore_response_codes));
+        $messages = array();
+        while ($link = db_fetch_object($links)) {
+          drupal_set_message(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $link->url, '@code' => $link->code)), 'warning', FALSE);
+        }
+      }
+
       // Add custom submit handler to block configuration form.
       $form['#submit'][] = 'linkchecker_block_configure_form_submit';
       break;
@@ -363,8 +374,8 @@ function linkchecker_form_alter(&$form, &$form_state, $form_id) {
       break;
 
     case 'comment_form':
-      // Comment is edited.
-      if (arg(0) == 'comment' && arg(1) == 'edit' && is_numeric(arg(2))) {
+      // When displaying the form as 'view' or 'preview', show the broken links warning.
+      if ((empty($form_state['post']) || isset($form_state['post']['op']) && $form_state['post']['op'] == t('Preview')) && arg(0) == 'comment' && arg(1) == 'edit' && is_numeric(arg(2))) {
         // Show a message on comment edit page if a link check failed once or more.
         $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
         $links = db_query("SELECT url, code, fail_count FROM {linkchecker_comments} lc INNER JOIN {linkchecker_links} ll ON lc.lid = ll.lid WHERE lc.cid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array(arg(2), 0, 1), $ignore_response_codes));
