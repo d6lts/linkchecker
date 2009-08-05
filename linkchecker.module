@@ -350,7 +350,7 @@ function linkchecker_comment($comment, $op) {
   }
 }
 
-function linkchecker_form_alter(&$form, &$form_state, $form_id) {
+function linkchecker_form_alter(&$form, $form_state, $form_id) {
   switch ($form_id) {
     // Catch the block add/configure form and add custom submit handler.
     case 'block_add_block_form':
