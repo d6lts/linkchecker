@@ -43,6 +43,7 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_extract_from_object');
   variable_del('linkchecker_extract_from_source');
   variable_del('linkchecker_extract_from_video');
+  variable_del('linkchecker_filter_blacklist');
   variable_del('linkchecker_fqdn_only');
   variable_del('linkchecker_ignore_response_codes');
   variable_del('linkchecker_scan_blocks');

@@ -21,6 +21,31 @@ define('LINKCHECKER_SCAN_MAX_LINKS_PER_RUN', '100');
 define('LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS', "example.com\nexample.net\nexample.org");
 
 /**
+ * A list of blacklisted filters the modules do not need to run for the link
+ * extraction process. This filters only eat processing time or holds references
+ * to other nodes.
+ *
+ * - Line break converter, http://drupal.org/project/drupal
+ *     name: filter/1
+ * - Insert node, http://drupal.org/project/InsertNode
+ *     name: insert_node/0
+ *     tags: [node:<name of node> <parameters>]
+ * - Insert view filter, http://drupal.org/project/insert_view
+ *     name: insert_view/0
+ *     tags: [view:my_view]
+ * - Weblink filter, http://drupal.org/project/links
+ *     name: links_weblink/0
+ *     tags: [weblink:node_id|text], [weblink:node_id/link_id], [weblink:http://weblink.example.com/]
+ * - Web Links Embed, http://drupal.org/project/weblinks
+ *     name: weblinks_embed/0
+ *     tags: [links-embed: id], [links-embed: name]
+ * - Web Links Filter, http://drupal.org/project/weblinks
+ *     name: weblinks_filter/0
+ *     tags: [link: title]
+ */
+define('LINKCHECKER_DEFAULT_FILTER_BLACKLIST', 'filter/1|insert_node/0|insert_view/0|links_weblink/0|weblinks_embed/0|weblinks_filter/0');
+
+/**
  * Implementation of hook_perm().
  */
 function linkchecker_perm() {
@@ -427,8 +452,8 @@ function _linkchecker_add_node_links($node, $skip_missing_links_detection = FALS
   // Create array of node fields to scan.
   $text_items = array();
   $text_items[] = _filter_url($node->title, $node->format);
-  $text_items[] = check_markup($node->body, $node->format, FALSE);
-  $text_items[] = check_markup($node->teaser, $node->format, FALSE);
+  $text_items[] = _linkchecker_check_markup($node->body, $node->format, FALSE);
+  $text_items[] = _linkchecker_check_markup($node->teaser, $node->format, FALSE);
 
   // Search for links in 'weblink' nodes from 'links' module package.
   if (module_exists('links_weblink') && $node->type == 'weblink' && isset($node->links_weblink_url)) {
@@ -538,7 +563,7 @@ function _linkchecker_add_comment_links($comment, $skip_missing_links_detection 
   // Create array of comment fields to scan.
   $text_items = array();
   $text_items[] = _filter_url($comment['subject'], $comment['format']);
-  $text_items[] = check_markup($comment['comment'], $comment['format'], FALSE);
+  $text_items[] = _linkchecker_check_markup($comment['comment'], $comment['format'], FALSE);
 
   // Get the absolute node path for extraction of relative links.
   $languages = language_list();
@@ -621,7 +646,7 @@ function _linkchecker_add_box_links($box, $bid, $skip_missing_links_detection = 
   $text_items = array();
   $text_items[] = _filter_url($box['info'], $box['format']);
   $text_items[] = _filter_url($box['title'], $box['format']);
-  $text_items[] = check_markup($box['body'], $box['format'], FALSE);
+  $text_items[] = _linkchecker_check_markup($box['body'], $box['format'], FALSE);
 
   // Extract all links in a box.
   $links = _linkchecker_extract_links(implode(' ', $text_items));
@@ -1113,6 +1138,66 @@ function _linkchecker_link_replace(&$text, $old_link_fqdn = '', $new_link_fqdn =
       }
     }
   }
+}
+
+/**
+ * Customized clone of core check_markup() function with additional filter blacklist.
+ *
+ * See http://api.drupal.org/api/function/check_markup for API documentation.
+ */
+function _linkchecker_check_markup($text, $format = FILTER_FORMAT_DEFAULT, $check = TRUE) {
+  // When $check = TRUE, do an access check on $format.
+  if (isset($text) && (!$check || filter_access($format))) {
+    $format = filter_resolve_format($format);
+
+    // Check for a cached version of this piece of text.
+    $cache_id = 'linkchecker:' . $format . ':' . md5($text);
+    if ($cached = cache_get($cache_id, 'cache_filter')) {
+      return $cached->data;
+    }
+
+    // See if caching is allowed for this format.
+    $cache = filter_format_allowcache($format);
+
+    // Convert all Windows and Mac newlines to a single newline,
+    // so filters only need to deal with one possibility.
+    $text = str_replace(array("\r\n", "\r"), "\n", $text);
+
+    // Get a complete list of filters, ordered properly.
+    $filters = filter_list_format($format);
+
+    // Do not run placeholder or special tag filters used as references
+    // to nodes like 'weblink' or 'weblinks' node types. If the original
+    // link node is updated, all links are automatically up-to-date and
+    // there is no need to notify about the broken link on all nodes having
+    // a link reference in content. This would only confuse the authors as
+    // they may also not be able to fix the source node of the reference.
+    $filters_blacklist = variable_get('linkchecker_filter_blacklist', explode('|', LINKCHECKER_DEFAULT_FILTER_BLACKLIST));
+
+    // Give filters the chance to escape HTML-like data such as code or formulas.
+    foreach ($filters as $filter) {
+      if (!in_array($filter->module . '/' . $filter->delta, $filters_blacklist)) {
+        $text = module_invoke($filter->module, 'filter', 'prepare', $filter->delta, $format, $text, $cache_id);
+      }
+    }
+
+    // Perform filtering.
+    foreach ($filters as $filter) {
+      if (!in_array($filter->module . '/' . $filter->delta, $filters_blacklist)) {
+        $text = module_invoke($filter->module, 'filter', 'process', $filter->delta, $format, $text, $cache_id);
+      }
+    }
+
+    // Store in cache with a minimum expiration time of 1 day.
+    if ($cache) {
+      cache_set($cache_id, $text, 'cache_filter', time() + (60 * 60 * 24));
+    }
+  }
+  else {
+    $text = t('n/a');
+  }
+
+  return $text;
 }
 
 /**
