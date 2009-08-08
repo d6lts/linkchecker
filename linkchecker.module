@@ -1193,7 +1193,7 @@ function _linkchecker_cleanup_node_references($nid = 0, $links = array()) {
     // removed and links no longer in the content need to be deleted from the
     // linkchecker_nodes reference table.
     $placeholders = implode(',', array_fill(0, count($links), "'%s'"));
-    db_query("DELETE FROM {linkchecker_nodes} WHERE nid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . $placeholders . "))", array_merge(array($nid), array_map(md5, $links)));
+    db_query("DELETE FROM {linkchecker_nodes} WHERE nid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . $placeholders . "))", array_merge(array($nid), array_map('md5', $links)));
   }
 }
 
@@ -1210,7 +1210,7 @@ function _linkchecker_cleanup_comment_references($cid = 0, $links = array()) {
     // removed and links no longer in the content need to be deleted from the
     // linkchecker_comments reference table.
     $placeholders = implode(',', array_fill(0, count($links), "'%s'"));
-    db_query("DELETE FROM {linkchecker_comments} WHERE cid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . $placeholders . "))", array_merge(array($cid), array_map(md5, $links)));
+    db_query("DELETE FROM {linkchecker_comments} WHERE cid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . $placeholders . "))", array_merge(array($cid), array_map('md5', $links)));
   }
 }
 
@@ -1227,7 +1227,7 @@ function _linkchecker_cleanup_box_references($bid = 0, $links = array()) {
     // removed and links no longer in the content need to be deleted from the
     // linkchecker_boxes reference table.
     $placeholders = implode(',', array_fill(0, count($links), "'%s'"));
-    db_query("DELETE FROM {linkchecker_boxes} WHERE bid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . $placeholders . "))", array_merge(array($bid), array_map(md5, $links)));
+    db_query("DELETE FROM {linkchecker_boxes} WHERE bid = %d AND lid NOT IN (SELECT lid FROM {linkchecker_links} WHERE token IN (" . $placeholders . "))", array_merge(array($bid), array_map('md5', $links)));
   }
 }
 
@@ -1236,7 +1236,7 @@ function _linkchecker_cleanup_box_references($bid = 0, $links = array()) {
  */
 function _linkchecker_node_links_missing($nid, $links) {
   $placeholders = implode(',', array_fill(0, count($links), "'%s'"));
-  $res = db_query("SELECT url FROM {linkchecker_links} ll INNER JOIN {linkchecker_nodes} ln ON ll.lid = ln.lid WHERE ln.nid = %d AND token IN (" . $placeholders . ")", array_merge(array($nid), array_map(md5, $links)));
+  $res = db_query("SELECT url FROM {linkchecker_links} ll INNER JOIN {linkchecker_nodes} ln ON ll.lid = ln.lid WHERE ln.nid = %d AND token IN (" . $placeholders . ")", array_merge(array($nid), array_map('md5', $links)));
   $links_in_database = array();
   while ($row = db_fetch_object($res)) {
     $links_in_database[] = $row->url;
@@ -1249,7 +1249,7 @@ function _linkchecker_node_links_missing($nid, $links) {
  */
 function _linkchecker_comment_links_missing($cid, $links) {
   $placeholders = implode(',', array_fill(0, count($links), "'%s'"));
-  $res = db_query("SELECT url FROM {linkchecker_links} ll INNER JOIN {linkchecker_comments} lc ON ll.lid = lc.lid WHERE lc.cid = %d AND token IN (" . $placeholders . ")", array_merge(array($cid), array_map(md5, $links)));
+  $res = db_query("SELECT url FROM {linkchecker_links} ll INNER JOIN {linkchecker_comments} lc ON ll.lid = lc.lid WHERE lc.cid = %d AND token IN (" . $placeholders . ")", array_merge(array($cid), array_map('md5', $links)));
   $links_in_database = array();
   while ($row = db_fetch_object($res)) {
     $links_in_database[] = $row->url;
@@ -1262,7 +1262,7 @@ function _linkchecker_comment_links_missing($cid, $links) {
  */
 function _linkchecker_box_links_missing($bid, $links) {
   $placeholders = implode(',', array_fill(0, count($links), "'%s'"));
-  $res = db_query("SELECT url FROM {linkchecker_links} ll INNER JOIN {linkchecker_boxes} lb ON ll.lid = lb.lid WHERE lb.bid = %d AND token IN (" . $placeholders . ")", array_merge(array($bid), array_map(md5, $links)));
+  $res = db_query("SELECT url FROM {linkchecker_links} ll INNER JOIN {linkchecker_boxes} lb ON ll.lid = lb.lid WHERE lb.bid = %d AND token IN (" . $placeholders . ")", array_merge(array($bid), array_map('md5', $links)));
   $links_in_database = array();
   while ($row = db_fetch_object($res)) {
     $links_in_database[] = $row->url;
