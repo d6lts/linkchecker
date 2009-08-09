@@ -887,7 +887,7 @@ function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
         $placeholders = implode(',', array_fill(0, count($ignore_response_codes), '%d'));
         $links = db_query("SELECT url, code, fail_count FROM {linkchecker_nodes} ln INNER JOIN {linkchecker_links} ll ON ln.lid = ll.lid WHERE ln.nid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . $placeholders . ")", array_merge(array($node->nid, 0, 1), $ignore_response_codes));
         while ($link = db_fetch_object($links)) {
-          drupal_set_message(strtr(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).'), array('@url' => $link->url, '@code' => $link->code)), 'warning');
+          drupal_set_message(strtr(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).'), array('@url' => check_plain($link->url), '@code' => $link->code)), 'warning');
         }
       }
       break;
@@ -936,7 +936,7 @@ function linkchecker_form_alter($form_id, &$form) {
         $placeholders = implode(',', array_fill(0, count($ignore_response_codes), '%d'));
         $links = db_query("SELECT url, code, fail_count FROM {linkchecker_boxes} lb INNER JOIN {linkchecker_links} ll ON lb.lid = ll.lid WHERE lb.bid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . $placeholders . ")", array_merge(array(arg(5), 0, 1), $ignore_response_codes));
         while ($link = db_fetch_object($links)) {
-          drupal_set_message(strtr(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).'), array('@url' => $link->url, '@code' => $link->code)), 'warning');
+          drupal_set_message(strtr(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).'), array('@url' => check_plain($link->url), '@code' => $link->code)), 'warning');
         }
       }
 
@@ -957,7 +957,7 @@ function linkchecker_form_alter($form_id, &$form) {
         $placeholders = implode(',', array_fill(0, count($ignore_response_codes), '%d'));
         $links = db_query("SELECT url, code, fail_count FROM {linkchecker_comments} lc INNER JOIN {linkchecker_links} ll ON lc.lid = ll.lid WHERE lc.cid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . $placeholders . ")", array_merge(array(arg(2), 0, 1), $ignore_response_codes));
         while ($link = db_fetch_object($links)) {
-          drupal_set_message(strtr(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).'), array('@url' => $link->url, '@code' => $link->code)), 'warning');
+          drupal_set_message(strtr(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).'), array('@url' => check_plain($link->url), '@code' => $link->code)), 'warning');
         }
       }
       break;
