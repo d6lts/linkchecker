@@ -462,7 +462,7 @@ function linkchecker_admin_report() {
     $rows[] = array(
       l(_filter_url_trim($link->url, 40), $link->url),
       $link->code,
-      $link->error,
+      check_plain($link->error),
       implode('<br/>', $links),
     );
   }
