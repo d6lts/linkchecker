@@ -168,7 +168,7 @@ function _linkchecker_report_page($links_report_sql, $links_report_parameters = 
     $rows[] = array(
       l(_filter_url_trim($link->url, 40), $link->url),
       $link->code,
-      $link->error,
+      check_plain($link->error),
       '<ul style="margin:0"><li style="white-space:nowrap">' . implode('</li><li>', $links) . '</li></ul>',
     );
   }
