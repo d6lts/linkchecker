@@ -352,6 +352,6 @@ EOT;
    * Get the current number of links in linkchecker_links table.
    */
   function getLinkCheckerLinksCount() {
-    return db_result(db_query("SELECT count(1) FROM {linkchecker_links}"));
+    return db_result(db_query("SELECT COUNT(1) FROM {linkchecker_links}"));
   }
 }
