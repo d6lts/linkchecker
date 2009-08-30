@@ -1173,7 +1173,7 @@ function _linkchecker_check_markup($text, $format = FILTER_FORMAT_DEFAULT, $chec
     // there is no need to notify about the broken link on all nodes having
     // a link reference in content. This would only confuse the authors as
     // they may also not be able to fix the source node of the reference.
-    $filters_blacklist = variable_get('linkchecker_filter_blacklist', explode('|', LINKCHECKER_DEFAULT_FILTER_BLACKLIST));
+    $filters_blacklist = array_keys(array_filter(variable_get('linkchecker_filter_blacklist', explode('|', LINKCHECKER_DEFAULT_FILTER_BLACKLIST))));
 
     // Give filters the chance to escape HTML-like data such as code or formulas.
     foreach ($filters as $filter) {
