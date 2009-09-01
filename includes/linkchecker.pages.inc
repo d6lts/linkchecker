@@ -174,7 +174,7 @@ function _linkchecker_report_page($links_report_sql, $links_report_parameters = 
   }
 
   if (empty($rows)) {
-    $rows[] = array(array('data' => t('No broken links have been found.'), 'colspan' => '4'));
+    $rows[] = array(array('data' => t('No broken links have been found.'), 'colspan' => count($header)));
   }
 
   $output  = theme('table', $header, $rows);
