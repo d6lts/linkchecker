@@ -57,7 +57,7 @@ function linkchecker_user_report_page($account) {
           UNION
           SELECT DISTINCT ll.lid
           FROM {comments} c
-          INNER JOIN {linkchecker_comments} lc ON lc.cid = c.nid
+          INNER JOIN {linkchecker_comments} lc ON lc.cid = c.cid
           INNER JOIN {linkchecker_links} ll ON ll.lid = lc.lid AND ll.last_checked <> %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")
           WHERE c.uid = %d
         ) q1
