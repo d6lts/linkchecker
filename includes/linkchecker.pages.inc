@@ -169,7 +169,7 @@ function _linkchecker_report_page($links_report_sql, $links_report_parameters = 
       l(_filter_url_trim($link->url, 40), $link->url),
       $link->code,
       check_plain($link->error),
-      '<ul style="margin:0"><li style="white-space:nowrap">' . implode('</li><li>', $links) . '</li></ul>',
+      theme('item_list', $links),
     );
   }
 
