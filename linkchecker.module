@@ -82,7 +82,7 @@ function linkchecker_menu($may_cache) {
     $items[] = array(
       'path' => 'admin/settings/linkchecker',
       'title' => t('Link checker'),
-      'description' => t('Link checker configuration.'),
+      'description' => t('Configure the link checker settings.'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('linkchecker_admin_settings_form'),
       'access' => user_access('administer linkchecker'),
