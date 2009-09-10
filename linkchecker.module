@@ -965,7 +965,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
   }
 
   // Merge all extracted links into one array.
-  $ret = array_merge(
+  $urls = array_merge(
     (array)$matches_a[2],
     (array)$matches_audio[1],
     (array)$matches_embed,
@@ -976,35 +976,42 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
     (array)$matches_video
   );
 
+  // Remove empty values.
+  $urls = array_filter($urls);
+  // Decode HTML links into plain text links.
+  $urls = array_map('decode_entities', $urls);
+  // Remove duplicate urls.
+  $urls = array_unique($urls);
+
   $links = array();
-  for ($i=0; isset($ret[$i]); $i++) {
+  foreach ($urls as $url) {
     // Full qualified URLs.
-    if (valid_url($ret[$i], TRUE)) {
+    if (valid_url($url, TRUE)) {
       // Add to Array and change HTML links into plain text links.
-      $links[] = decode_entities($ret[$i]);
+      $links[] = $url;
     }
     // Skip mailto:, javascript:, etc.
-    elseif (preg_match('/^\w[\w.+]*:/', $ret[$i])) {
+    elseif (preg_match('/^\w[\w.+]*:/', $url)) {
       continue;
     }
     // Local URLs.
-    elseif (valid_url($ret[$i], FALSE) && variable_get('linkchecker_fqdn_only', 1) == 0) {
+    elseif (valid_url($url, FALSE) && variable_get('linkchecker_fqdn_only', 1) == 0) {
       // Get full qualified url with base path of content.
       $absolute_content_path = _linkchecker_absolute_content_path($content_path);
 
       // Absolute local URLs need to start with [/].
-      if (preg_match('!^/!', $ret[$i])) {
+      if (preg_match('!^/!', $url)) {
         // Add to Array and change HTML encoded links into plain text links.
-        $links[] = decode_entities($base_root . $ret[$i]);
+        $links[] = $base_root . $url;
       }
       // Anchors and URL parameters like "#foo" and "?foo=bar".
-      elseif (!empty($content_path) && preg_match('!^[?#]!', $ret[$i])) {
+      elseif (!empty($content_path) && preg_match('!^[?#]!', $url)) {
         // Add to Array and change HTML encoded links into plain text links.
-        $links[] = $content_path . decode_entities($ret[$i]);
+        $links[] = $content_path . $url;
       }
       // Relative URLs like "./foo/bar" and "../foo/bar".
-      elseif (!empty($absolute_content_path) && preg_match('!^\.{1,2}/!', $ret[$i])) {
-        $path = $absolute_content_path . decode_entities($ret[$i]);
+      elseif (!empty($absolute_content_path) && preg_match('!^\.{1,2}/!', $url)) {
+        $path = $absolute_content_path . $url;
 
         // Remove './' segments where possible.
         $path = str_replace('/./', '/', $path);
@@ -1021,8 +1028,8 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
         $links[] = $path;
       }
       // Relative URLs like "test.png".
-      elseif (!empty($absolute_content_path) && preg_match('!^[^/]!', $ret[$i])) {
-        $links[] = $absolute_content_path . decode_entities($ret[$i]);
+      elseif (!empty($absolute_content_path) && preg_match('!^[^/]!', $url)) {
+        $links[] = $absolute_content_path . $url;
       }
       else {
         // TODO: Are there more special cases the module need to handle?
