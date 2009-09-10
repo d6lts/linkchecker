@@ -1359,6 +1359,7 @@ function _linkchecker_cleanup_links() {
  *    Array of full qualified and unique URLs found in content.
  */
 function _linkchecker_extract_links($text = '', $content_path = NULL) {
+  global $base_root;
 
   // Finds all hyperlinks in the content.
   $matches_a = array();
@@ -1480,7 +1481,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
       // Absolute local URLs need to start with [/].
       if (preg_match('!^/!', $ret[$i])) {
         // Add to Array and change HTML encoded links into plain text links.
-        $links[] = decode_entities('http://'. $_SERVER['HTTP_HOST'] . $ret[$i]);
+        $links[] = decode_entities($base_root . $ret[$i]);
       }
       // Anchors and URL parameters like "#foo" and "?foo=bar".
       elseif (!empty($content_path) && preg_match('!^[?#]!', $ret[$i])) {
