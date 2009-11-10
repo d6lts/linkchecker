@@ -3,6 +3,8 @@
 linkchecker 6.x-dev, nightly
 -----------------------------
 
+* #627774 by charmer: Linkchecker Czech Translation
+* Replace word "node" in text with "content" for easier translation
 * #580248: Prevent link check failure if 'max_execution_time' = 0 (unlimited).
 * Blacklisted "smileys/0" filter as the URLs are maintained in the Smiley module settings
 * Fixed wrong variable name in single comment import function
@@ -13,7 +15,7 @@ linkchecker 6.x-dev, nightly
 * Better menu item description, D7 backport.
 * Dynamic destination for user broken links page
 * Use theme function for item_list
-* Dynamic colspan for now data
+* Dynamic colspan for no data
 * Joined wrong fields in user report with comments enabled
 * Filters do not run on content as expected.
 * db_last_insert_id('boxes', 'bid') could return a wrong value if other contrib modules add block hooks and insert something in other tables.
