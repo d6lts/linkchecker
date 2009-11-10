@@ -1,8 +1,10 @@
 ; $Id$
 
-linkchecker 6.x-dev, nightly
+linkchecker 5.x-dev, nightly
 -----------------------------
 
+* #627774 by charmer: Linkchecker Czech Translation
+* Replace word "node" in text with "content" for easier translation
 * #580248: Prevent link check failure if 'max_execution_time' = 0 (unlimited).
 * Blacklisted "smileys/0" filter as the URLs are maintained in the Smiley module settings
 * Fixed wrong variable name in single comment import function
@@ -35,7 +37,7 @@ linkchecker 6.x-dev, nightly
 * D5: check_plain() all '@' string values for the use with strtr().
 
 
-linkchecker 6.x-2.3, August 1, 2009
+linkchecker 5.x-2.3, August 1, 2009
 -----------------------------------
 
 By this release linkchecker no longer depends on job_queue!
@@ -64,7 +66,7 @@ By this release linkchecker no longer depends on job_queue!
 * Remove ignored links from broken links view
 
 
-linkchecker 6.x-2.2, July 14, 2009
+linkchecker 5.x-2.2, July 14, 2009
 ----------------------------------
 
 * Removed confusing watchdog message.
@@ -91,7 +93,7 @@ linkchecker 6.x-2.2, July 14, 2009
 * Add ignore filter for links pointing to buggy servers
 
 
-linkchecker 6.x-2.1, March 26, 2009
+linkchecker 5.x-2.1, March 26, 2009
 -----------------------------------
 
 * #409324 by Dave Reid: _linkchecker_delete_node_links() expects a nid, but passed a node object
