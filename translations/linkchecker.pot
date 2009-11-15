@@ -250,7 +250,7 @@ msgid "Enable this checkbox if links in video tags should be extracted. The vide
 msgstr ""
 
 #: includes/linkchecker.admin.inc:110
-msgid "Disabled filters for link extraction"
+msgid "Filters disabled for link extraction"
 msgstr ""
 
 #: includes/linkchecker.admin.inc:113

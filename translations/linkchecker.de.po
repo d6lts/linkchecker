@@ -254,7 +254,7 @@ msgid "Enable this checkbox if links in video tags should be extracted. The vide
 msgstr "Dieses Kontrollkästchen aktivieren, um Video-Tags zu extrahieren. Das Video-Element wird verwendet, um Videos in den Seiteninhalt einzubetten."
 
 #: includes/linkchecker.admin.inc:110
-msgid "Disabled filters for link extraction"
+msgid "Filters disabled for link extraction"
 msgstr "Für die Link-Extrahierung deaktivierte Filter"
 
 #: includes/linkchecker.admin.inc:113
