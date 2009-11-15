@@ -777,9 +777,14 @@ function _linkchecker_status_handling($link, $response) {
           // Always use the default revision setting. See node_form().
           $node_options = variable_get('node_options_'. $node->type, array('status', 'promote'));
           $node->revision = in_array('revision', $node_options);
+
+          // Generate a log message for the node_revisions table, visible on the node's revisions tab.
+          $log_message = t('Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url));
+          $node->log = $log_message;
+
           // Save changed node and update the node link list.
           node_save($node);
-          watchdog('linkchecker', t('Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url)));
+          watchdog('linkchecker', $log_message);
         }
 
         // COMMENTS: Autorepair all comments having this outdated link.
