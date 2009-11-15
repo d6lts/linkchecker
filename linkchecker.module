@@ -243,12 +243,11 @@ function _linkchecker_status_handling($link, $response) {
           $node->revision = in_array('revision', $node_options);
 
           // Generate a log message for the node_revisions table, visible on the node's revisions tab.
-          $log_message = t('Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url));
-          $node->log = $log_message;
+          $node->log = t('Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url));
 
           // Save changed node and update the node link list.
           node_save($node);
-          watchdog('linkchecker', $log_message, WATCHDOG_INFO);
+          watchdog('linkchecker', 'Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
         }
 
         // COMMENTS: Autorepair all comments having this outdated link.
