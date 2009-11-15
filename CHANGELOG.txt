@@ -3,6 +3,7 @@
 linkchecker 6.x-dev, nightly
 -----------------------------
 
+* #566388 by wimh, hass: Re-check link status on next cron run
 * #632732 by sleepcamel, hass: Add a message to $node->log when saving a new revision
 * #627774 by charmer: Linkchecker Czech Translation
 * Replace word "node" in text with "content" for easier translation
