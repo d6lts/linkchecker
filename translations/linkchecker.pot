@@ -5,16 +5,16 @@
 # Generated from files:
 #  linkchecker.module,v 1.7.2.136 2009/11/15 11:39:26 hass
 #  linkchecker.info,v 1.2.2.2 2009/01/25 23:41:02 hass
-#  linkchecker.pages.inc,v 1.1.2.19 2009/11/15 16:54:13 hass
+#  linkchecker.pages.inc,v 1.1.2.20 2009/11/22 14:09:45 hass
 #  linkchecker.install,v 1.2.2.36 2009/08/18 20:16:31 hass
-#  linkchecker.admin.inc,v 1.1.2.22 2009/11/15 17:18:31 hass
+#  linkchecker.admin.inc,v 1.1.2.24 2009/11/22 14:09:45 hass
 #  linkchecker.batch.inc,v 1.1.2.5 2009/09/10 22:10:48 hass
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-11-15 18:34+0100\n"
+"POT-Creation-Date: 2009-11-22 15:16+0100\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -190,7 +190,7 @@ msgid "Extract links in <code>&lt;a&gt;</code> and <code>&lt;area&gt;</code> tag
 msgstr ""
 
 #: includes/linkchecker.admin.inc:57
-msgid "Enable this checkbox if normal hyperlinks should be extracted. The anchor element defines a hyperlink, the named target destination for a hyperlink, or both. The area elememt defines a hot-spot region on an image, and associates it with a hypertext link."
+msgid "Enable this checkbox if normal hyperlinks should be extracted. The anchor element defines a hyperlink, the named target destination for a hyperlink, or both. The area element defines a hot-spot region on an image, and associates it with a hypertext link."
 msgstr ""
 
 #: includes/linkchecker.admin.inc:62
@@ -558,7 +558,7 @@ msgid "The link %url will be checked again on the next cron run."
 msgstr ""
 
 #: includes/linkchecker.pages.inc:244
-msgid "The link settings for %url have been saved and the fail counter has been resetted."
+msgid "The link settings for %url have been saved and the fail counter has been reset."
 msgstr ""
 
 #: includes/linkchecker.pages.inc:249
