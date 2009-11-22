@@ -241,7 +241,7 @@ function linkchecker_link_edit_form_submit($form, &$form_state) {
   if ($form_state['values']['method'] != $form['settings']['method']['#default_value']) {
     // Update settings and reset statistics for a quick re-check.
     db_query("UPDATE {linkchecker_links} SET method = '%s', fail_count = %d, last_checked = %d, status = %d WHERE lid = %d", $form_state['values']['method'], 0, 0, $form_state['values']['status'], $form_state['values']['lid']);
-    drupal_set_message(t('The link settings for %url have been saved and the fail counter has been resetted.', array('%url' => $form_state['values']['url'])));
+    drupal_set_message(t('The link settings for %url have been saved and the fail counter has been reset.', array('%url' => $form_state['values']['url'])));
   }
   else {
     // Update setting only.
