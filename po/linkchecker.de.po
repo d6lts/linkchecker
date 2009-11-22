@@ -11,9 +11,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation of Linkchecker\n"
-"POT-Creation-Date: 2009-11-15 19:07+0100\n"
-"PO-Revision-Date: 2009-11-15 19:21+0100\n"
-"Last-Translator: Alexander Haß\n"
+"POT-Creation-Date: 2009-11-22 15:19+0100\n"
+"PO-Revision-Date: 2009-11-22 15:20+0100\n"
+"Last-Translator: Alexander Haß <http://drupal.org/user/85918>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -105,7 +105,7 @@ msgid "Extract links in <code>&lt;a&gt;</code> and <code>&lt;area&gt;</code> tag
 msgstr "Links in <code>&lt;a&gt;</code> und <code>&lt;area&gt;</code>-Tags extrahieren"
 
 #: linkchecker.module:163
-msgid "Enable this checkbox if normal hyperlinks should be extracted. The anchor element defines a hyperlink, the named target destination for a hyperlink, or both. The area elememt defines a hot-spot region on an image, and associates it with a hypertext link."
+msgid "Enable this checkbox if normal hyperlinks should be extracted. The anchor element defines a hyperlink, the named target destination for a hyperlink, or both. The area element defines a hot-spot region on an image, and associates it with a hypertext link."
 msgstr "Dieses Kontrollkästchen aktivieren, um normale Hyperlinks zu extrahieren. Das Anker-Element definiert einen Hyperlink, das benannte Ziel für einen Hyperlink oder beides. Das Area-Element legt eine Hotspot-Region auf einem Bild fest und verbindet diese mit einem Hypertext-Link."
 
 #: linkchecker.module:168
@@ -414,7 +414,7 @@ msgid "The link %url will be checked again on the next cron run."
 msgstr "Der Link %url wird beim nächsten Cron-Lauf noch einmal überprüpft."
 
 #: linkchecker.module:547
-msgid "The link settings for %url have been saved and the fail counter has been resetted."
+msgid "The link settings for %url have been saved and the fail counter has been reset."
 msgstr "Die Linkeinstellungen für %url wurden gespeichert und der Fehlerzähler wurde zurückgesetzt."
 
 #: linkchecker.module:552
