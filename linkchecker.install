@@ -353,6 +353,15 @@ function linkchecker_update_6200() {
 
   db_change_field($ret, 'linkchecker_links', 'lid', 'lid', array('type' => 'serial', 'not null' => TRUE));
 
+  // Upgrade line break converter from D5 filter/2 to D6 filter/1.
+  $linkchecker_filter_blacklist = variable_get('linkchecker_filter_blacklist', array());
+  if (!empty($linkchecker_filter_blacklist) && $linkchecker_filter_blacklist['filter/2']) {
+    $linkchecker_filter_blacklist['filter/2'] = 0;
+    $linkchecker_filter_blacklist['filter/1'] = 'filter/1';
+    variable_set('linkchecker_filter_blacklist', $linkchecker_filter_blacklist);
+    $ret[] = array('success' => TRUE, 'query' => 'Upgraded the default exclusion of line break converter filter from D5 filter/2 to D6 filter/1.');
+  }
+
   return $ret;
 }
 
