@@ -559,3 +559,16 @@ function linkchecker_update_6212() {
 
   return $ret;
 }
+
+/**
+ * Add RFC documenation domains back if they have been removed.
+ */
+function linkchecker_update_6213() {
+  $ret = array();
+
+  $linkchecker_disable_link_check_for_urls = array_filter(preg_split('/(\r\n?|\n)/', variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)));
+  variable_set('linkchecker_disable_link_check_for_urls', implode("\n", array_unique(array_merge(explode("\n", LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), $linkchecker_disable_link_check_for_urls))));
+  $ret[] = array('success' => TRUE, 'query' => 'Added RFC documenation domains back if they have been removed.');
+
+  return $ret;
+}
