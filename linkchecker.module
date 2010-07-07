@@ -884,15 +884,15 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
   global $base_root;
 
   // Finds all hyperlinks in the content.
-  $matches_a = array();
+  $matches_a = array(1 => NULL);
   if (variable_get('linkchecker_extract_from_a', 1) == 1) {
     // Extract all chars in the href value, except double and single quotes.
-    $pattern_a = '/<(a|area)\s[^>]*href=["\']([^"\']*)["\'][^>]*>/i';
+    $pattern_a = '/<(?:a|area)\s[^>]*href=["\']([^"\']*)["\'][^>]*>/i';
     preg_match_all($pattern_a, $text, $matches_a);
   }
 
   // Finds all audio links in the content.
-  $matches_audio = array();
+  $matches_audio = array(1 => NULL);
   if (variable_get('linkchecker_extract_from_audio', 1) == 1) {
     $pattern_audio = '/<audio\s[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
     preg_match_all($pattern_audio, $text, $matches_audio);
@@ -917,14 +917,14 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
   }
 
   // Finds iframe tags with links in the content.
-  $matches_iframe = array();
+  $matches_iframe = array(1 => NULL);
   if (variable_get('linkchecker_extract_from_iframe', 0) == 1) {
     $pattern_iframe = '/<iframe\s[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
     preg_match_all($pattern_iframe, $text, $matches_iframe);
   }
 
   // Finds img tags with links in the content.
-  $matches_img = array();
+  $matches_img = array(1 => NULL);
   if (variable_get('linkchecker_extract_from_img', 0) == 1) {
     $pattern_img = '/<img\s[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
     preg_match_all($pattern_img, $text, $matches_img);
@@ -952,7 +952,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
   }
 
   // Finds source tags with links in the content.
-  $matches_source = array();
+  $matches_source = array(1 => NULL);
   if (variable_get('linkchecker_extract_from_source', 0) == 1) {
     $pattern_source = '/<source\s[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
     preg_match_all($pattern_source, $text, $matches_source);
@@ -975,7 +975,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
 
   // Merge all extracted links into one array.
   $urls = array_merge(
-    (array)$matches_a[2],
+    (array)$matches_a[1],
     (array)$matches_audio[1],
     (array)$matches_embed,
     (array)$matches_iframe[1],
