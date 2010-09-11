@@ -247,7 +247,7 @@ EOT;
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Page', '%title' => $edit['title'])));
 
     // d.o debug
-    db_query("SELECT * FROM {linkchecker_links}");
+    $q = db_query("SELECT * FROM {linkchecker_links}");
     while ($r = db_fetch_array($q)) {
       $rows[] = $r;
     }
