@@ -255,6 +255,7 @@ EOT;
     }
     $this->fail(implode('<br />', $rows));
     $this->fail('Node path: '. $node->path);
+    $this->fail('$base_root:' .$base_root . ', $base_path: ' . $base_path . ', $folder1: ' . $folder1);
 
     // Verify if the content links are extracted correctly.
     global $base_root, $base_path;
