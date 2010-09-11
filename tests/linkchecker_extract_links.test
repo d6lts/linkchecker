@@ -254,6 +254,7 @@ EOT;
       $rows[] = $r['url'];
     }
     $this->fail(implode('<br />', $rows));
+    $this->fail('Node path: '. $node->path);
 
     // Verify if the content links are extracted correctly.
     global $base_root, $base_path;
