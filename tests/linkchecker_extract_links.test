@@ -251,7 +251,7 @@ EOT;
     while ($r = db_fetch_array($q)) {
       $rows[] = $r['url'];
     }
-    $this->assertRaw(implode('<br />', $rows));
+    $this->fail(implode('<br />', $rows));
 
     // Verify if the content links are extracted correctly.
     global $base_root, $base_path;
