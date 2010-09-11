@@ -175,8 +175,10 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
 EOT;
 
     // Save folder names in variables for reuse.
-    $folder1 = $this->randomName(10);
-    $folder2 = $this->randomName(5);
+    //$folder1 = $this->randomName(10);
+    //$folder2 = $this->randomName(5);
+    $folder1 = 'abcdefg';
+    $folder2 = '1234567';
 
     // Allow the user to use the 'Full HTML' format.
     db_query("UPDATE {filter_formats} SET roles = '%s' WHERE format = %d", ',2,', 2);
