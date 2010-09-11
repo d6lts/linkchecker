@@ -271,7 +271,8 @@ EOT;
         $this->assertIdentical($link->url, $check_url, t('Relative URL %org_url matches expected result %check_url.', array('%org_url' => $org_url, '%check_url' => $check_url)));
       }
       else {
-        $this->fail(t('URL %check_url not found.', array('%check_url' => $check_url)));
+        $this->fail(t('URL %check_url not found. DEBUG d.o: @debug', array('%check_url' => $check_url, '@debug' => $base_root . $base_path . $folder1)));
+        //$this->fail(t('URL %check_url not found.', array('%check_url' => $check_url)));
       }
     }
 
