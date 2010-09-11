@@ -246,6 +246,13 @@ EOT;
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Page', '%title' => $edit['title'])));
 
+    // d.o debug
+    db_query("SELECT * FROM {linkchecker_links}");
+    while ($r = db_fetch_array($q)) {
+      $rows[] = $r;
+    }
+    $this->assertRaw(implode('<br />', $rows));
+
     // Verify if the content links are extracted correctly.
     global $base_root, $base_path;
     $urls_relative = array(
