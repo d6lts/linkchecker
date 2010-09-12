@@ -16,7 +16,7 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setUp('linkchecker', 'path', 'locale');
+    parent::setUp('linkchecker', 'path');
 
     $permissions = array(
       'create page content',
