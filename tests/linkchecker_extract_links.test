@@ -16,11 +16,12 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setUp('linkchecker', 'path', 'locale');
+    parent::setUp('linkchecker', 'node', 'path', 'locale');
 
     $permissions = array(
       'create page content',
-      'edit any page content',
+      'edit own page content',
+      'administer url aliases',
       'create url aliases',
     );
 
