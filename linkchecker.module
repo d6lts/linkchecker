@@ -458,6 +458,10 @@ function linkchecker_block_box_delete_form_submit($form, &$form_state) {
  *   the need for content re-scans is detected by the number of missing links.
  */
 function _linkchecker_add_node_links($node, $skip_missing_links_detection = FALSE) {
+  // Get current node language options for url() functions.
+  $languages = language_list();
+  $url_options = empty($node->language) ? array('absolute' => TRUE) : array('language' => $languages[$node->language], 'absolute' => TRUE);
+
   // Create array of node fields to scan.
   $text_items = array();
   $text_items[] = _filter_url($node->title, $node->format);
@@ -465,13 +469,13 @@ function _linkchecker_add_node_links($node, $skip_missing_links_detection = FALS
   $text_items[] = _linkchecker_check_markup($node->teaser, $node->format, FALSE);
 
   // Search for links in 'weblink' nodes from 'links' module package.
-  if (module_exists('links_weblink') && $node->type == 'weblink' && isset($node->links_weblink_url)) {
-    $text_items[] = _filter_url($node->links_weblink_url, $node->format);
+  if (module_exists('links_weblink') && $node->type == 'weblink' && !empty($node->links_weblink_url)) {
+    $text_items[] = _filter_url(url($node->links_weblink_url, $url_options), $node->format);
   }
 
   // Search for links in 'weblinks' nodes from 'weblinks' module.
-  if (module_exists('weblinks') && $node->type == 'weblinks' && isset($node->url)) {
-    $text_items[] = _filter_url($node->url, $node->format);
+  if (module_exists('weblinks') && $node->type == 'weblinks' && !empty($node->url)) {
+    $text_items[] = _filter_url(url($node->url, $url_options), $node->format);
   }
 
   // Search for CCK-fields of types 'link' and 'text'.
@@ -481,7 +485,10 @@ function _linkchecker_add_node_links($node, $skip_missing_links_detection = FALS
       if (!empty($node->{$field['field_name']})) {
         if (module_exists('link') && $field['type'] == 'link') {
           foreach ($node->$field['field_name'] as $delta => $item) {
-            $text_items[] = _filter_url($item['url'], $node->format);
+            if (!empty($item['url'])) {
+              // Make non-absolute urls absolute or they are not found by _filter_url().
+              $text_items[] = _filter_url(url($item['url'], $url_options), $node->format);
+            }
           }
         }
         elseif (module_exists('text') && $field['type'] == 'text') {
@@ -494,9 +501,7 @@ function _linkchecker_add_node_links($node, $skip_missing_links_detection = FALS
   }
 
   // Get the absolute node path for extraction of relative links.
-  $languages = language_list();
-  $options = empty($node->language) ? array('absolute' => TRUE) : array('language' => $languages[$node->language], 'absolute' => TRUE);
-  $path = url('node/'. $node->nid, $options);
+  $path = url('node/'. $node->nid, $url_options);
 
   // Extract all links in a node.
   $links = _linkchecker_extract_links(implode(' ', $text_items), $path);
