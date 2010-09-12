@@ -20,7 +20,7 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
 
     $permissions = array(
       'create page content',
-      'edit own page content',
+      'edit any page content',
       'create url aliases',
       'administer url aliases',
     );
