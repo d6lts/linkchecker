@@ -251,6 +251,7 @@ EOT;
 
     $node = $this->drupalGetNodeByTitle($edit['title']);
     $this->fail('DEBUG: Node title: ' . $node->title);
+    $this->fail('DEBUG: Node format: ' . $node->format);
     $this->fail('DEBUG: Node path: ' . $node->path);
     $this->fail('DEBUG: Edit path: ' . $edit['path']);
     $this->fail('DEBUG: Node url alias: ' . url('node/' . $node->nid));
