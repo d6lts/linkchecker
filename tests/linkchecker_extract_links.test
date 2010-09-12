@@ -22,6 +22,7 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
       'create page content',
       'edit own page content',
       'create url aliases',
+      'administer url aliases',
     );
 
     $user = $this->drupalCreateUser($permissions);
@@ -31,7 +32,7 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
 
   public function testLinkCheckerCreateNodeWithLinks() {
 
-    // Enable clean URLs.
+    // Enable clean URLs for relative path tests.
     variable_set('clean_url', 1);
 
     // Enable all node type page for link extraction.
@@ -245,7 +246,7 @@ EOT;
     variable_set('linkchecker_fqdn_only', 0);
 
     $node = $this->drupalGetNodeByTitle($edit['title']);
-    $this->fail('Node title: ' . $node->title);    
+    $this->fail('Node title: ' . $node->title);
     $this->fail('Node path: ' . $node->path);
     $this->fail('Node url alias: ' . url('node/' . $node->nid));
     $this->assertTrue($node, t('Node found in database.'));
@@ -262,7 +263,7 @@ EOT;
     // Verify if the content links are extracted correctly.
     global $base_root, $base_path;
     $this->fail('$base_root:' . $base_root . ', $base_path: ' . $base_path . ', $folder1: ' . $folder1);
-    
+
     $urls_relative = array(
       '../foo1/test.png' => $base_root . $base_path . 'foo1/test.png',
       'test.png' => $base_root . $base_path . $folder1 . '/test.png',
