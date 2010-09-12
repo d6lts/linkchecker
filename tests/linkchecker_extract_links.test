@@ -253,7 +253,7 @@ EOT;
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Page', '%title' => $edit['title'])));
 
     // FIXME: Path alias seems not saved!???
-    $this->assertIdentical($node->path, $edit['path'], t('URL alias @node-path match @edit-path.', array('@node-path' => $node->path, '@edit-path' => $edit['path'])));
+    $this->assertIdentical($node->path, $edit['path'], t('URL alias "@node-path" matches path "@edit-path".', array('@node-path' => $node->path, '@edit-path' => $edit['path'])));
 
     // DEBUG
     $linkchecker_links = db_query("SELECT * FROM {linkchecker_links}");
