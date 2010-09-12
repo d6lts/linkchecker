@@ -244,6 +244,7 @@ EOT;
     variable_set('linkchecker_fqdn_only', 0);
 
     $node = $this->drupalGetNodeByTitle($edit['title']);
+    $this->fail('NID: ' . $node->nid);
     $this->assertTrue($node, t('Node found in database.'));
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Page', '%title' => $edit['title'])));
@@ -254,11 +255,11 @@ EOT;
       $rows[] = $r['url'];
     }
     $this->fail(implode('<br />', $rows));
-    $this->fail('Node path: '. $node->path);
-    $this->fail('$base_root:' .$base_root . ', $base_path: ' . $base_path . ', $folder1: ' . $folder1);
 
     // Verify if the content links are extracted correctly.
     global $base_root, $base_path;
+    $this->fail('$base_root:' . $base_root . ', $base_path: ' . $base_path . ', $folder1: ' . $folder1);
+    
     $urls_relative = array(
       '../foo1/test.png' => $base_root . $base_path . 'foo1/test.png',
       'test.png' => $base_root . $base_path . $folder1 . '/test.png',
