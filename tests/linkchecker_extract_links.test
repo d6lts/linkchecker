@@ -16,7 +16,7 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setUp('linkchecker', 'path', 'locale');
+    parent::setUp('linkchecker', 'path');
 
     $permissions = array(
       'create page content',
@@ -30,6 +30,9 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
   }
 
   public function testLinkCheckerCreateNodeWithLinks() {
+
+    // Enable clean URLs.
+    variable_set('clean_url', 1);
 
     // Enable all node type page for link extraction.
     variable_set('linkchecker_scan_nodetypes', array('page'));
