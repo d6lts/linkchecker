@@ -188,6 +188,7 @@ EOT;
     $edit['body'] = $body;
     $edit['path'] = $folder1 . '/' . $folder2;
     $edit['format'] = 2;
+    $edit['language'] = 'en';
 
     // Extract only full qualified URLs.
     variable_set('linkchecker_fqdn_only', 1);
@@ -250,11 +251,13 @@ EOT;
 
 
     $node = $this->drupalGetNodeByTitle($edit['title']);
+
     $this->fail('DEBUG: Node title: ' . $node->title);
     $this->fail('DEBUG: Node format: ' . $node->format);
     $this->fail('DEBUG: Node path: ' . $node->path);
     $this->fail('DEBUG: Edit path: ' . $edit['path']);
     $this->fail('DEBUG: Node url alias: ' . url('node/' . $node->nid));
+
     $this->assertTrue($node, t('Node found in database.'));
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Page', '%title' => $edit['title'])));
