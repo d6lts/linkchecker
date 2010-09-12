@@ -244,6 +244,7 @@ EOT;
     $node = $this->drupalGetNodeByTitle($edit['title']);
     $this->fail('Node title: ' . $node->title);    
     $this->fail('Node path: ' . $node->path);
+    $this->fail('Node url alias: ' . url('node/' . $node->nid));
     $this->assertTrue($node, t('Node found in database.'));
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Page', '%title' => $edit['title'])));
