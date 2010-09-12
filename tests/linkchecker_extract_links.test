@@ -244,7 +244,7 @@ EOT;
     variable_set('linkchecker_fqdn_only', 0);
 
     $node = $this->drupalGetNodeByTitle($edit['title']);
-    $this->fail('NID: ' . $node->nid);
+    $this->fail('NID: ' . print_r($node));
     $this->assertTrue($node, t('Node found in database.'));
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Page', '%title' => $edit['title'])));
