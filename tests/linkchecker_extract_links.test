@@ -22,7 +22,6 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
       'create page content',
       'edit any page content',
       'create url aliases',
-      'administer url aliases',
     );
 
     $user = $this->drupalCreateUser($permissions);
@@ -248,29 +247,24 @@ EOT;
     variable_set('clean_url', 1);
     variable_set('linkchecker_fqdn_only', 0);
 
-
     $node = $this->drupalGetNodeByTitle($edit['title']);
-
-    $this->fail('DEBUG: Node path: ' . $node->path);
-    $this->fail('DEBUG: Edit path: ' . $edit['path']);
-    $this->fail('DEBUG: Node url alias: ' . url('node/' . $node->nid));
-    $this->fail('DEBUG: lookup_path: ' . drupal_lookup_path('alias', 'node/' . $node->nid));
-
     $this->assertTrue($node, t('Node found in database.'));
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Page', '%title' => $edit['title'])));
 
-    // d.o debug
-    $q = db_query("SELECT * FROM {linkchecker_links}");
-    while ($r = db_fetch_array($q)) {
-      $rows[] = $r['url'];
+    // FIXME: Path alias seems not saved!???
+    $this->assertIdentical($node->path, $edit['path'], t('URL alias @node-path match @edit-path.', array('@node-path' => $node->path, '@edit-path' => $edit['path'])));
+
+    // DEBUG
+    $linkchecker_links = db_query("SELECT * FROM {linkchecker_links}");
+    while ($row = db_fetch_array($linkchecker_links)) {
+      $rows[] = $row['url'];
     }
-    $this->fail('DEBUG: ' .implode('<br />', $rows));
+    $this->verbose(theme_item_list($rows, 'URLs in database:'));
+    //$this->fail('DEBUG: ' .implode('<br />', $rows));
 
     // Verify if the content links are extracted correctly.
     global $base_root, $base_path;
-    $this->fail('DEBUG: $base_root:' . $base_root . ', $base_path: ' . $base_path . ', $folder1: ' . $folder1);
-
     $urls_relative = array(
       '../foo1/test.png' => $base_root . $base_path . 'foo1/test.png',
       'test.png' => $base_root . $base_path . $folder1 . '/test.png',
@@ -287,6 +281,7 @@ EOT;
       'flvplayer2.swf' => $base_root . $base_path . $folder1 . '/flvplayer2.swf',
       'foo.ogg' => $base_root . $base_path . $folder1 . '/foo.ogg',
     );
+    $this->verbose(theme_item_list($urls_relative, 'Verify if following relative URLs exists:'));
 
     foreach ($urls_relative as $org_url => $check_url) {
       $link = $this->getLinkCheckerLink($check_url);
