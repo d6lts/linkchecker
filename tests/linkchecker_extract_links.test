@@ -250,9 +250,10 @@ EOT;
 
 
     $node = $this->drupalGetNodeByTitle($edit['title']);
-    $this->fail('Node title: ' . $node->title);
-    $this->fail('Node path: ' . $node->path);
-    $this->fail('Node url alias: ' . url('node/' . $node->nid));
+    $this->fail('DEBUG: Node title: ' . $node->title);
+    $this->fail('DEBUG: Node path: ' . $node->path);
+    $this->fail('DEBUG: Edit path: ' . $edit['path']);
+    $this->fail('DEBUG: Node url alias: ' . url('node/' . $node->nid));
     $this->assertTrue($node, t('Node found in database.'));
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Page', '%title' => $edit['title'])));
@@ -262,11 +263,11 @@ EOT;
     while ($r = db_fetch_array($q)) {
       $rows[] = $r['url'];
     }
-    $this->fail(implode('<br />', $rows));
+    $this->fail('DEBUG: ' .implode('<br />', $rows));
 
     // Verify if the content links are extracted correctly.
     global $base_root, $base_path;
-    $this->fail('$base_root:' . $base_root . ', $base_path: ' . $base_path . ', $folder1: ' . $folder1);
+    $this->fail('DEBUG: $base_root:' . $base_root . ', $base_path: ' . $base_path . ', $folder1: ' . $folder1);
 
     $urls_relative = array(
       '../foo1/test.png' => $base_root . $base_path . 'foo1/test.png',
@@ -291,8 +292,7 @@ EOT;
         $this->assertIdentical($link->url, $check_url, t('Relative URL %org_url matches expected result %check_url.', array('%org_url' => $org_url, '%check_url' => $check_url)));
       }
       else {
-        $this->fail(t('URL %check_url not found. DEBUG d.o: @debug', array('%check_url' => $check_url, '@debug' => $base_root . $base_path . $folder1)));
-        //$this->fail(t('URL %check_url not found.', array('%check_url' => $check_url)));
+        $this->fail(t('URL %check_url not found.', array('%check_url' => $check_url)));
       }
     }
 
