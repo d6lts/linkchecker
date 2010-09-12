@@ -32,9 +32,6 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
 
   public function testLinkCheckerCreateNodeWithLinks() {
 
-    // Enable clean URLs for relative path tests.
-    variable_set('clean_url', 1);
-
     // Enable all node type page for link extraction.
     variable_set('linkchecker_scan_nodetypes', array('page'));
     variable_set('linkchecker_scan_blocks', 1);
@@ -242,8 +239,10 @@ EOT;
     $urls_expected_count = count($urls_fqdn);
     $this->assertEqual($urls_in_database, $urls_expected_count, t('Found @urls_in_database URLs in database matches expected result of @urls_expected_count.', array('@urls_in_database' => $urls_in_database, '@urls_expected_count' => $urls_expected_count)));
 
-    // Extract all URLs.
+    // Extract all URLs including relative path.
+    variable_set('clean_url', 1);
     variable_set('linkchecker_fqdn_only', 0);
+
 
     $node = $this->drupalGetNodeByTitle($edit['title']);
     $this->fail('Node title: ' . $node->title);
