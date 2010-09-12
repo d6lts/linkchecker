@@ -192,6 +192,11 @@ EOT;
     // Extract only full qualified URLs.
     variable_set('linkchecker_fqdn_only', 1);
 
+    // Verify path input field appears on add "Basic page" form.
+    $this->drupalGet('node/add/page');
+    // Verify path input is present.
+    $this->assertFieldByName('path', '', t('Path input field present on add Basic page form.'));
+
     // Save node.
     $this->drupalPost('node/add/page', $edit, t('Save'));
     $this->assertRaw(t('@type %title has been created.', array('@type' => 'Page', '%title' => $edit['title'])), t('Node was created.'));
