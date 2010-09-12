@@ -495,8 +495,8 @@ function _linkchecker_add_node_links($node, $skip_missing_links_detection = FALS
 
   // Get the absolute node path for extraction of relative links.
   $languages = language_list();
-  $node_language = isset($node->language) ? $node->language : '';
-  $path = url('node/'. $node->nid, array('language' => $languages[$node_language], 'absolute' => TRUE));
+  $options = empty($node->language) ? array('absolute' => TRUE) : array('language' => $languages[$node->language], 'absolute' => TRUE);
+  $path = url('node/'. $node->nid, $options);
 
   // Extract all links in a node.
   $links = _linkchecker_extract_links(implode(' ', $text_items), $path);
