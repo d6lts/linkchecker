@@ -1,4 +1,3 @@
-; $Id$
 name = Link checker
 description = "Periodically checks for broken links in node types, blocks and cck fields and reports the results."
 core = 6.x

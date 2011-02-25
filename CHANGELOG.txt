@@ -1,4 +1,3 @@
-; $Id$
 
 linkchecker 6.x-dev, nightly
 -----------------------------
