@@ -846,19 +846,19 @@ function _linkchecker_cleanup_links() {
     //db_query('DELETE FROM {linkchecker_comments} WHERE cid IN (SELECT nid FROM {node} n WHERE n.type NOT IN (' . db_placeholders($node_types, 'varchar') . '))', $node_types);
   }
   else {
-    db_query('DELETE FROM {linkchecker_nodes}');
+    db_query('TRUNCATE TABLE {linkchecker_nodes}');
     // FIXME: Remove comments
   }
 
   // Remove comment link references if comment scanning is disabled.
   // TODO: Remove comments of unpublished nodes.
   if (variable_get('linkchecker_scan_comments', 0) == 0) {
-    db_query('DELETE FROM {linkchecker_comments}');
+    db_query('TRUNCATE TABLE {linkchecker_comments}');
   }
 
   // Remove block link references if block scanning is disabled.
   if (variable_get('linkchecker_scan_blocks', 0) == 0) {
-    db_query('DELETE FROM {linkchecker_boxes}');
+    db_query('TRUNCATE TABLE {linkchecker_boxes}');
   }
 
   // Remove dead links without references.
