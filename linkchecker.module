@@ -191,8 +191,18 @@ function linkchecker_cron() {
   // Get URLs for checking.
   $result = db_query_range("SELECT * FROM {linkchecker_links} WHERE last_checked < %d AND status = %d ORDER BY last_checked, lid ASC", time() - $check_links_interval, 1, 0, $check_links_max_per_cron_run);
   while ($link = db_fetch_object($result)) {
+
+    $headers = array();
+    $headers['User-Agent'] = 'User-Agent: ' . $useragent;
+
+    // Range: Only request the first 1024 bytes from remote server. This is
+    // required to prevent timeouts on URLs that are large downloads.
+    if ($link->method == 'GET') {
+      $headers['Range'] = 'bytes=0-1024';
+    }
+
     // Fetch URL.
-    $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent), $link->method, NULL, 1);
+    $response = drupal_http_request($link->url, $headers, $link->method, NULL, 1);
     _linkchecker_status_handling($link, $response);
 
     if ((timer_read('page') / 1000) > ($max_execution_time / 2)) {
@@ -213,7 +223,7 @@ function linkchecker_cron() {
  */
 function _linkchecker_status_handling($link, $response) {
   $useragent = variable_get('linkchecker_check_useragent', 'Drupal (+http://drupal.org/)');
-  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
+  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n206\n302\n304\n401\n403"));
 
   // FIXME: drupal_http_request() may not provide an UTF8 encoded error message
   // what results in a database UPDATE failure. See http://drupal.org/node/371495
@@ -229,6 +239,7 @@ function _linkchecker_status_handling($link, $response) {
 
   switch ($response->code) {
     case 200:
+    case 206:
     case 304:
       db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d WHERE lid = %d", $response->code, $response->error, 0, time(), $link->lid);
       //watchdog('linkchecker', 'Checked %link successfully.', array('%link' => $link->url), WATCHDOG_INFO);
@@ -365,8 +376,8 @@ function _linkchecker_status_handling($link, $response) {
 
     case 405:
       // Special error handling if method is not allowed. Switch link checking to GET method and try again.
-      $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent), 'GET', NULL, 0);
-      if ($response->code == 200) {
+      $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent, 'Range' => 'bytes=0-1024'), 'GET', NULL, 0);
+      if (in_array($response->code, array('200', '206'))) {
         db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d, method = '%s' WHERE lid = %d", $response->code, $response->error, 0, time(), 'GET', $link->lid);
       }
       else {
@@ -406,7 +417,7 @@ function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       // Node edit tab is viewed.
       if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'edit') {
         // Show a message on node edit page if a link check failed once or more.
-        $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
+        $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n206\n302\n304\n401\n403"));
         $links = db_query("SELECT url, code, fail_count FROM {linkchecker_nodes} ln INNER JOIN {linkchecker_links} ll ON ln.lid = ll.lid WHERE ln.nid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array($node->nid, 0, 1), $ignore_response_codes));
         while ($link = db_fetch_object($links)) {
           drupal_set_message(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $link->url, '@code' => $link->code)), 'warning', FALSE);
@@ -447,7 +458,7 @@ function linkchecker_form_alter(&$form, $form_state, $form_id) {
       // When displaying the form, show the broken links warning.
       if (empty($form_state['post']) && is_numeric(arg(5))) {
         // Show a message on block edit page if a link check failed once or more.
-        $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
+        $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n206\n302\n304\n401\n403"));
         $links = db_query("SELECT url, code, fail_count FROM {linkchecker_boxes} lb INNER JOIN {linkchecker_links} ll ON lb.lid = ll.lid WHERE lb.bid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array(arg(5), 0, 1), $ignore_response_codes));
         while ($link = db_fetch_object($links)) {
           drupal_set_message(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $link->url, '@code' => $link->code)), 'warning', FALSE);
@@ -466,7 +477,7 @@ function linkchecker_form_alter(&$form, $form_state, $form_id) {
       // When displaying the form as 'view' or 'preview', show the broken links warning.
       if ((empty($form_state['post']) || isset($form_state['post']['op']) && $form_state['post']['op'] == t('Preview')) && arg(0) == 'comment' && arg(1) == 'edit' && is_numeric(arg(2))) {
         // Show a message on comment edit page if a link check failed once or more.
-        $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n302\n304\n401\n403"));
+        $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n206\n302\n304\n401\n403"));
         $links = db_query("SELECT url, code, fail_count FROM {linkchecker_comments} lc INNER JOIN {linkchecker_links} ll ON lc.lid = ll.lid WHERE lc.cid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array(arg(2), 0, 1), $ignore_response_codes));
         while ($link = db_fetch_object($links)) {
           drupal_set_message(format_plural($link->fail_count, 'Link check of <a href="@url">@url</a> failed once (status code: @code).', 'Link check of <a href="@url">@url</a> failed @count times (status code: @code).', array('@url' => $link->url, '@code' => $link->code)), 'warning', FALSE);

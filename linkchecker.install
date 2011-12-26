@@ -587,3 +587,23 @@ function linkchecker_update_6214() {
 
   return $ret;
 }
+
+/**
+* Add status code 206 to the default list of ignored response codes.
+*/
+function linkchecker_update_6215() {
+  $ret = array();
+
+  $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n206\n302\n304\n401\n403"));
+  if (!in_array('206', $ignore_response_codes)) {
+    $ignore_response_codes[] = '206';
+    sort($ignore_response_codes);
+    variable_set('linkchecker_ignore_response_codes', implode("\n", $ignore_response_codes));
+    $ret[] = array('success' => TRUE, 'query' => 'Added the status code 206 to the list of ignored response codes.');
+  }
+  else {
+    $ret[] = array('success' => TRUE, 'query' => 'No action taken. The status code 206 was already on the list of ignored response codes.');
+  }
+
+  return $ret;
+}
