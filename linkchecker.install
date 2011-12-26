@@ -130,6 +130,7 @@ function linkchecker_schema() {
       ),
     ),
     'primary key' => array('bid', 'lid'),
+    'indexes' => array('lid' => array('lid')),
   );
 
   $schema['linkchecker_nodes'] = array(
@@ -147,6 +148,7 @@ function linkchecker_schema() {
       ),
     ),
     'primary key' => array('nid', 'lid'),
+    'indexes' => array('lid' => array('lid')),
   );
 
   $schema['linkchecker_comments'] = array(
@@ -164,6 +166,7 @@ function linkchecker_schema() {
       ),
     ),
     'primary key' => array('cid', 'lid'),
+    'indexes' => array('lid' => array('lid')),
   );
 
   return $schema;
@@ -568,6 +571,19 @@ function linkchecker_update_6213() {
   $linkchecker_disable_link_check_for_urls = array_filter(preg_split('/(\r\n?|\n)/', variable_get('linkchecker_disable_link_check_for_urls', LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS)));
   variable_set('linkchecker_disable_link_check_for_urls', implode("\n", array_unique(array_merge(explode("\n", LINKCHECKER_RESERVED_DOCUMENTATION_DOMAINS), $linkchecker_disable_link_check_for_urls))));
   $ret[] = array('success' => TRUE, 'query' => 'Added RFC documenation domains back if they have been removed.');
+
+  return $ret;
+}
+
+/**
+* #1321378: Improve performance of queries.
+*/
+function linkchecker_update_6214() {
+  $ret = array();
+
+  db_add_index($ret, 'linkchecker_boxes', 'lid', array('lid'));
+  db_add_index($ret, 'linkchecker_comments', 'lid', array('lid'));
+  db_add_index($ret, 'linkchecker_nodes', 'lid', array('lid'));
 
   return $ret;
 }
