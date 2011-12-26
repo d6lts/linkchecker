@@ -95,7 +95,8 @@ function linkchecker_menu() {
     'page callback' => 'linkchecker_user_report_page',
     'page arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
-    'access arguments' => array('access own broken links report'),
+    'access callback' => '_linkchecker_user_access_own_broken_links_report',
+    'access arguments' => array(1),
     'file' => 'includes/linkchecker.pages.inc',
     'weight' => 3,
   );
@@ -103,12 +104,60 @@ function linkchecker_menu() {
     'title' => 'Edit link settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('linkchecker_link_edit_form', 1),
-    'access arguments' => array('edit link settings'),
+    'access callback' => '_linkchecker_user_access_edit_link_settings',
+    'access arguments' => array(1),
     'file' => 'includes/linkchecker.pages.inc',
     'type' => MENU_CALLBACK,
   );
 
   return $items;
+}
+
+/**
+ * Access callback for user/%user/linkchecker.
+ */
+function _linkchecker_user_access_own_broken_links_report($account) {
+  global $user;
+
+  // Access to this path is only granted for authenticated users viewing their
+  // own broken links and all administrative users.
+  return $account->uid && ($user->uid == $account->uid || (user_access('administer nodes') && user_access('administer linkchecker'))) && user_access('access own broken links report');
+}
+
+/**
+ * Access callback for linkchecker/%linkchecker_link/edit.
+ */
+function _linkchecker_user_access_edit_link_settings($link) {
+  global $user;
+
+  if (user_access('administer nodes') && user_access('administer linkchecker')) {
+    // Full access to this path is granted to administrative users.
+    return TRUE;
+  }
+  else {
+    // Verify that $lid is at least in one of the authors nodes or comments.
+    $links_edit_access_sql = "SELECT COUNT(ll.lid)
+      FROM {linkchecker_links} ll
+      INNER JOIN (
+        SELECT lid FROM (
+          SELECT DISTINCT ll.lid
+          FROM {node} n
+          INNER JOIN {node_revisions} r ON r.vid = n.vid
+          INNER JOIN {linkchecker_nodes} ln ON ln.nid = n.nid
+          INNER JOIN {linkchecker_links} ll ON ll.lid = ln.lid AND ll.lid = %d
+          WHERE n.uid = %d OR r.uid = %d
+          UNION
+          SELECT DISTINCT ll.lid
+          FROM {comments} c
+          INNER JOIN {linkchecker_comments} lc ON lc.cid = c.cid
+          INNER JOIN {linkchecker_links} ll ON ll.lid = lc.lid AND ll.lid = %d
+          WHERE c.uid = %d
+        ) q1
+      ) q2 ON q2.lid = ll.lid";
+
+    // This path is only allowed for authenticated users looking at their own links.
+    return db_result(db_query($links_edit_access_sql, $link['lid'], $user->uid, $user->uid, $link['lid'], $user->uid)) && user_access('edit link settings');
+  }
 }
 
 /**
