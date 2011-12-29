@@ -777,7 +777,7 @@ function _linkchecker_add_box_links($box, $bid, $skip_missing_links_detection = 
       // that is already being processed (if a batch operation performs a
       // drupal_execute).
       if ($batch = &batch_get() && !isset($batch['current_set'])) {
-        batch_process('admin/structure/block');
+        batch_process('admin/build/block');
       }
     }
   }
