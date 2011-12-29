@@ -345,14 +345,16 @@ function _linkchecker_status_handling($link, $response) {
           $text_items[] = 'title';
           $text_items[] = 'body';
 
-          // Now replace the outdated link with the permanently moved one in all box fields.
+          // Now replace the outdated link with the permanently moved one in all
+          // box fields.
           foreach ($text_items as $text_item) {
             _linkchecker_link_replace($box[$text_item], $link->url, $response->redirect_url);
           }
 
-          // Save changed node and update the node link list.
+          // Save changed box and update the box link list.
           block_box_save($box, $row->bid);
-          // There is no hook that fires on block_box_save(), therefore do it programmatically.
+          // There is no hook that fires on block_box_save(), therefore do link
+          // extraction programmatically.
           _linkchecker_add_box_links($box, $row->bid);
           watchdog('linkchecker', 'Changed permanently moved link in box %bid from %src to %dst.', array('%bid' => $row->bid, '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
         }
@@ -711,9 +713,10 @@ function _linkchecker_add_comment_links($comment, $skip_missing_links_detection 
 /**
  * Add block links to database.
  *
- * @param $box
+ * @param array $box
  *   The fully populated block array.
- *
+ * @param integer $bid
+ *   Block id from table {blocks}.bid.
  * @param $skip_missing_links_detection
  *   To prevent endless batch loops the value need to be TRUE. With FALSE
  *   the need for content re-scans is detected by the number of missing links.
@@ -777,7 +780,7 @@ function _linkchecker_add_box_links($box, $bid, $skip_missing_links_detection = 
       // that is already being processed (if a batch operation performs a
       // drupal_execute).
       if ($batch = &batch_get() && !isset($batch['current_set'])) {
-        batch_process();
+        batch_process('admin/structure/block');
       }
     }
   }
