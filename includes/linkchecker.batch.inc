@@ -99,7 +99,7 @@ function _linkchecker_batch_comments_import_finished($success, $results, $operat
  * Batch: Scan blocks for links.
  */
 function _linkchecker_batch_import_boxes() {
-  // Get all active {boxes}.bid's.
+  // Get all {boxes}.bid's as block module suxxx and has no usable hooks.
   $result = db_query('SELECT b.bid FROM {boxes} b ORDER BY b.bid');
 
   $operations = array();
@@ -122,6 +122,8 @@ function _linkchecker_batch_import_boxes() {
 function _linkchecker_batch_import_boxes_op($bid, &$context) {
   // Load the box and scan for links.
   $box = block_box_get($bid);
+  // block_box_get() does not load 'title' automatically.
+  $box += db_fetch_array(db_query("SELECT title FROM {blocks} WHERE module = '%s' AND delta = '%s'", 'block', $bid));
   _linkchecker_add_box_links($box, $box['bid']);
 
   // Store some result for post-processing in the finished callback.
