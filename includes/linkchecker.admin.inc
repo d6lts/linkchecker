@@ -102,7 +102,12 @@ function linkchecker_admin_settings_form(&$form_state) {
   $filters = filter_list_all();
   $filter_options = array();
   foreach ($filters as $filter) {
-    $filter_options[$filter->module . '/' . $filter->delta] = $filter->name;
+    if (in_array($name, explode('|', LINKCHECKER_DEFAULT_FILTER_BLACKLIST))) {
+      $filter_options[$filter->module . '/' . $filter->delta] = t('!title <span class="form-required">(Recommended)</span>', array('!title' => $filter->name));
+    }
+    else {
+      $filter_options[$filter->module . '/' . $filter->delta] = $filter->name;
+    }
   }
   $form['tag']['linkchecker_filter_blacklist'] = array(
     '#type' => 'checkboxes',
