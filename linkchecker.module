@@ -341,7 +341,6 @@ function _linkchecker_status_handling($link, $response) {
           // Create array of box fields to scan.
           $text_items = array();
           $text_items[] = 'info';
-          $text_items[] = 'title';
           $text_items[] = 'body';
 
           // Now replace the outdated link with the permanently moved one in all
@@ -722,7 +721,6 @@ function _linkchecker_add_box_links($box, $bid, $skip_missing_links_detection = 
   // Create array of box fields to scan.
   $text_items = array();
   $text_items[] = _filter_url($box['info'], $box['format']);
-  $text_items[] = _filter_url($box['title'], $box['format']);
   $text_items[] = _linkchecker_check_markup($box['body'], $box['format'], FALSE);
 
   // Extract all links in a box.

@@ -122,8 +122,6 @@ function _linkchecker_batch_import_boxes() {
 function _linkchecker_batch_import_boxes_op($bid, &$context) {
   // Load the box and scan for links.
   $box = block_box_get($bid);
-  // block_box_get() does not load 'title' automatically.
-  $box += db_fetch_array(db_query("SELECT title FROM {blocks} WHERE module = '%s' AND delta = '%s'", 'block', $bid));
   _linkchecker_add_box_links($box, $box['bid']);
 
   // Store some result for post-processing in the finished callback.
