@@ -726,7 +726,7 @@ function _linkchecker_add_box_links($box, $bid, $skip_missing_links_detection = 
   // Extract all links in a box.
   $links = _linkchecker_extract_links(implode(' ', $text_items));
 
-  // Box have links.
+  // Box has links.
   if (!empty($links)) {
     // Remove all links from the links array already in the database
     // and only add missing links to database.
