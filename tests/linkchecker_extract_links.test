@@ -253,7 +253,7 @@ EOT;
     $this->assertRaw(t('@type %title has been updated.', array('@type' => 'Page', '%title' => $edit['title'])));
 
     // FIXME: Path alias seems not saved!???
-    //$this->assertIdentical($node->path, $edit['path'], t('URL alias "@node-path" matches path "@edit-path".', array('@node-path' => $node->path, '@edit-path' => $edit['path'])));
+    // $this->assertIdentical($node->path, $edit['path'], t('URL alias "@node-path" matches path "@edit-path".', array('@node-path' => $node->path, '@edit-path' => $edit['path'])));
 
     // DEBUG
     $linkchecker_links = db_query("SELECT * FROM {linkchecker_links}");
@@ -261,7 +261,7 @@ EOT;
       $rows[] = $row['url'];
     }
     $this->verbose(theme_item_list($rows, 'URLs in database:'));
-    //$this->fail('DEBUG: ' .implode('<br />', $rows));
+    // $this->fail('DEBUG: ' .implode('<br />', $rows));
 
     // Verify if the content links are extracted correctly.
     global $base_root, $base_path;
