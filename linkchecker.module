@@ -1055,13 +1055,16 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
   // Remove duplicate urls.
   $urls = array_unique($urls);
 
+  // What type of links schould be checked?
+  $linkchecker_check_links_types = variable_get('linkchecker_fqdn_only', 1);
+
   $links = array();
   foreach ($urls as $url) {
     // FIXME: #1149596 HACK - Encode spaces in URLs, so validation equals TRUE and link gets added.
     $url_encoded = str_replace(' ', '%20', $url);
 
     // Full qualified URLs.
-    if (valid_url($url_encoded, TRUE)) {
+    if ($linkchecker_check_links_types != 2 && valid_url($url_encoded, TRUE)) {
       // Add to Array and change HTML links into plain text links.
       $links[] = $url;
     }
@@ -1070,7 +1073,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
       continue;
     }
     // Local URLs.
-    elseif (valid_url($url_encoded, FALSE) && variable_get('linkchecker_fqdn_only', 1) == 0) {
+    elseif ($linkchecker_check_links_types != 1 && valid_url($url_encoded, FALSE)) {
       // Get full qualified url with base path of content.
       $absolute_content_path = _linkchecker_absolute_content_path($content_path);
 
