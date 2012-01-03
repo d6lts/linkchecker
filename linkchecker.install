@@ -607,3 +607,18 @@ function linkchecker_update_6215() {
 
   return $ret;
 }
+
+/**
+* #965720: Add indexes to improve performance of views queries.
+*/
+function linkchecker_update_6216() {
+  $ret = array();
+
+  db_add_index($ret, 'linkchecker_link', 'method', array('method'));
+  db_add_index($ret, 'linkchecker_link', 'code', array('code'));
+  db_add_index($ret, 'linkchecker_link', 'fail_count', array('fail_count'));
+  db_add_index($ret, 'linkchecker_link', 'last_checked', array('last_checked'));
+  db_add_index($ret, 'linkchecker_link', 'status', array('status'));
+
+  return $ret;
+}
