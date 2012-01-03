@@ -113,6 +113,13 @@ function linkchecker_schema() {
     ),
     'primary key' => array('lid'),
     'unique keys' => array('urlhash' => array('urlhash')),
+    'indexes' => array(
+      'method' => array('method'),
+      'code' => array('code'),
+      'fail_count' => array('fail_count'),
+      'last_checked' => array('last_checked'),
+      'status' => array('status'),
+    ),
   );
 
   $schema['linkchecker_boxes'] = array(
