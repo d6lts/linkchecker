@@ -160,7 +160,7 @@ function _linkchecker_report_page($links_report_sql, $links_report_parameters = 
 
     // Show link to redirect this broken internal link.
     if (module_exists('path_redirect') && $access_administer_redirects && _linkchecker_is_internal_url($link)) {
-      $links[] = l(t('Create redirection'), 'admin/build/path-redirect/add', array('query' => array('src' => $link->internal)));
+      $links[] = l(t('Create redirection'), 'admin/build/path-redirect/add', array('query' => array('source' => $link->internal)));
     }
 
     // Create table data for output. Use inline styles to prevent extra CSS file.
