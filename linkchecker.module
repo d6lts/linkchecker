@@ -375,6 +375,12 @@ function _linkchecker_status_handling($link, $response) {
     case 405:
       // Special error handling if method is not allowed. Switch link checking to GET method and try again.
       $response = drupal_http_request($link->url, array('User-Agent' => 'User-Agent: ' . $useragent, 'Range' => 'bytes=0-1024'), 'GET', NULL, 0);
+
+      // Prevent E_ALL warnings for non-existing $response->error.
+      if (!isset($response->error)) {
+        $response->error = '';
+      }
+
       if (in_array($response->code, array('200', '206'))) {
         db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = %d, last_checked = %d, method = '%s' WHERE lid = %d", $response->code, $response->error, 0, time(), 'GET', $link->lid);
       }
