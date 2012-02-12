@@ -227,7 +227,10 @@ function _linkchecker_status_handling($link, $response) {
   //   what results in a database UPDATE failure. For more information, see
   //   http://drupal.org/node/371495.
   //   Workaround: ISO-8859-1 as source encoding may be wrong, but WFM.
+  if (!isset($response->error)) { $response->error = ''; }
+  if (!isset($response->status_message)) { $response->status_message = ''; }
   $response->error = trim(drupal_convert_to_utf8($response->error, 'ISO-8859-1'));
+  $response->status_message = trim(drupal_convert_to_utf8($response->status_message, 'ISO-8859-1'));
 
   // Make response object consistent with HTTPRL.
   if ($response->code == 301 && !isset($response->redirect_code)) {
@@ -236,7 +239,7 @@ function _linkchecker_status_handling($link, $response) {
 
   switch ($response->code) {
     case 301:
-      db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->error, time(), $link->lid);
+      db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->status_message, time(), $link->lid);
 
       // A HTTP status code of 301 tells us an existing link have changed to
       // a new link. The remote site owner was so kind to provide us the new
