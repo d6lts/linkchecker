@@ -2,6 +2,7 @@
 linkchecker 6.x-dev, nightly
 -----------------------------
 
+* #1429284: Only follow one redirect
 * Removed block 'title' for consitency reasons. It's only a title in administration and should not contain URLs
 * Show a recommendation next to blacklisted filter names.
 * #1149596: Links with spaces are not extracted
