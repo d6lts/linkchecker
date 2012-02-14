@@ -246,7 +246,7 @@ function _linkchecker_status_handling($link, $response) {
       // link and if we trust this change we are able to replace the old link
       // with the new one without any hand work.
       $auto_repair_301 = variable_get('linkchecker_action_status_code_301', 0);
-      if ($auto_repair_301 && $auto_repair_301 <= ($link->fail_count+1) && $response->redirect_code == 200 && valid_url($response->redirect_url, TRUE)) {
+      if ($auto_repair_301 && $auto_repair_301 <= ($link->fail_count+1) && valid_url($response->redirect_url, TRUE)) {
 
         // NODES: Autorepair all nodes having this outdated link.
         $res = db_query("SELECT * FROM {linkchecker_nodes} WHERE lid = %d", $link->lid);
