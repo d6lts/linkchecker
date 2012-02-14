@@ -239,7 +239,7 @@ function _linkchecker_status_handling($link, $response) {
 
   switch ($response->code) {
     case 301:
-      db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->code, $response->status_message, time(), $link->lid);
+      db_query("UPDATE {linkchecker_links} SET code = %d, error = '%s', fail_count = fail_count+1, last_checked = %d WHERE lid = %d", $response->redirect_code, $response->status_message, time(), $link->lid);
 
       // A HTTP status code of 301 tells us an existing link have changed to
       // a new link. The remote site owner was so kind to provide us the new
