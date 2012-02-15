@@ -3,7 +3,7 @@ linkchecker 6.x-2.5, February 15, 2012
 --------------------------------------
 
 * Fix for access bypass vulnerability.
-* #1429284: Only follow one redirect
+* #1429284: Don't follow redirects
 * Removed block 'title' for consitency reasons. It's only a title in administration and should not contain URLs
 * Show a recommendation next to blacklisted filter names.
 * #1149596: Links with spaces are not extracted
