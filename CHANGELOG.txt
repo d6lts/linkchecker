@@ -1,6 +1,6 @@
 
-linkchecker 6.x-dev, nightly
------------------------------
+linkchecker 6.x-2.5, February 15, 2012
+--------------------------------------
 
 * Fix for access bypass vulnerability.
 * #1429284: Only follow one redirect
