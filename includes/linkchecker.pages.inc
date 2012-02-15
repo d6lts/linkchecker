@@ -114,6 +114,21 @@ function _linkchecker_report_page($links_report_sql, $links_report_parameters = 
 
   $rows = array();
   while ($link = db_fetch_object($result)) {
+    // Get the node, block and comment IDs that refer to this broken link and
+    // that the current user has access to.
+    $nids = _linkchecker_link_node_ids($link, $account);
+    $cids = _linkchecker_link_comment_ids($link, $account);
+    $bids = _linkchecker_link_block_ids($link);
+
+    // If the user does not have access to see this link anywhere, do not
+    // display it, for reasons explained in _linkchecker_link_access(). We
+    // still need to fill the table row, though, so as not to throw off the
+    // number of items in the pager.
+    if (empty($nids) && empty($cids) && empty($bids)) {
+      $rows[] = array(array('data' => t('Permission restrictions deny you access to this broken link.'), 'colspan' => count($header)));
+      continue;
+    }
+
     $links = array();
 
     // Show links to link settings.
@@ -122,39 +137,21 @@ function _linkchecker_report_page($links_report_sql, $links_report_parameters = 
     }
 
     // Show link to nodes having this broken link.
-    if (!empty($account)) {
-      $nodes = db_query('SELECT ln.nid
-        FROM {linkchecker_nodes} ln
-        INNER JOIN {node} n ON n.nid = ln.nid
-        INNER JOIN {node_revisions} r ON r.vid = n.vid
-        WHERE ln.lid = %d AND (n.uid = %d OR r.uid = %d)', $link->lid, $account->uid, $account->uid);
-    }
-    else {
-      $nodes = db_query('SELECT nid FROM {linkchecker_nodes} WHERE lid = %d', $link->lid);
-    }
-    while ($node = db_fetch_object($nodes)) {
-      $links[] = l(t('Edit node @node', array('@node' => $node->nid)), 'node/' . $node->nid . '/edit', array('query' => drupal_get_destination()));
+    foreach ($nids as $nid) {
+      $links[] = l(t('Edit node @node', array('@node' => $nid)), 'node/' . $nid . '/edit', array('query' => drupal_get_destination()));
     }
 
     // Show link to comments having this broken link.
-    if (!empty($account) && module_exists('comment') && variable_get('linkchecker_scan_comments', 0)) {
-      $comments = db_query('SELECT lc.cid
-        FROM {linkchecker_comments} lc
-        INNER JOIN {comments} c ON c.cid = lc.cid
-        WHERE lc.lid = %d AND c.uid = %d', $link->lid, $account->uid);
-    }
-    else {
-      $comments = db_query('SELECT cid FROM {linkchecker_comments} WHERE lid = %d', $link->lid);
-    }
-    while ($comment = db_fetch_object($comments)) {
-      $links[] = l(t('Edit comment @comment', array('@comment' => $comment->cid)), 'comment/edit/' . $comment->cid, array('query' => drupal_get_destination()));
+    if (module_exists('comment') && variable_get('linkchecker_scan_comments', 0)) {
+      foreach ($cids as $cid) {
+        $links[] = l(t('Edit comment @comment', array('@comment' => $cid)), 'comment/edit/' . $cid, array('query' => drupal_get_destination()));
+      }
     }
 
     // Show link to blocks having this broken link.
     if ($access_administer_blocks) {
-      $boxes = db_query('SELECT bid FROM {linkchecker_boxes} WHERE lid = %d', $link->lid);
-      while ($box = db_fetch_object($boxes)) {
-        $links[] = l(t('Edit block @block', array('@block' => $box->bid)), 'admin/build/block/configure/block/' . $box->bid, array('query' => drupal_get_destination()));
+      foreach ($bids as $bid) {
+        $links[] = l(t('Edit block @block', array('@block' => $bid)), 'admin/build/block/configure/block/' . $bid, array('query' => drupal_get_destination()));
       }
     }
 
