@@ -198,7 +198,7 @@ function _linkchecker_link_node_ids($link, $node_author_account = NULL) {
   // is the case, stop checking and return the remainder of the list.
   $nids = array();
   $access_allowed = FALSE;
-  while($node = db_fetch_object($nodes)) {
+  while ($node = db_fetch_object($nodes)) {
     if ($access_allowed) {
       $nids[] = $node->nid;
       continue;
