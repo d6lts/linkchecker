@@ -176,6 +176,11 @@ function _linkchecker_link_node_ids($link, $node_author_account = NULL) {
     return array();
   }
 
+  // Disable language negotiation temporarily, re-enable it later.
+  if (module_exists('i18n')) {
+    i18n_selection_mode('off');
+  }
+
   // Get a list of nodes containing the link, using db_rewrite_sql() to allow
   // node access modules to exclude nodes that the current user does not have
   // access to view.
@@ -191,6 +196,11 @@ function _linkchecker_link_node_ids($link, $node_author_account = NULL) {
       FROM {node} n
       INNER JOIN {linkchecker_nodes} ln ON ln.nid = n.nid
       WHERE ln.lid = %d'), $link->lid);
+  }
+
+  // Re-enable language negotiation.
+  if (module_exists('i18n')) {
+    i18n_selection_mode('reset');
   }
 
   // Check if the current user has access to view the link in each node.
