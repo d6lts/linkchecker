@@ -1294,6 +1294,12 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
     // Decode HTML links into plain text links.
     $url_decoded = decode_entities($url);
 
+    // Prefix protocol relative urls with a protocol to allow link checking.
+    if (preg_match('!^//!', $url_decoded)) {
+      $http_protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+      $url_decoded = $http_protocol . ':' . $url_decoded;
+    }
+
     // FIXME: #1149596 HACK - Encode spaces in URLs, so validation equals TRUE and link gets added.
     $url_encoded = str_replace(' ', '%20', $url_decoded);
 
