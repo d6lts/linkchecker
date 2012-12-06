@@ -1,6 +1,8 @@
 linkchecker 6.x-dev, nightly
 ----------------------------
 
+* #1804842: Lots of warnings when comment module is not installed
+* #1811908: Allow extracting protocol relative url's
 * #1586022: linkchecker generating bad User-Agent string
 * Status code 500 on HEAD/GET does not increase fail_count
 * #1488572: i18n: "Permission restrictions deny" all broken links in other languages

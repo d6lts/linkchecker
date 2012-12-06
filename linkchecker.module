@@ -263,8 +263,9 @@ function _linkchecker_link_node_ids($link, $node_author_account = NULL) {
  *   current user is allowed to view.
  */
 function _linkchecker_link_comment_ids($link, $comment_author_account = NULL) {
-  // If the user cannot access comments, there is no need to check further.
-  if (!user_access('access comments')) {
+  // Exit if comments are disabled or if the user cannot access comments, there
+  // is no need to check further.
+  if (!module_exists('comment') || !variable_get('linkchecker_scan_comments', 0) || !user_access('access comments')) {
     return array();
   }
 
@@ -302,7 +303,10 @@ function _linkchecker_link_comment_ids($link, $comment_author_account = NULL) {
  *   current user is allowed to view.
  */
 function _linkchecker_link_block_ids($link) {
-  global $user;
+  // Exit if blocks are disabled.
+  if (!variable_get('linkchecker_scan_blocks', 0)) {
+    return array();
+  }
 
   // Get the initial list of block IDs.
   $boxes = db_query('SELECT bid FROM {linkchecker_boxes} WHERE lid = %d', $link->lid);
@@ -318,6 +322,7 @@ function _linkchecker_link_block_ids($link) {
 
   // Otherwise, only return blocks that this user (or anonymous users) have
   // access to.
+  global $user;
   $rids = array_keys($user->roles);
   $rids[] = DRUPAL_ANONYMOUS_RID;
   $allowed_boxes = db_query("SELECT DISTINCT b.delta
@@ -578,7 +583,7 @@ function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
     case 'insert':
     case 'update':
       // The node is going to be published.
-      if ($node->status && _linkchecker_scan_nodetype($node->type)) {
+      if (_linkchecker_scan_nodetype($node->type) && $node->status) {
         _linkchecker_add_node_links($node);
       }
       break;
@@ -610,7 +615,7 @@ function linkchecker_comment($comment, $op) {
   switch ($op) {
     case 'publish':
       $node_type = db_result(db_query("SELECT type FROM {node} WHERE nid = %d", $comment['nid']));
-      if (_linkchecker_scan_nodetype($node_type)) {
+      if (_linkchecker_scan_nodetype($node_type) && variable_get('linkchecker_scan_comments', 0)) {
         _linkchecker_add_comment_links($comment);
       }
       break;
