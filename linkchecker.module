@@ -432,7 +432,7 @@ function _linkchecker_status_handling($link, $response) {
         // NODES: Autorepair all nodes having this outdated link.
         $res = db_query("SELECT * FROM {linkchecker_nodes} WHERE lid = %d", $link->lid);
         while ($row = db_fetch_object($res)) {
-          $node = node_load(array('nid' => $row->nid));
+          $node_original = $node = node_load(array('nid' => $row->nid));
 
           // Create array of node fields to scan (for e.g. $node->title, $node->links_weblink_url).
           $text_items = array();
@@ -474,23 +474,28 @@ function _linkchecker_status_handling($link, $response) {
             }
           }
 
-          // Always use the default revision setting. See node_object_prepare().
-          $node_options = variable_get('node_options_'. $node->type, array('status', 'promote'));
-          $node->revision = in_array('revision', $node_options);
+          if (linkchecker_compare($node_original, $node)) {
+            // Always use the default revision setting. See node_object_prepare().
+            $node_options = variable_get('node_options_'. $node->type, array('status', 'promote'));
+            $node->revision = in_array('revision', $node_options);
 
-          // Generate a log message for the node_revisions table, visible on the node's revisions tab.
-          $node->log = t('Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url));
+            // Generate a log message for the node_revisions table, visible on the node's revisions tab.
+            $node->log = t('Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url));
 
-          // Save changed node and update the node link list.
-          node_save($node);
-          watchdog('linkchecker', 'Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+            // Save changed node and update the node link list.
+            node_save($node);
+            watchdog('linkchecker', 'Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $row->nid), '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+          }
+          else {
+            watchdog('linkchecker', 'Link update in node failed. Permanently moved link %src not found in node %node. Manual fix required.', array('%node' => url('node/' . $row->nid), '%src' => $link->url), WATCHDOG_WARNING);
+          }
         }
 
         // COMMENTS: Autorepair all comments having this outdated link.
         if (module_exists('comment')) {
           $res = db_query("SELECT * FROM {linkchecker_comments} WHERE lid = %d", $link->lid);
           while ($row = db_fetch_object($res)) {
-            $comment = _linkchecker_comment_load($row->cid);
+            $comment_original = $comment = _linkchecker_comment_load($row->cid);
 
             // Create array of comment fields to scan (for e.g. $comment->subject, $comment->comment).
             $text_items = array();
@@ -503,15 +508,20 @@ function _linkchecker_status_handling($link, $response) {
             }
 
             // Save changed comment and update the comment link list.
-            comment_save($comment);
-            watchdog('linkchecker', 'Changed permanently moved link in comment %comment from %src to %dst.', array('%comment' => $comment['cid'], '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+            if (linkchecker_compare($comment_original, $comment)) {
+              comment_save($comment);
+              watchdog('linkchecker', 'Changed permanently moved link in comment %comment from %src to %dst.', array('%comment' => $comment['cid'], '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+            }
+            else {
+              watchdog('linkchecker', 'Link update in comment failed. Permanently moved link %src not found in comment %comment. Manual fix required.', array('%comment' => $comment['cid'], '%src' => $link->url), WATCHDOG_WARNING);
+            }
           }
         }
 
         // BOXES: Autorepair all boxes having this outdated link.
         $res = db_query("SELECT * FROM {linkchecker_boxes} WHERE lid = %d", $link->lid);
         while ($row = db_fetch_object($res)) {
-          $box = block_box_get($row->bid);
+          $box_original = $box = block_box_get($row->bid);
 
           // Create array of box fields to scan.
           $text_items = array();
@@ -524,12 +534,17 @@ function _linkchecker_status_handling($link, $response) {
             _linkchecker_link_replace($box[$text_item], $link->url, $response->redirect_url);
           }
 
-          // Save changed box and update the box link list.
-          block_box_save($box, $row->bid);
-          // There is no hook that fires on block_box_save(), therefore do link
-          // extraction programmatically.
-          _linkchecker_add_box_links($box, $row->bid);
-          watchdog('linkchecker', 'Changed permanently moved link in box %bid from %src to %dst.', array('%bid' => $row->bid, '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+          if (linkchecker_compare($box_original, $box)) {
+            // Save changed box and update the box link list.
+            block_box_save($box, $row->bid);
+            // There is no hook that fires on block_box_save(), therefore do link
+            // extraction programmatically.
+            _linkchecker_add_box_links($box, $row->bid);
+            watchdog('linkchecker', 'Changed permanently moved link in box %bid from %src to %dst.', array('%bid' => $row->bid, '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+          }
+          else {
+            watchdog('linkchecker', 'Link update in block failed. Permanently moved link %src not found in block %bid. Manual fix required.', array('%bid' => $row->bid, '%src' => $link->url), WATCHDOG_WARNING);
+          }
         }
 
         // Revert user back to anonymous.
@@ -1772,4 +1787,19 @@ function linkchecker_impersonate_user($new_user = NULL) {
  */
 function linkchecker_revert_user() {
   return linkchecker_impersonate_user();
+}
+
+/**
+ * Compare two arrays or objects.
+ *
+ * @return bool
+ *   FALSE if they are equal, TRUE otherwise.
+ */
+function linkchecker_compare($a, $b) {
+  if (drupal_to_js($a) === drupal_to_js($b)) {
+    return FALSE;
+  }
+  else {
+    return TRUE;
+  }
 }
