@@ -19,6 +19,9 @@ define('LINKCHECKER_MINIMUM_MYSQL', '5.0');
  */
 function linkchecker_install() {
   drupal_install_schema('linkchecker');
+
+  $linkchecker_default_impersonate_user = user_load(1);
+  variable_set('linkchecker_impersonate_user', $linkchecker_default_impersonate_user->name);
 }
 
 /**
@@ -45,6 +48,7 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_filter_blacklist');
   variable_del('linkchecker_fqdn_only');
   variable_del('linkchecker_ignore_response_codes');
+  variable_del('linkchecker_impersonate_user');
   variable_del('linkchecker_scan_blocks');
   variable_del('linkchecker_scan_comments');
   variable_del('linkchecker_scan_nodetypes');
@@ -626,6 +630,19 @@ function linkchecker_update_6216() {
   db_add_index($ret, 'linkchecker_links', 'fail_count', array('fail_count'));
   db_add_index($ret, 'linkchecker_links', 'last_checked', array('last_checked'));
   db_add_index($ret, 'linkchecker_links', 'status', array('status'));
+
+  return $ret;
+}
+
+/**
+ * #1450672: Set user 1 as default user to impersonate content updates.
+ */
+function linkchecker_update_6217() {
+  $ret = array();
+
+  $linkchecker_default_impersonate_user = user_load(1);
+  variable_set('linkchecker_impersonate_user', $linkchecker_default_impersonate_user->name);
+  $ret[] = array('success' => TRUE, 'query' => 'Set user 1 as default user to impersonate content updates.');
 
   return $ret;
 }

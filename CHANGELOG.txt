@@ -1,6 +1,7 @@
 linkchecker 6.x-dev, nightly
 ----------------------------
 
+* #1450672: Cron task does not impersonate to admin user on automatic content updates.
 * Added Drupal 6.14 warning to known issues.
 * #1804842: Lots of warnings when comment module is not installed
 * #1811908: Allow extracting protocol relative url's
