@@ -432,7 +432,8 @@ function _linkchecker_status_handling($link, $response) {
         // NODES: Autorepair all nodes having this outdated link.
         $res = db_query("SELECT * FROM {linkchecker_nodes} WHERE lid = %d", $link->lid);
         while ($row = db_fetch_object($res)) {
-          $node_original = $node = node_load(array('nid' => $row->nid));
+          $node = node_load(array('nid' => $row->nid));
+          $node_original = drupal_clone($node);
 
           // Create array of node fields to scan (for e.g. $node->title, $node->links_weblink_url).
           $text_items = array();
@@ -474,7 +475,7 @@ function _linkchecker_status_handling($link, $response) {
             }
           }
 
-          if (linkchecker_compare($node_original, $node)) {
+          if ($node_original != $node) {
             // Always use the default revision setting. See node_object_prepare().
             $node_options = variable_get('node_options_'. $node->type, array('status', 'promote'));
             $node->revision = in_array('revision', $node_options);
@@ -495,7 +496,8 @@ function _linkchecker_status_handling($link, $response) {
         if (module_exists('comment')) {
           $res = db_query("SELECT * FROM {linkchecker_comments} WHERE lid = %d", $link->lid);
           while ($row = db_fetch_object($res)) {
-            $comment_original = $comment = _linkchecker_comment_load($row->cid);
+            $comment = _linkchecker_comment_load($row->cid);
+            $comment_original = drupal_clone($comment);
 
             // Create array of comment fields to scan (for e.g. $comment->subject, $comment->comment).
             $text_items = array();
@@ -508,7 +510,7 @@ function _linkchecker_status_handling($link, $response) {
             }
 
             // Save changed comment and update the comment link list.
-            if (linkchecker_compare($comment_original, $comment)) {
+            if ($comment_original != $comment) {
               comment_save($comment);
               watchdog('linkchecker', 'Changed permanently moved link in comment %comment from %src to %dst.', array('%comment' => $comment['cid'], '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
             }
@@ -521,7 +523,8 @@ function _linkchecker_status_handling($link, $response) {
         // BOXES: Autorepair all boxes having this outdated link.
         $res = db_query("SELECT * FROM {linkchecker_boxes} WHERE lid = %d", $link->lid);
         while ($row = db_fetch_object($res)) {
-          $box_original = $box = block_box_get($row->bid);
+          $box = block_box_get($row->bid);
+          $box_original = drupal_clone($box);
 
           // Create array of box fields to scan.
           $text_items = array();
@@ -534,7 +537,7 @@ function _linkchecker_status_handling($link, $response) {
             _linkchecker_link_replace($box[$text_item], $link->url, $response->redirect_url);
           }
 
-          if (linkchecker_compare($box_original, $box)) {
+          if ($box_original != $box) {
             // Save changed box and update the box link list.
             block_box_save($box, $row->bid);
             // There is no hook that fires on block_box_save(), therefore do link
@@ -1787,19 +1790,4 @@ function linkchecker_impersonate_user($new_user = NULL) {
  */
 function linkchecker_revert_user() {
   return linkchecker_impersonate_user();
-}
-
-/**
- * Compare two arrays or objects.
- *
- * @return bool
- *   FALSE if they are equal, TRUE otherwise.
- */
-function linkchecker_compare($a, $b) {
-  if (drupal_to_js($a) === drupal_to_js($b)) {
-    return FALSE;
-  }
-  else {
-    return TRUE;
-  }
 }
