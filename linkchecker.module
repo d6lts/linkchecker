@@ -842,6 +842,7 @@ function _linkchecker_add_node_links($node, $skip_missing_links_detection = FALS
       $urlhash = md5($url);
       $link = db_fetch_object(db_query("SELECT lid FROM {linkchecker_links} WHERE urlhash = '%s'", $urlhash));
       if (!$link) {
+        $link = new stdClass();
         $link->urlhash = $urlhash;
         $link->url = $url;
         $link->status = _linkchecker_link_check_status_filter($url);
@@ -923,6 +924,7 @@ function _linkchecker_add_comment_links($comment, $skip_missing_links_detection 
       $urlhash = md5($url);
       $link = db_fetch_object(db_query("SELECT lid FROM {linkchecker_links} WHERE urlhash = '%s'", $urlhash));
       if (!$link) {
+        $link = new stdClass();
         $link->urlhash = $urlhash;
         $link->url = $url;
         $link->status = _linkchecker_link_check_status_filter($url);
@@ -1001,6 +1003,7 @@ function _linkchecker_add_box_links($box, $bid, $skip_missing_links_detection = 
       $urlhash = md5($url);
       $link = db_fetch_object(db_query("SELECT lid FROM {linkchecker_links} WHERE urlhash = '%s'", $urlhash));
       if (!$link) {
+        $link = new stdClass();
         $link->urlhash = $urlhash;
         $link->url = $url;
         $link->status = _linkchecker_link_check_status_filter($url);
