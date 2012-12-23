@@ -555,6 +555,7 @@ function linkchecker_update_6211() {
   $ret = array();
 
   variable_del('linkchecker_pathfilter_support');
+  $ret[] = array('success' => TRUE, 'query' => 'Removed obsolete linkchecker_pathfilter_support variable.');
 
   return $ret;
 }
