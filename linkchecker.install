@@ -33,7 +33,6 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_action_status_code_301');
   variable_del('linkchecker_action_status_code_404');
   variable_del('linkchecker_check_links_interval');
-  variable_del('linkchecker_check_links_max');
   variable_del('linkchecker_check_useragent');
   variable_del('linkchecker_cleanup_links_last');
   variable_del('linkchecker_disable_link_check_for_urls');
@@ -643,6 +642,18 @@ function linkchecker_update_6217() {
   $linkchecker_default_impersonate_user = user_load(1);
   variable_set('linkchecker_impersonate_user', $linkchecker_default_impersonate_user->name);
   $ret[] = array('success' => TRUE, 'query' => 'Set user 1 as default user to impersonate content updates.');
+
+  return $ret;
+}
+
+/**
+ * Removed obsolete linkchecker_check_links_max variable.
+ */
+function linkchecker_update_6218() {
+  $ret = array();
+
+  variable_del('linkchecker_check_links_max');
+  $ret[] = array('success' => TRUE, 'query' => 'Removed obsolete linkchecker_check_links_max variable.');
 
   return $ret;
 }
