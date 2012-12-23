@@ -1,6 +1,7 @@
 linkchecker 6.x-dev, nightly
 ----------------------------
 
+* #380052: Add support with non-blocking parallel link checking.
 * linkchecker_update_6211 was missing an update message.
 * #1869924: Strict warning: Creating default object from empty value.
 * #1867460: Prevent save on automatic updates, if content has not changed.
