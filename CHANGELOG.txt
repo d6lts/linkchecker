@@ -1,5 +1,5 @@
-linkchecker 6.x-dev, nightly
-----------------------------
+linkchecker 6.x-2.6, December 24, 2012
+--------------------------------------
 
 * Fixed some typos.
 * Upgraded outdated HTTP user agents.
