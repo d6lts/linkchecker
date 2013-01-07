@@ -735,7 +735,7 @@ function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
 
     case 'prepare':
       // Node edit tab is viewed.
-      if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'edit') {
+      if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'edit' && isset($node->nid)) {
         // Show a message on node edit page if a link check failed once or more.
         $ignore_response_codes = preg_split('/(\r\n?|\n)/', variable_get('linkchecker_ignore_response_codes', "200\n206\n302\n304\n401\n403"));
         $links = db_query("SELECT ll.* FROM {linkchecker_nodes} ln INNER JOIN {linkchecker_links} ll ON ln.lid = ll.lid WHERE ln.nid = %d AND ll.fail_count > %d AND ll.status = %d AND ll.code NOT IN (" . db_placeholders($ignore_response_codes, 'int') . ")", array_merge(array($node->nid, 0, 1), $ignore_response_codes));

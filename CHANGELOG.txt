@@ -1,6 +1,7 @@
 linkchecker 6.x-dev, nightly
 ----------------------------
 
+* #1719174: Editing node throws "Undefined property" stdClass::$nid in hook_node_prepare().
 * #1875602: Check URL fragment identifiers in content
 * Minor code style fixes
 
