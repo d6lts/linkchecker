@@ -4,7 +4,7 @@ linkchecker 6.x-dev, nightly
 * Issue #1923328 by larowlan: Fragment check fails when source page contains spaces between attribute name, equals and value.
 * Issue #1926558 by hass: Block extraction re-scans fail.
 
-linkchecker 6.x-2.7, February 14, 2012
+linkchecker 6.x-2.7, February 14, 2013
 --------------------------------------
 
 * Issue #1901018 by hass: ERROR - __clone method called on non-object.
