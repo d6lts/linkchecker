@@ -1,7 +1,8 @@
 linkchecker 6.x-dev, nightly
 ----------------------------
 
-* Added Smileys filter (http://drupal.org/project/smiley) to blacklist 
+* Added Smileys filter (http://drupal.org/project/smiley) to blacklist
+* Issue #1306498 by hass, evolvingweb: Remove unnecessary hook_requirements in linkchecker.install 
 * Issue #1923328 by larowlan: Fragment check fails when source page contains spaces between attribute name, equals and value.
 * Issue #1926558 by hass: Block extraction re-scans fail.
 
