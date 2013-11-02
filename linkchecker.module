@@ -746,10 +746,20 @@ function _linkchecker_status_handling(&$response, $link) {
 function linkchecker_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
   switch ($op) {
     case 'insert':
+      // The node is going to be published.
+      if (_linkchecker_scan_nodetype($node->type) && $node->status) {
+        _linkchecker_add_node_links($node);
+      }
+      break;
+
     case 'update':
       // The node is going to be published.
       if (_linkchecker_scan_nodetype($node->type) && $node->status) {
         _linkchecker_add_node_links($node);
+      }
+      else {
+        // The node is going to be unpublished.
+        _linkchecker_delete_node_links($node->nid);
       }
       break;
 
