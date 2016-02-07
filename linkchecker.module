@@ -405,7 +405,10 @@ function _linkchecker_check_links() {
 
   // Get URLs for checking.
   $links = db_query_range("SELECT * FROM {linkchecker_links} WHERE last_checked < %d AND status = %d ORDER BY last_checked, lid ASC", time() - $linkchecker_check_links_interval, 1, 0, $check_links_max_per_cron_run);
-  $links_remaining = $links->num_rows;
+  // D6 database API does not provide a generic way to return the number of rows
+  // in a result set and $links->num_rows only works with 'mysqli'. The only
+  // workaround is to run the statement again with a COUNT query.
+  $links_remaining = db_result(db_query_range("SELECT COUNT(lid) AS num_rows FROM {linkchecker_links} WHERE last_checked < %d AND status = %d ORDER BY last_checked, lid ASC", time() - $linkchecker_check_links_interval, 1, 0, $check_links_max_per_cron_run));
 
   while ($link = db_fetch_object($links)) {
     $headers = array();
