@@ -1,6 +1,7 @@
 linkchecker 6.x-dev, nightly
 ----------------------------
 
+* Upgrade outdated HTTP user agents.
 * Issue #2664260 by hass: num_rows only exists in mysqli
 * Fixed two typos
 * Issue #2303177: "Back to Top" Page anchor being reported as a 404 error
