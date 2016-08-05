@@ -1,5 +1,5 @@
-linkchecker 6.x-dev, nightly
-----------------------------
+linkchecker 6.x-2.9, August 6, 2016
+-----------------------------------
 
 * Upgrade outdated HTTP user agents.
 * Issue #2664260 by hass: num_rows only exists in mysqli
