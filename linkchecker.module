@@ -1385,7 +1385,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
 
   // Finds all audio links in the content.
   $matches_audio = array(1 => NULL);
-  if (variable_get('linkchecker_extract_from_audio', 1) == 1) {
+  if (variable_get('linkchecker_extract_from_audio', 0) == 1) {
     $pattern_audio = '/<audio\s[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
     preg_match_all($pattern_audio, $text, $matches_audio);
   }
